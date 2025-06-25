@@ -12,7 +12,7 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     environment:
-      name: github-page
+      name: github-pages
 
     steps:
       - name: Checkout do código
@@ -21,7 +21,7 @@ jobs:
       - name: Upload do arquivo HTML
         uses: actions/upload-pages-artifact@v3
         with:
-          path: 
-
+          path: ./
+          
       - name: Deploy no GitHub Pages
         uses: actions/deploy-pages@v4

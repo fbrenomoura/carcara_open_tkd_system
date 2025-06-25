@@ -7,7 +7,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
         body {
             font-family: 'Roboto', sans-serif;
@@ -65,18 +65,17 @@
 </head>
 <body class="bg-gray-800 text-white overflow-hidden flex flex-col h-screen">
 
-    <!-- Cabeçalho -->
     <header class="text-center py-2 bg-gray-900 shadow-lg relative flex items-center justify-center">
+        <button id="help-btn" class="absolute top-1/2 -translate-y-1/2 left-4 bg-gray-600 hover:bg-gray-500 text-white font-bold h-10 w-10 rounded-full text-xl shadow-md transition-transform transform active:scale-95">
+            ?
+        </button>
         <h1 class="text-2xl md:text-3xl font-bold tracking-wider">CARCARÁ OPEN TKD SYSTEM</h1>
-        <!-- Botão de Tela Cheia -->
         <button id="fullscreen-btn" class="absolute top-1/2 -translate-y-1/2 right-4 bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded text-xs md:text-sm shadow-md transition-transform transform active:scale-95">
             Tela Cheia
         </button>
     </header>
 
-    <!-- Conteúdo Principal -->
     <main class="flex-grow flex w-full">
-        <!-- Jogador Azul (Esquerda) -->
         <div id="player-blue" class="w-1/2 h-full bg-blue-700 flex flex-col justify-between p-2 md:p-4 relative">
             <div id="blue-round-wins" class="absolute top-2 left-2 text-3xl md:text-4xl"></div>
             <div class="flex-grow flex flex-col items-center justify-center">
@@ -91,7 +90,6 @@
             </div>
         </div>
 
-        <!-- Centro (Timer e Round) -->
         <div class="w-48 md:w-64 h-full bg-gray-800 flex flex-col items-center justify-center p-2 text-center">
              <div id="timer-display" class="text-5xl md:text-6xl font-bold cursor-pointer">00:00</div>
             <div id="round-display" class="text-xl md:text-2xl mt-2 font-bold">ROUND 1</div>
@@ -104,7 +102,6 @@
             </div>
         </div>
 
-        <!-- Jogador Vermelho (Direita) -->
         <div id="player-red" class="w-1/2 h-full bg-red-700 flex flex-col justify-between p-2 md:p-4 relative">
             <div id="red-round-wins" class="absolute top-2 right-2 text-3xl md:text-4xl"></div>
             <div class="flex-grow flex flex-col items-center justify-center">
@@ -120,7 +117,6 @@
         </div>
     </main>
 
-    <!-- Modal de Configuração do Timer -->
     <div id="time-modal" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center hidden z-50">
         <div class="bg-gray-700 p-8 rounded-lg shadow-xl text-center">
             <h2 class="text-2xl mb-4">Configurar Tempo do Round</h2>
@@ -133,7 +129,6 @@
         </div>
     </div>
     
-    <!-- Modal de Fim de Jogo -->
     <div id="summary-modal" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center hidden z-50">
         <div class="bg-gray-700 rounded-lg shadow-xl text-center max-w-lg w-full max-h-[90vh] flex flex-col p-6 md:p-8 relative">
             <button id="close-summary-btn" class="absolute top-2 right-4 text-gray-400 hover:text-white text-4xl font-bold leading-none">&times;</button>
@@ -141,7 +136,51 @@
             <div id="final-scores" class="text-xl mb-4 flex-shrink-0"></div>
             <h3 class="text-2xl mb-2 font-semibold flex-shrink-0">Registro de Ações</h3>
             <div id="log-container" class="bg-gray-800 p-4 rounded-md text-left text-sm flex-grow min-h-0 overflow-y-auto">
-                <!-- Entradas do log aqui -->
+                </div>
+        </div>
+    </div>
+
+    <div id="help-modal" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center hidden z-50">
+        <div class="bg-gray-700 rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] flex flex-col p-6 md:p-8 relative">
+            <button id="close-help-btn" class="absolute top-2 right-4 text-gray-400 hover:text-white text-4xl font-bold leading-none">&times;</button>
+            <h2 class="text-3xl mb-4 font-bold flex-shrink-0 text-center">Manual de Uso</h2>
+            <div class="bg-gray-800 p-4 rounded-md text-left text-base flex-grow min-h-0 overflow-y-auto space-y-4">
+                <div>
+                    <h3 class="text-xl font-bold text-yellow-300 mb-2">Controles de Pontuação</h3>
+                    <ul class="list-disc list-inside space-y-1">
+                        <li><strong>T (Tórax):</strong> Clique para adicionar <strong>2 pontos</strong>.</li>
+                        <li><strong>C (Cabeça):</strong> Clique para adicionar <strong>3 pontos</strong>.</li>
+                        <li><strong>B (Bônus):</strong> Clique para ativar o bônus de giro. O botão ficará amarelo. O próximo golpe (T ou C) valerá <strong>+2 pontos</strong>.</li>
+                        <li><strong>G (Gam-geon/Falta):</strong> Clique para aplicar uma falta. Isso adiciona <strong>1 ponto para o oponente</strong>.</li>
+                    </ul>
+                </div>
+                 <div>
+                    <h3 class="text-xl font-bold text-yellow-300 mb-2">Correção de Erros (Clique Longo)</h3>
+                    <p>Para remover uma pontuação ou falta, <strong>pressione e segure</strong> o botão correspondente por 1 segundo.</p>
+                    <ul class="list-disc list-inside space-y-1 mt-2">
+                        <li><strong>Segurar T ou C:</strong> Remove os pontos do golpe. Se o golpe foi com bônus (giro), remove a pontuação completa.</li>
+                        <li><strong>Segurar G:</strong> Remove a última falta e retira o ponto que foi dado ao oponente.</li>
+                    </ul>
+                </div>
+                 <div>
+                    <h3 class="text-xl font-bold text-yellow-300 mb-2">Controles Centrais</h3>
+                     <ul class="list-disc list-inside space-y-1">
+                        <li><strong>Cronômetro (ex: 01:30):</strong> Clique diretamente sobre o tempo para <strong>ajustar a duração</strong> do round.</li>
+                        <li><strong>Botão Play/Pause:</strong> Inicia e para o tempo. No final de um round, clique para avançar para o próximo.</li>
+                    </ul>
+                </div>
+                 <div>
+                    <h3 class="text-xl font-bold text-yellow-300 mb-2">Fim de Luta e Rounds</h3>
+                     <ul class="list-disc list-inside space-y-1">
+                        <li>Um atleta vence a luta ao ganhar <strong>2 rounds</strong>.</li>
+                        <li>A luta pode terminar antes se uma das condições abaixo for atingida:
+                            <ul class="list-disc list-inside ml-4">
+                                <li><strong>5 Faltas:</strong> Ao acumular 5 faltas, o atleta perde o round.</li>
+                                <li><strong>Diferença de 20 Pontos:</strong> Uma diferença de 20 pontos a partir do 2º round resulta em vitória imediata.</li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
             </div>
         </div>
     </div>
@@ -159,16 +198,19 @@
             const timerDisplay = document.getElementById('timer-display');
             const roundDisplay = document.getElementById('round-display');
             const playPauseBtn = document.getElementById('play-pause-btn');
-            const fullscreenBtn = document.getElementById('fullscreen-btn'); // Botão Tela Cheia
+            const fullscreenBtn = document.getElementById('fullscreen-btn');
+            const helpBtn = document.getElementById('help-btn');
             const playIcon = '<svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3l14 9-14 9V3z" /></svg>';
             const pauseIcon = '<svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 9v6m4-6v6" /></svg>';
             const timeModal = document.getElementById('time-modal');
             const summaryModal = document.getElementById('summary-modal');
+            const helpModal = document.getElementById('help-modal');
             const setTimeBtn = document.getElementById('set-time-btn');
             const minutesInput = document.getElementById('minutes-input');
             const secondsInput = document.getElementById('seconds-input');
             const logContainer = document.getElementById('log-container');
             const closeSummaryBtn = document.getElementById('close-summary-btn');
+            const closeHelpBtn = document.getElementById('close-help-btn');
 
             // --- Estado Inicial do Jogo ---
             let state;
@@ -497,7 +539,16 @@
             // --- Event Listeners ---
             fullscreenBtn.addEventListener('click', toggleFullscreen);
             document.addEventListener('fullscreenchange', updateFullscreenButton);
-            document.addEventListener('webkitfullscreenchange', updateFullscreenButton); // Para Safari e Chrome em iOS
+            document.addEventListener('webkitfullscreenchange', updateFullscreenButton);
+
+            helpBtn.addEventListener('click', () => {
+                if (state.timer.isRunning) stopTimer();
+                helpModal.classList.remove('hidden');
+            });
+            
+            closeHelpBtn.addEventListener('click', () => {
+                helpModal.classList.add('hidden');
+            });
 
             playPauseBtn.addEventListener('click', () => {
                 if (state.isGameOver) return;
@@ -537,7 +588,7 @@
 
                 const startPress = (e) => {
                     if ((e.type === 'mousedown' && e.button !== 0) || state.isRoundOver || state.isGameOver) return;
-                    e.preventDefault(); // Previne comportamentos padrão como zoom
+                    e.preventDefault();
                     isLongPress = false;
                     pressTimer = setTimeout(() => {
                         isLongPress = true;

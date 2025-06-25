@@ -66,8 +66,12 @@
 <body class="bg-gray-800 text-white overflow-hidden flex flex-col h-screen">
 
     <!-- Cabeçalho -->
-    <header class="text-center py-2 bg-gray-900 shadow-lg">
+    <header class="text-center py-2 bg-gray-900 shadow-lg relative flex items-center justify-center">
         <h1 class="text-2xl md:text-3xl font-bold tracking-wider">CARCARÁ OPEN TKD SYSTEM</h1>
+        <!-- Botão de Tela Cheia -->
+        <button id="fullscreen-btn" class="absolute top-1/2 -translate-y-1/2 right-4 bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded text-xs md:text-sm shadow-md transition-transform transform active:scale-95">
+            Tela Cheia
+        </button>
     </header>
 
     <!-- Conteúdo Principal -->
@@ -136,7 +140,6 @@
             <h2 class="text-3xl mb-4 font-bold flex-shrink-0">Fim de Jogo</h2>
             <div id="final-scores" class="text-xl mb-4 flex-shrink-0"></div>
             <h3 class="text-2xl mb-2 font-semibold flex-shrink-0">Registro de Ações</h3>
-            <!-- AJUSTE: Estrutura simplificada para garantir que a rolagem funcione corretamente em um container flexível. -->
             <div id="log-container" class="bg-gray-800 p-4 rounded-md text-left text-sm flex-grow min-h-0 overflow-y-auto">
                 <!-- Entradas do log aqui -->
             </div>
@@ -156,6 +159,7 @@
             const timerDisplay = document.getElementById('timer-display');
             const roundDisplay = document.getElementById('round-display');
             const playPauseBtn = document.getElementById('play-pause-btn');
+            const fullscreenBtn = document.getElementById('fullscreen-btn'); // Botão Tela Cheia
             const playIcon = '<svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3l14 9-14 9V3z" /></svg>';
             const pauseIcon = '<svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 9v6m4-6v6" /></svg>';
             const timeModal = document.getElementById('time-modal');
@@ -460,7 +464,41 @@
                 logAction({ player, event: 'Bônus', detail: status });
             };
 
+            // --- Funcionalidade de Tela Cheia ---
+            function toggleFullscreen() {
+                const elem = document.documentElement;
+                if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+                    if (elem.requestFullscreen) {
+                        elem.requestFullscreen();
+                    } else if (elem.webkitRequestFullscreen) { /* Safari */
+                        elem.webkitRequestFullscreen();
+                    } else if (elem.msRequestFullscreen) { /* IE11 */
+                        elem.msRequestFullscreen();
+                    }
+                } else {
+                    if (document.exitFullscreen) {
+                        document.exitFullscreen();
+                    } else if (document.webkitExitFullscreen) { /* Safari */
+                        document.webkitExitFullscreen();
+                    } else if (document.msExitFullscreen) { /* IE11 */
+                        document.msExitFullscreen();
+                    }
+                }
+            }
+
+            function updateFullscreenButton() {
+                if (document.fullscreenElement || document.webkitFullscreenElement) {
+                    fullscreenBtn.textContent = 'Sair';
+                } else {
+                    fullscreenBtn.textContent = 'Tela Cheia';
+                }
+            }
+
             // --- Event Listeners ---
+            fullscreenBtn.addEventListener('click', toggleFullscreen);
+            document.addEventListener('fullscreenchange', updateFullscreenButton);
+            document.addEventListener('webkitfullscreenchange', updateFullscreenButton); // Para Safari e Chrome em iOS
+
             playPauseBtn.addEventListener('click', () => {
                 if (state.isGameOver) return;
                 
@@ -499,6 +537,7 @@
 
                 const startPress = (e) => {
                     if ((e.type === 'mousedown' && e.button !== 0) || state.isRoundOver || state.isGameOver) return;
+                    e.preventDefault(); // Previne comportamentos padrão como zoom
                     isLongPress = false;
                     pressTimer = setTimeout(() => {
                         isLongPress = true;
@@ -510,7 +549,8 @@
                     }, state.longPressDuration);
                 };
 
-                const endPress = () => {
+                const endPress = (e) => {
+                    e.preventDefault();
                     clearTimeout(pressTimer);
                     if (!isLongPress) {
                         switch (action) {
@@ -523,7 +563,7 @@
                 };
                 
                 button.addEventListener('mousedown', startPress);
-                button.addEventListener('touchstart', startPress, { passive: true });
+                button.addEventListener('touchstart', startPress);
                 button.addEventListener('mouseup', endPress);
                 button.addEventListener('mouseleave', () => clearTimeout(pressTimer));
                 button.addEventListener('touchend', endPress);

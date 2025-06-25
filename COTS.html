@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Placar de Taekwondo</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@700;900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            -webkit-touch-callout: none; /* iOS Safari */
+            -webkit-user-select: none; /* Safari, Chrome, Opera, Edge */
+            -khtml-user-select: none; /* Konqueror HTML */
+            -moz-user-select: none; /* Old versions of Firefox */
+            -ms-user-select: none; /* Internet Explorer/Edge */
+            user-select: none; /* Non-prefixed version, currently supported by Chrome, Opera and Firefox */
+        }
+        
+        /* Forçando a orientação paisagem em telas pequenas */
+        @media (max-width: 768px) and (orientation: portrait) {
+            html, body {
+                transform: rotate(-90deg);
+                transform-origin: left top;
+                width: 100vh;
+                height: 100vw;
+                overflow-x: hidden;
+                position: absolute;
+                top: 100%;
+                left: 0;
+            }
+        }
+        
+        .score-display {
+            font-size: clamp(8rem, 25vw, 15rem);
+            line-height: 1;
+            font-weight: 900;
+            transition: font-size 0.3s ease;
+        }
+
+        .control-button {
+            transition: all 0.2s ease-in-out;
+            border-radius: 0.5rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: 700;
+            color: white;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+        }
+        
+        .control-button:active {
+            transform: scale(0.95);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .bonus-active {
+            background-color: #facc15 !important; /* yellow-400 */
+            color: #1f2937 !important; /* gray-800 */
+        }
+
+    </style>
+</head>
+<body class="bg-gray-800 text-white overflow-hidden flex flex-col h-screen">
+
+    <!-- Cabeçalho -->
+    <header class="text-center py-2 bg-gray-900 shadow-lg">
+        <h1 class="text-2xl md:text-3xl font-bold tracking-wider">CARCARÁ OPEN TKD SYSTEM</h1>
+    </header>
+
+    <!-- Conteúdo Principal -->
+    <main class="flex-grow flex w-full">
+        <!-- Jogador Azul (Esquerda) -->
+        <div id="player-blue" class="w-1/2 h-full bg-blue-700 flex flex-col justify-between p-2 md:p-4 relative">
+            <div id="blue-round-wins" class="absolute top-2 left-2 text-3xl md:text-4xl"></div>
+            <div class="flex-grow flex flex-col items-center justify-center">
+                <span id="score-blue" class="score-display text-blue-200">0</span>
+                <div id="blue-penalties" class="text-2xl h-8"></div>
+            </div>
+            <div class="grid grid-cols-4 gap-2 md:gap-4 h-24 md:h-32">
+                <button data-player="blue" data-action="penalty" class="control-button bg-gray-700 text-xl md:text-3xl">G</button>
+                <button data-player="blue" data-action="bonus" class="control-button bg-gray-700 text-xl md:text-3xl">B</button>
+                <button data-player="blue" data-action="head" class="control-button bg-blue-500 text-3xl md:text-5xl">C</button>
+                <button data-player="blue" data-action="torso" class="control-button bg-blue-500 text-3xl md:text-5xl">T</button>
+            </div>
+        </div>
+
+        <!-- Centro (Timer e Round) -->
+        <div class="w-48 md:w-64 h-full bg-gray-800 flex flex-col items-center justify-center p-2 text-center">
+             <div id="timer-display" class="text-5xl md:text-6xl font-bold cursor-pointer">00:00</div>
+            <div id="round-display" class="text-xl md:text-2xl mt-2 font-bold">ROUND 1</div>
+            <div class="mt-4">
+                <button id="play-pause-btn" class="w-20 h-20 md:w-24 md:h-24 bg-green-600 rounded-full flex items-center justify-center shadow-lg active:bg-green-700">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3l14 9-14 9V3z" />
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+        <!-- Jogador Vermelho (Direita) -->
+        <div id="player-red" class="w-1/2 h-full bg-red-700 flex flex-col justify-between p-2 md:p-4 relative">
+            <div id="red-round-wins" class="absolute top-2 right-2 text-3xl md:text-4xl"></div>
+            <div class="flex-grow flex flex-col items-center justify-center">
+                <span id="score-red" class="score-display text-red-200">0</span>
+                <div id="red-penalties" class="text-2xl h-8"></div>
+            </div>
+            <div class="grid grid-cols-4 gap-2 md:gap-4 h-24 md:h-32">
+                 <button data-player="red" data-action="torso" class="control-button bg-red-500 text-3xl md:text-5xl">T</button>
+                <button data-player="red" data-action="head" class="control-button bg-red-500 text-3xl md:text-5xl">C</button>
+                <button data-player="red" data-action="bonus" class="control-button bg-gray-700 text-xl md:text-3xl">B</button>
+                <button data-player="red" data-action="penalty" class="control-button bg-gray-700 text-xl md:text-3xl">G</button>
+            </div>
+        </div>
+    </main>
+
+    <!-- Modal de Configuração do Timer -->
+    <div id="time-modal" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center hidden z-50">
+        <div class="bg-gray-700 p-8 rounded-lg shadow-xl text-center">
+            <h2 class="text-2xl mb-4">Configurar Tempo do Round</h2>
+            <div class="flex justify-center items-center space-x-2">
+                <input type="number" id="minutes-input" min="0" max="59" class="w-20 h-16 text-4xl text-center bg-gray-800 rounded" value="1">
+                <span class="text-4xl">:</span>
+                <input type="number" id="seconds-input" min="0" max="59" class="w-20 h-16 text-4xl text-center bg-gray-800 rounded" value="30">
+            </div>
+            <button id="set-time-btn" class="mt-6 bg-blue-600 px-8 py-3 rounded-lg text-lg font-bold hover:bg-blue-700">Confirmar</button>
+        </div>
+    </div>
+    
+    <!-- Modal de Fim de Jogo -->
+    <div id="summary-modal" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center hidden z-50">
+        <div class="bg-gray-700 rounded-lg shadow-xl text-center max-w-lg w-full max-h-[90vh] flex flex-col p-6 md:p-8 relative">
+            <button id="close-summary-btn" class="absolute top-2 right-4 text-gray-400 hover:text-white text-4xl font-bold leading-none">&times;</button>
+            <h2 class="text-3xl mb-4 font-bold flex-shrink-0">Fim de Jogo</h2>
+            <div id="final-scores" class="text-xl mb-4 flex-shrink-0"></div>
+            <h3 class="text-2xl mb-2 font-semibold flex-shrink-0">Registro de Ações</h3>
+            <!-- AJUSTE: Estrutura simplificada para garantir que a rolagem funcione corretamente em um container flexível. -->
+            <div id="log-container" class="bg-gray-800 p-4 rounded-md text-left text-sm flex-grow min-h-0 overflow-y-auto">
+                <!-- Entradas do log aqui -->
+            </div>
+        </div>
+    </div>
+
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // --- Elementos da UI ---
+            const scoreBlueEl = document.getElementById('score-blue');
+            const scoreRedEl = document.getElementById('score-red');
+            const blueRoundWinsEl = document.getElementById('blue-round-wins');
+            const redRoundWinsEl = document.getElementById('red-round-wins');
+            const bluePenaltiesEl = document.getElementById('blue-penalties');
+            const redPenaltiesEl = document.getElementById('red-penalties');
+            const timerDisplay = document.getElementById('timer-display');
+            const roundDisplay = document.getElementById('round-display');
+            const playPauseBtn = document.getElementById('play-pause-btn');
+            const playIcon = '<svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3l14 9-14 9V3z" /></svg>';
+            const pauseIcon = '<svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 9v6m4-6v6" /></svg>';
+            const timeModal = document.getElementById('time-modal');
+            const summaryModal = document.getElementById('summary-modal');
+            const setTimeBtn = document.getElementById('set-time-btn');
+            const minutesInput = document.getElementById('minutes-input');
+            const secondsInput = document.getElementById('seconds-input');
+            const logContainer = document.getElementById('log-container');
+            const closeSummaryBtn = document.getElementById('close-summary-btn');
+
+            // --- Estado Inicial do Jogo ---
+            let state;
+
+            const getInitialState = () => ({
+                scores: { blue: 0, red: 0 },
+                round: 1,
+                maxRounds: 2,
+                roundWins: { blue: 0, red: 0 },
+                penalties: { blue: 0, red: 0},
+                timer: {
+                    initialTime: 90,
+                    currentTime: 90,
+                    isRunning: false,
+                    intervalId: null
+                },
+                bonus: { blue: false, red: false },
+                gameLog: [],
+                longPressDuration: 800,
+                isRoundOver: false,
+                isGameOver: false,
+            });
+
+
+            // --- Funções de Atualização da UI ---
+            const updateScores = () => {
+                scoreBlueEl.textContent = state.scores.blue;
+                scoreRedEl.textContent = state.scores.red;
+                scoreBlueEl.className = 'score-display text-blue-200';
+                scoreRedEl.className = 'score-display text-red-200';
+            };
+            
+            const updateRoundWins = () => {
+                blueRoundWinsEl.innerHTML = '🏆'.repeat(state.roundWins.blue);
+                redRoundWinsEl.innerHTML = '🏆'.repeat(state.roundWins.red);
+            };
+            
+            const updatePenaltiesDisplay = () => {
+                bluePenaltiesEl.innerHTML = '❌'.repeat(state.penalties.blue);
+                redPenaltiesEl.innerHTML = '❌'.repeat(state.penalties.red);
+            };
+
+            const formatTime = (seconds) => {
+                const min = Math.floor(seconds / 60).toString().padStart(2, '0');
+                const sec = (seconds % 60).toString().padStart(2, '0');
+                return `${min}:${sec}`;
+            };
+
+            const updateTimerDisplay = () => {
+                timerDisplay.textContent = formatTime(state.timer.currentTime);
+            };
+
+            const updateRoundDisplay = () => {
+                roundDisplay.textContent = state.isGameOver ? 'FIM DE JOGO' : `ROUND ${state.round}`;
+            };
+            
+            const logAction = (action) => {
+                const time = formatTime(state.timer.currentTime);
+                const logEntry = { time, round: state.round, ...action };
+                state.gameLog.push(logEntry);
+            };
+            
+            // --- Lógica do Jogo ---
+
+            const startTimer = () => {
+                if (state.timer.isRunning || state.timer.currentTime <= 0 || state.isRoundOver || state.isGameOver) return;
+                state.timer.isRunning = true;
+                playPauseBtn.innerHTML = pauseIcon;
+                logAction({ event: 'Timer', detail: 'Iniciado' });
+                state.timer.intervalId = setInterval(() => {
+                    state.timer.currentTime--;
+                    updateTimerDisplay();
+                    if (state.timer.currentTime <= 0) {
+                        handleRoundEnd();
+                    }
+                }, 1000);
+            };
+
+            const stopTimer = () => {
+                if (state && state.timer) {
+                    clearInterval(state.timer.intervalId);
+                    state.timer.isRunning = false;
+                }
+                playPauseBtn.innerHTML = playIcon;
+                if(state && state.timer && state.timer.currentTime > 0 && !state.isRoundOver) {
+                    logAction({ event: 'Timer', detail: 'Pausado' });
+                }
+            };
+            
+            const forceRoundWin = (winner, reason) => {
+                logAction({event: reason.event, detail: reason.detail});
+                stopTimer();
+                const loser = winner === 'blue' ? 'red' : 'blue';
+                state.scores[winner] = state.scores[loser] + 1;
+                handleRoundEnd();
+            };
+            
+            const checkPointGap = () => {
+                if (state.isRoundOver || state.isGameOver) return false;
+                
+                if (state.round < 2) {
+                    return false;
+                }
+
+                const gap = Math.abs(state.scores.blue - state.scores.red);
+
+                if (gap >= 20) {
+                    if (state.round === 2 && state.timer.currentTime > 0) return false;
+
+                    const winner = state.scores.blue > state.scores.red ? 'blue' : 'red';
+                    logAction({event: 'Point Gap', detail: `${winner.toUpperCase()} vence por 20 pontos.`});
+                    stopTimer();
+                    state.isGameOver = true;
+                    state.roundWins[winner] = 2;
+                    
+                    const winnerEl = winner === 'blue' ? scoreBlueEl : scoreRedEl;
+                    winnerEl.innerHTML = '🏆';
+                    winnerEl.className = 'score-display text-yellow-400 text-7xl';
+
+                    endGame();
+                    return true;
+                }
+                return false;
+            };
+            
+            const handleRoundEnd = () => {
+                if(state.isRoundOver) return;
+                stopTimer();
+                state.isRoundOver = true;
+                logAction({ event: 'Round', detail: `Fim do Round ${state.round}` });
+
+                if (checkPointGap()) return;
+
+                let roundWinner = null;
+                if (state.scores.blue > state.scores.red) roundWinner = 'blue';
+                else if (state.scores.red > state.scores.blue) roundWinner = 'red';
+
+                if (roundWinner) {
+                    state.roundWins[roundWinner]++;
+                    logAction({ event: 'Resultado do Round', detail: `${roundWinner.toUpperCase()} venceu` });
+                    const winnerEl = roundWinner === 'blue' ? scoreBlueEl : scoreRedEl;
+                    const loserEl = roundWinner === 'blue' ? scoreRedEl : scoreBlueEl;
+                    winnerEl.innerHTML = '🏆';
+                    winnerEl.className = 'score-display text-yellow-400 text-7xl';
+                    loserEl.className = 'score-display text-gray-500';
+                } else {
+                    logAction({ event: 'Resultado do Round', detail: 'Empate' });
+                    scoreBlueEl.textContent = 'EMPATE';
+                    scoreRedEl.textContent = 'EMPATE';
+                    scoreBlueEl.className = scoreRedEl.className = 'score-display text-gray-400 text-5xl';
+                }
+                
+                updateRoundWins();
+                
+                const blueWins = state.roundWins.blue;
+                const redWins = state.roundWins.red;
+                
+                if (blueWins === 2 || redWins === 2) {
+                     endGame();
+                } else if (state.round === 2 && blueWins === 1 && redWins === 1) {
+                    state.maxRounds = 3;
+                } else if (state.round >= state.maxRounds) {
+                     endGame();
+                }
+            };
+            
+            const setupNextRound = () => {
+                state.round++;
+                state.scores = { blue: 0, red: 0 };
+                state.bonus = { blue: false, red: false };
+                state.penalties = { blue: 0, red: 0 };
+                state.timer.currentTime = state.timer.initialTime;
+                state.isRoundOver = false;
+
+                document.querySelectorAll('.bonus-active').forEach(b => b.classList.remove('bonus-active'));
+                
+                updateScores();
+                updateTimerDisplay();
+                updateRoundDisplay();
+                updatePenaltiesDisplay();
+
+                logAction({ event: 'Round', detail: `Iniciando Round ${state.round}` });
+            }
+
+            const endGame = () => {
+                state.isGameOver = true;
+                updateRoundDisplay();
+                setTimeout(displaySummary, 1500);
+            };
+
+            const displaySummary = () => {
+                let winnerText = `Empate! (${state.roundWins.blue} x ${state.roundWins.red})`;
+                if (state.roundWins.blue > state.roundWins.red) {
+                    winnerText = `Vencedor: Azul (${state.roundWins.blue} x ${state.roundWins.red})`;
+                } else if (state.roundWins.red > state.roundWins.blue) {
+                    winnerText = `Vencedor: Vermelho (${state.roundWins.blue} x ${state.roundWins.red})`;
+                }
+                
+                document.getElementById('final-scores').textContent = winnerText;
+                logContainer.innerHTML = '';
+                state.gameLog.forEach(log => {
+                    const p = document.createElement('p');
+                    p.className = `mb-1 ${log.player === 'blue' ? 'text-blue-300' : log.player === 'red' ? 'text-red-300' : ''}`;
+                    p.textContent = `[${log.time} R${log.round}] ${log.player ? `[${log.player.toUpperCase()}]` : ''} ${log.event}: ${log.detail}`;
+                    logContainer.appendChild(p);
+                });
+                summaryModal.classList.remove('hidden');
+            };
+
+            const resetGame = () => {
+                state = getInitialState();
+                stopTimer();
+                updateScores();
+                updateTimerDisplay();
+                updateRoundDisplay();
+                updateRoundWins();
+                updatePenaltiesDisplay();
+                document.querySelectorAll('.bonus-active').forEach(b => b.classList.remove('bonus-active'));
+                summaryModal.classList.add('hidden');
+            };
+
+            // --- Lógica de Pontuação ---
+            const handleScore = (player, points, type) => {
+                if (state.isRoundOver || state.isGameOver) return;
+                let finalPoints = points;
+                let detail = `${type}`;
+                
+                if (state.bonus[player]) {
+                    finalPoints += 2; 
+                    detail += " com Giro";
+                    state.bonus[player] = false;
+                    document.querySelector(`button[data-player="${player}"][data-action="bonus"]`).classList.remove('bonus-active');
+                }
+                state.scores[player] += finalPoints;
+                logAction({ player, event: 'Pontuação', detail: `+${finalPoints}pts (${detail})` });
+                updateScores();
+                checkPointGap();
+            };
+
+            const handlePointRemoval = (player, points, type) => {
+                 if (state.isRoundOver || state.isGameOver) return;
+                 let pointsToRemove = points;
+                 let detail = type;
+                 if (state.scores[player] >= points + 2) {
+                     pointsToRemove = points + 2;
+                     detail += " com Giro";
+                 } else if(state.scores[player] >= points) {
+                    pointsToRemove = points;
+                 } else {
+                    return; 
+                 }
+                
+                 state.scores[player] -= pointsToRemove;
+                 logAction({ player, event: 'Remoção', detail: `-${pointsToRemove}pts (${detail})` });
+                 updateScores();
+                 checkPointGap();
+            };
+
+            const handlePenalty = (player) => {
+                if (state.isRoundOver || state.isGameOver) return;
+                const opponent = player === 'blue' ? 'red' : 'blue';
+                
+                state.scores[opponent]++;
+                state.penalties[player]++;
+                logAction({ player, event: 'Falta (Gam-geon)', detail: `+1pt para ${opponent}. Falta #${state.penalties[player]}` });
+                updateScores();
+                updatePenaltiesDisplay();
+                
+                if(state.penalties[player] >= 5) {
+                    forceRoundWin(opponent, {event: 'Falta Limite', detail: `5ª falta. ${opponent.toUpperCase()} vence.`});
+                } else {
+                    checkPointGap();
+                }
+            };
+
+            const handlePenaltyRemoval = (player) => {
+                if (state.isRoundOver || state.isGameOver || state.penalties[player] <= 0) return;
+                const opponent = player === 'blue' ? 'red' : 'blue';
+
+                state.scores[opponent]--;
+                state.penalties[player]--;
+                logAction({ player, event: 'Remoção de Falta', detail: `-1pt de ${opponent}.` });
+                updateScores();
+                updatePenaltiesDisplay();
+                checkPointGap();
+            };
+
+            const toggleBonus = (player, button) => {
+                if (state.isRoundOver || state.isGameOver) return;
+                state.bonus[player] = !state.bonus[player];
+                button.classList.toggle('bonus-active');
+                const status = state.bonus[player] ? 'Ativado' : 'Desativado';
+                logAction({ player, event: 'Bônus', detail: status });
+            };
+
+            // --- Event Listeners ---
+            playPauseBtn.addEventListener('click', () => {
+                if (state.isGameOver) return;
+                
+                if (state.isRoundOver) {
+                    setupNextRound();
+                } else {
+                    state.timer.isRunning ? stopTimer() : startTimer();
+                }
+            });
+
+            timerDisplay.addEventListener('click', () => {
+                if(state.timer.isRunning) stopTimer();
+                timeModal.classList.remove('hidden');
+            });
+            
+            setTimeBtn.addEventListener('click', () => {
+                const minutes = parseInt(minutesInput.value) || 0;
+                const seconds = parseInt(secondsInput.value) || 0;
+                const totalSeconds = (minutes * 60) + seconds;
+                if(totalSeconds > 0 && !state.timer.isRunning){
+                    state.timer.initialTime = totalSeconds;
+                    state.timer.currentTime = totalSeconds;
+                    updateTimerDisplay();
+                    logAction({ event: 'Config', detail: `Tempo alterado para ${formatTime(totalSeconds)}` });
+                }
+                timeModal.classList.add('hidden');
+            });
+
+            closeSummaryBtn.addEventListener('click', resetGame);
+            
+            document.querySelectorAll('.control-button').forEach(button => {
+                const player = button.dataset.player;
+                const action = button.dataset.action;
+                let pressTimer;
+                let isLongPress = false;
+
+                const startPress = (e) => {
+                    if ((e.type === 'mousedown' && e.button !== 0) || state.isRoundOver || state.isGameOver) return;
+                    isLongPress = false;
+                    pressTimer = setTimeout(() => {
+                        isLongPress = true;
+                        switch (action) {
+                            case 'torso': handlePointRemoval(player, 2, 'Tórax'); break;
+                            case 'head': handlePointRemoval(player, 3, 'Cabeça'); break;
+                            case 'penalty': handlePenaltyRemoval(player); break;
+                        }
+                    }, state.longPressDuration);
+                };
+
+                const endPress = () => {
+                    clearTimeout(pressTimer);
+                    if (!isLongPress) {
+                        switch (action) {
+                            case 'torso': handleScore(player, 2, 'Tórax'); break;
+                            case 'head': handleScore(player, 3, 'Cabeça'); break;
+                            case 'bonus': toggleBonus(player, button); break;
+                            case 'penalty': handlePenalty(player); break;
+                        }
+                    }
+                };
+                
+                button.addEventListener('mousedown', startPress);
+                button.addEventListener('touchstart', startPress, { passive: true });
+                button.addEventListener('mouseup', endPress);
+                button.addEventListener('mouseleave', () => clearTimeout(pressTimer));
+                button.addEventListener('touchend', endPress);
+            });
+
+            // --- Inicialização ---
+            resetGame();
+        });
+    </script>
+</body>
+</html>

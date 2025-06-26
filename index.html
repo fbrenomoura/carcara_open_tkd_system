@@ -262,7 +262,7 @@
             
             // --- Lógica de Vitória e Fim de Jogo ---
 
-            // CORREÇÃO: Função para forçar o FIM DE UM ROUND por uma regra específica.
+            // Função para forçar o FIM DE UM ROUND por uma regra específica.
             const forceRoundWin = (winner, reason) => {
                 if (state.isRoundOver || state.isGameOver) return;
 
@@ -277,6 +277,7 @@
                 state.roundWins[winner]++;
                 const winnerName = winner === 'blue' ? 'Azul' : 'Vermelho';
                 state.lastWinnerMessage = `${winnerName} venceu o Round ${state.round}!`;
+                logAction({ event: 'Resultado do Round', detail: state.lastWinnerMessage }); // Adiciona o resultado do round ao log
                 updateRoundWins();
                 
                 // Verifica se a vitória no round resultou em fim de jogo
@@ -292,7 +293,7 @@
                 }
             };
 
-            // CORREÇÃO: Função para checar as condições que encerram um round ANTES do tempo acabar.
+            // Função para checar as condições que encerram um round ANTES do tempo acabar.
             const checkMidRoundEndConditions = () => {
                 if (state.isGameOver || state.isRoundOver) return false;
 
@@ -318,7 +319,7 @@
                 return false;
             };
 
-            // CORREÇÃO: Função que é chamada quando o tempo do round ACABA.
+            // Função que é chamada quando o tempo do round ACABA.
             const handleRoundEndByTime = () => {
                 if(state.isRoundOver || state.isGameOver) return;
                 stopTimer();
@@ -326,7 +327,7 @@
                 ui.restartBtn.classList.add('hidden');
                 state.isRoundOver = true;
                 processRoundStats();
-                logAction({ event: 'Round', detail: `Fim do Round ${state.round}` });
+                logAction({ event: 'Fim de Round', detail: `Tempo esgotado` });
 
                 // Compara os pontos para decidir o vencedor do round
                 let roundWinner = null;
@@ -340,6 +341,7 @@
                 } else {
                     state.lastWinnerMessage = `Round ${state.round} terminou empatado!`;
                 }
+                logAction({ event: 'Resultado do Round', detail: state.lastWinnerMessage }); // Adiciona o resultado do round ao log
                 
                 updateRoundWins();
                 
@@ -466,7 +468,12 @@
                 const stats = {
                     round: state.round,
                     scores: { ...state.scores },
-                    hits: { blue: { punch: 0, torso: 0, head: 0 }, red: { punch: 0, torso: 0, head: 0 } }
+                    hits: { blue: { punch: 0, torso: 0, head: 0 }, red: { punch: 0, torso: 0, head: 0 } },
+                    // CORREÇÃO: Adiciona a contagem de faltas do round atual às estatísticas
+                    penalties: {
+                        blue: state.gameLog.filter(l => l.round === state.round && l.event === 'Falta' && l.player === 'blue').length,
+                        red: state.gameLog.filter(l => l.round === state.round && l.event === 'Falta' && l.player === 'red').length,
+                    }
                 };
                 roundLog.forEach(log => {
                     if (log.event === 'Pontuação' && log.player && log.type) stats.hits[log.player][log.type]++;
@@ -477,25 +484,39 @@
 
             const displaySummary = () => {
                 let winnerName = "", winnerColorClass = "";
-                if (state.roundWins.blue >= 2) { winnerName = "Azul"; winnerColorClass = "text-blue-400"; }
-                else if (state.roundWins.red >= 2) { winnerName = "Vermelho"; winnerColorClass = "text-red-400"; }
                 
-                if(winnerName) ui.finalWinner.innerHTML = `Vencedor: <span class="font-bold ${winnerColorClass}">${winnerName}</span> (${state.roundWins.blue} x ${state.roundWins.red})`;
-                else ui.finalWinner.textContent = `Empate Final! (${state.roundWins.blue} x ${state.roundWins.red})`;
+                if (state.roundWins.blue > state.roundWins.red) {
+                    winnerName = "Azul"; 
+                    winnerColorClass = "text-blue-400";
+                } else if (state.roundWins.red > state.roundWins.blue) {
+                    winnerName = "Vermelho"; 
+                    winnerColorClass = "text-red-400";
+                }
+                
+                if(winnerName) {
+                    const finalResultText = `Vencedor: ${winnerName} (${state.roundWins.blue} x ${state.roundWins.red})`;
+                    ui.finalWinner.innerHTML = `Vencedor: <span class="font-bold ${winnerColorClass}">${winnerName}</span> (${state.roundWins.blue} x ${state.roundWins.red})`;
+                    logAction({ event: 'Resultado Final', detail: finalResultText });
+                } else {
+                    ui.finalWinner.textContent = `Empate Final! (${state.roundWins.blue} x ${state.roundWins.red})`;
+                    logAction({ event: 'Resultado Final', detail: `Empate Final! (${state.roundWins.blue} x ${state.roundWins.red})` });
+                }
                 
                 const totals = {
                     scores: { blue: 0, red: 0 },
                     hits: { blue: { punch: 0, torso: 0, head: 0 }, red: { punch: 0, torso: 0, head: 0 } },
-                    penalties: { blue: 0, red: 0 }
+                    penalties: {
+                        blue: state.gameLog.filter(l => l.event === 'Falta' && l.player === 'blue').length,
+                        red: state.gameLog.filter(l => l.event === 'Falta' && l.player === 'red').length
+                    }
                 };
                 
                 let summaryHTML = '<div class="space-y-4">';
                 state.roundStats.forEach(stats => {
-                    summaryHTML += `<div class="p-2 bg-gray-900 rounded"><h4 class="font-bold text-lg text-yellow-400">Round ${stats.round}</h4><p>Placar: <span class="text-blue-400">Azul ${stats.scores.blue}</span> x <span class="text-red-400">${stats.scores.red} Vermelho</span></p><p>Ações (Azul): ${stats.hits.blue.punch} Socos, ${stats.hits.blue.torso} Tronco, ${stats.hits.blue.head} Cabeça</p><p>Ações (Vermelho): ${stats.hits.red.punch} Socos, ${stats.hits.red.torso} Tronco, ${stats.hits.red.head} Cabeça</p></div>`;
+                    // CORREÇÃO: Adiciona a linha de Faltas no resumo de cada round.
+                    summaryHTML += `<div class="p-2 bg-gray-900 rounded"><h4 class="font-bold text-lg text-yellow-400">Round ${stats.round}</h4><p>Placar: <span class="text-blue-400">Azul ${stats.scores.blue}</span> x <span class="text-red-400">${stats.scores.red} Vermelho</span></p><p>Ações (Azul): ${stats.hits.blue.punch} Socos, ${stats.hits.blue.torso} Tronco, ${stats.hits.blue.head} Cabeça</p><p>Ações (Vermelho): ${stats.hits.red.punch} Socos, ${stats.hits.red.torso} Tronco, ${stats.hits.red.head} Cabeça</p><p>Faltas: <span class="text-blue-400">Azul ${stats.penalties.blue}</span> | <span class="text-red-400">Vermelho ${stats.penalties.red}</span></p></div>`;
                     totals.scores.blue += stats.scores.blue;
                     totals.scores.red += stats.scores.red;
-                    totals.penalties.blue += state.gameLog.filter(l => l.round === stats.round && l.player === 'blue' && l.event === 'Falta').length;
-                    totals.penalties.red += state.gameLog.filter(l => l.round === stats.round && l.player === 'red' && l.event === 'Falta').length;
                     for(const hitType of ['punch', 'torso', 'head']) {
                         totals.hits.blue[hitType] += stats.hits.blue[hitType];
                         totals.hits.red[hitType] += stats.hits.red[hitType];

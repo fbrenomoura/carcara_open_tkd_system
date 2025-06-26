@@ -11,15 +11,14 @@
     <style>
         body {
             font-family: 'Roboto', sans-serif;
-            -webkit-touch-callout: none; /* iOS Safari */
-            -webkit-user-select: none; /* Safari, Chrome, Opera, Edge */
-            -khtml-user-select: none; /* Konqueror HTML */
-            -moz-user-select: none; /* Old versions of Firefox */
-            -ms-user-select: none; /* Internet Explorer/Edge */
-            user-select: none; /* Non-prefixed version, currently supported by Chrome, Opera and Firefox */
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            -khtml-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
         }
         
-        /* Forçando a orientação paisagem em telas pequenas */
         @media (max-width: 768px) and (orientation: portrait) {
             html, body {
                 transform: rotate(-90deg);
@@ -34,7 +33,7 @@
         }
         
         .score-display {
-            font-size: clamp(8rem, 25vw, 15rem);
+            font-size: clamp(6rem, 20vw, 12rem);
             line-height: 1;
             font-weight: 900;
             transition: font-size 0.3s ease;
@@ -49,29 +48,34 @@
             font-weight: 700;
             color: white;
             box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+            padding: 0;
+        }
+
+        .control-button-sm {
+            font-size: 1.1rem !important;
         }
         
-        .control-button:active, .manual-adjust-btn:active {
+        .control-button:active, .manual-adjust-btn:active, #restart-btn:active {
             transform: scale(0.95);
             box-shadow: 0 2px 4px rgba(0,0,0,0.2);
         }
 
         .bonus-active {
-            background-color: #facc15 !important; /* yellow-400 */
-            color: #1f2937 !important; /* gray-800 */
+            background-color: #facc15 !important;
+            color: #1f2937 !important;
         }
         
         .manual-adjust-controls button {
-             width: 44px;
-             height: 44px;
-             font-size: 24px;
-             border-radius: 50%;
-             color: white;
-             font-weight: bold;
-             transition: background-color 0.2s;
-             display: flex;
-             align-items: center;
-             justify-content: center;
+            width: 40px;
+            height: 40px;
+            font-size: 24px;
+            border-radius: 50%;
+            color: white;
+            font-weight: bold;
+            transition: background-color 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
     </style>
 </head>
@@ -79,256 +83,184 @@
 
     <!-- Cabeçalho -->
     <header class="text-center py-2 bg-gray-900 shadow-lg relative flex items-center justify-center">
-        <button id="help-btn" class="absolute top-1/2 -translate-y-1/2 left-4 bg-gray-600 hover:bg-gray-500 text-white font-bold h-10 w-10 rounded-full text-xl shadow-md transition-transform transform active:scale-95">
-            ?
-        </button>
-        <h1 class="text-2xl md:text-3xl font-bold tracking-wider">CARCARÁ OPEN TKD SYSTEM</h1>
-        <button id="fullscreen-btn" class="absolute top-1/2 -translate-y-1/2 right-4 bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded text-xs md:text-sm shadow-md transition-transform transform active:scale-95">
-            Tela Cheia
-        </button>
+        <div class="absolute top-1/2 -translate-y-1/2 left-4 flex items-center space-x-2">
+            <button id="help-btn" class="bg-gray-600 hover:bg-gray-500 text-white font-bold h-10 w-10 rounded-full text-xl shadow-md transition-transform transform active:scale-95">?</button>
+            <button id="restart-btn" class="hidden bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded text-xs md:text-sm shadow-md">Recomeçar</button>
+        </div>
+        <h1 class="text-xl md:text-3xl font-bold tracking-wider">CARCARÁ OPEN TKD SYSTEM</h1>
+        <div class="absolute top-1/2 -translate-y-1/2 right-4 flex items-center space-x-2">
+            <button id="fullscreen-btn" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded text-xs md:text-sm shadow-md transition-transform transform active:scale-95">Tela Cheia</button>
+        </div>
     </header>
 
     <!-- Conteúdo Principal -->
     <main class="flex-grow flex w-full">
         <!-- Jogador Azul (Esquerda) -->
-        <div class="w-1/2 h-full bg-blue-700 flex flex-col justify-between p-2 md:p-4 relative">
-            <div id="blue-round-wins" class="absolute top-2 left-2 text-3xl md:text-4xl"></div>
+        <div class="w-1/2 h-full bg-blue-700 flex flex-col justify-end p-2 md:p-4 relative">
+            <div id="blue-round-wins" class="absolute top-4 left-4 text-3xl md:text-4xl"></div>
             <div class="flex-grow flex flex-col items-center justify-center">
                 <div class="flex items-center justify-center relative w-full">
-                    <div class="manual-adjust-controls absolute left-2 md:left-4 top-1/2 -translate-y-1/2 hidden">
-                        <button data-player="blue" data-adjust="minus" class="bg-red-500 hover:bg-red-600">-</button>
-                    </div>
+                    <div class="manual-adjust-controls absolute left-2 md:left-4 top-1/2 -translate-y-1/2 hidden"><button data-player="blue" data-adjust="minus" class="bg-red-500 hover:bg-red-600">-</button></div>
                     <span id="score-blue" class="score-display text-blue-200">0</span>
-                    <div class="manual-adjust-controls absolute right-2 md:right-4 top-1/2 -translate-y-1/2 hidden">
-                        <button data-player="blue" data-adjust="plus" class="bg-green-500 hover:bg-green-600">+</button>
-                    </div>
+                    <div class="manual-adjust-controls absolute right-2 md:right-4 top-1/2 -translate-y-1/2 hidden"><button data-player="blue" data-adjust="plus" class="bg-green-500 hover:bg-green-600">+</button></div>
                 </div>
                 <div id="blue-penalties" class="text-2xl h-8"></div>
             </div>
-            <div class="grid grid-cols-4 gap-2 md:gap-4 h-24 md:h-32">
-                <button data-player="blue" data-action="penalty" class="control-button bg-gray-700 text-xl md:text-3xl">G</button>
-                <button data-player="blue" data-action="bonus" class="control-button bg-gray-700 text-xl md:text-3xl">B</button>
-                <button data-player="blue" data-action="head" class="control-button bg-blue-500 text-3xl md:text-5xl">C</button>
-                <button data-player="blue" data-action="torso" class="control-button bg-blue-500 text-3xl md:text-5xl">T</button>
+            <!-- AJUSTE: Grid com 13 colunas para garantir o tamanho correto dos botões -->
+            <div class="grid grid-cols-13 gap-1 md:gap-2 h-20 md:h-24">
+                <button data-player="blue" data-action="penalty" class="control-button control-button-sm bg-gray-700 col-span-2">G</button>
+                <button data-player="blue" data-action="bonus" class="control-button control-button-sm bg-gray-700 col-span-2">B</button>
+                <button data-player="blue" data-action="punch" class="control-button bg-blue-500 text-3xl md:text-5xl col-span-3">S</button>
+                <button data-player="blue" data-action="head" class="control-button bg-blue-500 text-3xl md:text-5xl col-span-3">C</button>
+                <button data-player="blue" data-action="torso" class="control-button bg-blue-500 text-3xl md:text-5xl col-span-3">T</button>
             </div>
         </div>
 
-        <!-- Centro (Timer e Round) -->
+        <!-- Centro -->
         <div class="w-48 md:w-64 h-full bg-gray-800 flex flex-col items-center justify-center p-2 text-center">
-             <div id="timer-display" class="text-5xl md:text-6xl font-bold cursor-pointer">00:00</div>
+            <div id="interval-winner-message" class="text-white text-base font-bold h-8 mb-2"></div>
+            <div id="timer-display" class="text-5xl md:text-6xl font-bold cursor-pointer">00:00</div>
             <div id="round-display" class="text-xl md:text-2xl mt-2 font-bold">ROUND 1</div>
-            <div class="mt-4">
-                <button id="play-pause-btn" class="w-20 h-20 md:w-24 md:h-24 bg-green-600 rounded-full flex items-center justify-center shadow-lg active:bg-green-700">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3l14 9-14 9V3z" />
-                    </svg>
-                </button>
-            </div>
-             <div class="mt-4">
-                <button id="manual-adjust-btn" class="manual-adjust-btn bg-yellow-600 hover:bg-yellow-700 text-white font-bold py-2 px-4 rounded text-xs md:text-sm">
-                    Ajuste Manual
-                </button>
-            </div>
+            <div class="mt-4"><button id="play-pause-btn" class="w-20 h-20 md:w-24 md:h-24 bg-green-600 rounded-full flex items-center justify-center shadow-lg active:bg-green-700"></button></div>
+            <div class="mt-4"><button id="manual-adjust-btn" class="manual-adjust-btn bg-yellow-600 hover:bg-yellow-700 text-white font-bold py-2 px-4 rounded text-xs md:text-sm">Ajuste Manual</button></div>
         </div>
 
         <!-- Jogador Vermelho (Direita) -->
-        <div class="w-1/2 h-full bg-red-700 flex flex-col justify-between p-2 md:p-4 relative">
-            <div id="red-round-wins" class="absolute top-2 right-2 text-3xl md:text-4xl"></div>
+        <div class="w-1/2 h-full bg-red-700 flex flex-col justify-end p-2 md:p-4 relative">
+            <div id="red-round-wins" class="absolute top-4 right-4 text-3xl md:text-4xl"></div>
             <div class="flex-grow flex flex-col items-center justify-center">
-                 <div class="flex items-center justify-center relative w-full">
-                    <div class="manual-adjust-controls absolute left-2 md:left-4 top-1/2 -translate-y-1/2 hidden">
-                        <button data-player="red" data-adjust="minus" class="bg-red-500 hover:bg-red-600">-</button>
-                    </div>
+                <div class="flex items-center justify-center relative w-full">
+                    <div class="manual-adjust-controls absolute left-2 md:left-4 top-1/2 -translate-y-1/2 hidden"><button data-player="red" data-adjust="minus" class="bg-red-500 hover:bg-red-600">-</button></div>
                     <span id="score-red" class="score-display text-red-200">0</span>
-                     <div class="manual-adjust-controls absolute right-2 md:right-4 top-1/2 -translate-y-1/2 hidden">
-                        <button data-player="red" data-adjust="plus" class="bg-green-500 hover:bg-green-600">+</button>
-                    </div>
+                    <div class="manual-adjust-controls absolute right-2 md:right-4 top-1/2 -translate-y-1/2 hidden"><button data-player="red" data-adjust="plus" class="bg-green-500 hover:bg-green-600">+</button></div>
                 </div>
                 <div id="red-penalties" class="text-2xl h-8"></div>
             </div>
-            <div class="grid grid-cols-4 gap-2 md:gap-4 h-24 md:h-32">
-                 <button data-player="red" data-action="torso" class="control-button bg-red-500 text-3xl md:text-5xl">T</button>
-                <button data-player="red" data-action="head" class="control-button bg-red-500 text-3xl md:text-5xl">C</button>
-                <button data-player="red" data-action="bonus" class="control-button bg-gray-700 text-xl md:text-3xl">B</button>
-                <button data-player="red" data-action="penalty" class="control-button bg-gray-700 text-xl md:text-3xl">G</button>
+            <!-- AJUSTE: Grid com 13 colunas para garantir o tamanho correto dos botões -->
+            <div class="grid grid-cols-13 gap-1 md:gap-2 h-20 md:h-24">
+                <button data-player="red" data-action="torso" class="control-button bg-red-500 text-3xl md:text-5xl col-span-3">T</button>
+                <button data-player="red" data-action="head" class="control-button bg-red-500 text-3xl md:text-5xl col-span-3">C</button>
+                <button data-player="red" data-action="punch" class="control-button bg-red-500 text-3xl md:text-5xl col-span-3">S</button>
+                <button data-player="red" data-action="bonus" class="control-button control-button-sm bg-gray-700 col-span-2">B</button>
+                <button data-player="red" data-action="penalty" class="control-button control-button-sm bg-gray-700 col-span-2">G</button>
             </div>
         </div>
     </main>
 
     <!-- Modals -->
-    <div id="time-modal" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center hidden z-50">
-        <div class="bg-gray-700 p-8 rounded-lg shadow-xl text-center">
-            <h2 class="text-2xl mb-4">Configurar Tempo do Round</h2>
-            <div class="flex justify-center items-center space-x-2">
-                <input type="number" id="minutes-input" min="0" max="59" class="w-20 h-16 text-4xl text-center bg-gray-800 rounded" value="1">
-                <span class="text-4xl">:</span>
-                <input type="number" id="seconds-input" min="0" max="59" class="w-20 h-16 text-4xl text-center bg-gray-800 rounded" value="30">
-            </div>
-            <button id="set-time-btn" class="mt-6 bg-blue-600 px-8 py-3 rounded-lg text-lg font-bold hover:bg-blue-700">Confirmar</button>
+    <div id="welcome-modal" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center hidden z-50">
+        <div class="bg-gray-700 p-8 rounded-lg shadow-xl text-center max-w-sm w-full">
+            <!-- AJUSTE: src da imagem alterado para caminho local -->
+            <img src="resources/logo.png" alt="Logo Parahyba Fighters" class="mx-auto mb-4 rounded-lg w-64" onerror="this.style.display='none'; this.onerror=null;">
+            <p class="text-lg mb-6">O aplicativo funciona melhor na horizontal.</p>
+            <button id="welcome-ok-btn" class="bg-blue-600 px-8 py-3 rounded-lg text-lg font-bold hover:bg-blue-700 w-full">OK</button>
         </div>
     </div>
-    
+
+    <div id="restart-confirm-modal" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center hidden z-50">
+        <div class="bg-gray-700 p-8 rounded-lg shadow-xl text-center"><h2 class="text-2xl mb-4">Recomeçar Partida?</h2><p class="mb-6">Tem certeza que deseja apagar os dados da partida atual?</p><div class="flex justify-center space-x-4"><button id="confirm-restart-btn" class="bg-red-600 px-8 py-3 rounded-lg text-lg font-bold hover:bg-red-700">Sim</button><button id="cancel-restart-btn" class="bg-gray-500 px-8 py-3 rounded-lg text-lg font-bold hover:bg-gray-600">Não</button></div></div>
+    </div>
     <div id="summary-modal" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center hidden z-50">
-        <div class="bg-gray-700 rounded-lg shadow-xl text-center max-w-lg w-full max-h-[90vh] flex flex-col p-6 md:p-8 relative">
-            <button id="close-summary-btn" class="absolute top-2 right-4 text-gray-400 hover:text-white text-4xl font-bold leading-none">&times;</button>
-            <h2 class="text-3xl mb-4 font-bold flex-shrink-0">Fim de Jogo</h2>
-            <div id="final-scores" class="text-xl mb-4 flex-shrink-0"></div>
-            <h3 class="text-2xl mb-2 font-semibold flex-shrink-0">Registro de Ações</h3>
-            <div id="log-container" class="bg-gray-800 p-4 rounded-md text-left text-sm flex-grow min-h-0 overflow-y-auto"></div>
-        </div>
+        <div class="bg-gray-700 rounded-lg shadow-xl text-center max-w-3xl w-full max-h-[90vh] flex flex-col p-6 md:p-8 relative"><button id="close-summary-btn" class="absolute top-2 right-4 text-gray-400 hover:text-white text-4xl font-bold leading-none">&times;</button><h2 class="text-3xl mb-4 font-bold flex-shrink-0">Fim de Jogo</h2><div id="final-winner" class="text-2xl mb-4"></div><div id="stats-summary-container" class="bg-gray-800 p-4 rounded-md text-left text-sm flex-grow min-h-0 overflow-y-auto"></div></div>
     </div>
-
     <div id="help-modal" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center hidden z-50">
-        <div class="bg-gray-700 rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] flex flex-col p-6 md:p-8 relative">
-            <button id="close-help-btn" class="absolute top-2 right-4 text-gray-400 hover:text-white text-4xl font-bold leading-none">&times;</button>
-            <h2 class="text-3xl mb-4 font-bold flex-shrink-0 text-center">Manual de Uso</h2>
-            <div class="bg-gray-800 p-4 rounded-md text-left text-base flex-grow min-h-0 overflow-y-auto space-y-4">
-                <div>
-                    <h3 class="text-xl font-bold text-yellow-300 mb-2">Controles de Pontuação</h3>
-                    <ul class="list-disc list-inside space-y-1">
-                        <li><strong>T (Tórax):</strong> Clique para adicionar <strong>2 pontos</strong>.</li>
-                        <li><strong>C (Cabeça):</strong> Clique para adicionar <strong>3 pontos</strong>.</li>
-                        <li><strong>B (Bônus):</strong> Clique para ativar o bônus de giro. O botão ficará amarelo. O próximo golpe (T ou C) valerá <strong>+2 pontos</strong>.</li>
-                        <li><strong>G (Gam-geon/Falta):</strong> Clique para aplicar uma falta. Isso adiciona <strong>1 ponto para o oponente</strong>.</li>
-                    </ul>
-                </div>
-                 <div>
-                    <h3 class="text-xl font-bold text-yellow-300 mb-2">Correção de Erros</h3>
-                     <ul class="list-disc list-inside space-y-1">
-                        <li><strong>Clique Longo:</strong> Para remover uma pontuação ou falta, <strong>pressione e segure</strong> o botão correspondente por ~1 segundo.</li>
-                        <li><strong>Remover com Bônus:</strong> Para remover um golpe com giro, ative o botão 'B' (deixando-o amarelo) e então pressione e segure 'T' ou 'C'.</li>
-                        <li><strong>Ajuste Manual:</strong> Com o tempo pausado, clique em <strong>"Ajuste Manual"</strong>. Botões de '+' e '-' aparecerão ao lado dos placares para correção livre. Clique novamente para desativar.</li>
-                    </ul>
-                </div>
-                 <div>
-                    <h3 class="text-xl font-bold text-yellow-300 mb-2">Controles Centrais</h3>
-                     <ul class="list-disc list-inside space-y-1">
-                        <li><strong>Cronômetro (ex: 01:30):</strong> Clique diretamente sobre o tempo para <strong>ajustar a duração</strong> do round.</li>
-                        <li><strong>Botão Play/Pause:</strong> Inicia e para o tempo. No final de um round, clique para avançar para o próximo.</li>
-                    </ul>
-                </div>
-                 <div>
-                    <h3 class="text-xl font-bold text-yellow-300 mb-2">Fim de Luta e Rounds</h3>
-                     <ul class="list-disc list-inside space-y-1">
-                        <li>Um atleta vence a luta ao ganhar <strong>2 rounds</strong>.</li>
-                        <li>A luta pode terminar antes se uma das condições abaixo for atingida:
-                            <ul class="list-disc list-inside ml-4">
-                                <li><strong>5 Faltas:</strong> Ao acumular 5 faltas, o atleta perde o round.</li>
-                                <li><strong>Diferença de 20 Pontos:</strong> Uma diferença de 20 pontos (a partir do final do 2º round) resulta em vitória imediata.</li>
-                            </ul>
-                        </li>
-                    </ul>
-                </div>
-                <div>
-                    <h3 class="text-xl font-bold text-yellow-300 mb-2">Sobre</h3>
-                    <p>
-                        Este sistema foi idealizado e desenvolvido por <strong>Francisco Breno Moura Alves</strong>, atleta e professor de Taekwondo (1º DAN) da Associação Parahyba Fighters.
-                    </p>
-                    <div class="mt-2">
-                        <a href="https://www.instagram.com/fbrenomoura/" target="_blank" class="text-blue-400 hover:underline">Instagram</a> | 
-                        <a href="https://www.linkedin.com/in/fbrenomoura/" target="_blank" class="text-blue-400 hover:underline">LinkedIn</a>
-                    </div>
-                </div>
-            </div>
-        </div>
+        <div class="bg-gray-700 rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] flex flex-col p-6 md:p-8 relative"><button id="close-help-btn" class="absolute top-2 right-4 text-gray-400 hover:text-white text-4xl font-bold leading-none">&times;</button><h2 class="text-3xl mb-4 font-bold flex-shrink-0 text-center">Manual de Uso</h2><div class="bg-gray-800 p-4 rounded-md text-left text-base flex-grow min-h-0 overflow-y-auto space-y-4"><div><h3 class="text-xl font-bold text-yellow-300 mb-2">Controles de Pontuação</h3><ul class="list-disc list-inside space-y-1"><li><strong>T (Tórax):</strong> Clique para adicionar <strong>2 pontos</strong> (chute).</li><li><strong>C (Cabeça):</strong> Clique para adicionar <strong>3 pontos</strong> (chute).</li><li><strong>S (Soco):</strong> Clique para adicionar <strong>1 ponto</strong> (soco no tórax).</li><li><strong>B (Bônus):</strong> Ativa o bônus de giro. O próximo chute (T ou C) valerá <strong>+2 pontos</strong>.</li><li><strong>G (Gam-geon/Falta):</strong> Adiciona <strong>1 ponto para o oponente</strong>.</li></ul></div><div><h3 class="text-xl font-bold text-yellow-300 mb-2">Correção de Erros</h3><ul class="list-disc list-inside space-y-1"><li><strong>Clique Longo:</strong> Para remover pontos ou uma falta, <strong>pressione e segure</strong> o botão correspondente.</li><li><strong>Remover com Bônus:</strong> Para remover um chute com giro, ative o botão 'B' e então pressione e segure 'T' ou 'C'.</li><li><strong>Ajuste Manual:</strong> Com o tempo pausado, clique em <strong>"Ajuste Manual"</strong> para exibir botões de '+' e '-' e corrigir o placar.</li></ul></div><div><h3 class="text-xl font-bold text-yellow-300 mb-2">Controles Centrais</h3><ul class="list-disc list-inside space-y-1"><li><strong>Cronômetro:</strong> Clique no tempo <strong>antes do início do 1º round</strong> para ajustar sua duração.</li><li><strong>Botão Play/Pause:</strong> Inicia/para o tempo. Após o intervalo, um clique inicia o próximo round.</li><li><strong>Botão Recomeçar:</strong> Aparece com o tempo pausado e permite reiniciar toda a partida.</li><li><strong>Intervalo de Descanso:</strong> Um timer de 30s é iniciado automaticamente entre os rounds no lugar do texto "ROUND".</li></ul></div><div><h3 class="text-xl font-bold text-yellow-300 mb-2">Sobre</h3><p>Este sistema foi idealizado e desenvolvido por <strong>Francisco Breno Moura Alves</strong>, atleta e professor de Taekwondo (1º DAN) da Associação Parahyba Fighters.</p><div class="mt-2"><a href="https://www.instagram.com/fbrenomoura/" target="_blank" class="text-blue-400 hover:underline">Instagram</a> | <a href="https://www.linkedin.com/in/fbrenomoura/" target="_blank" class="text-blue-400 hover:underline">LinkedIn</a></div></div></div></div>
     </div>
-
+    <div id="time-modal" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center hidden z-50">
+        <div class="bg-gray-700 p-8 rounded-lg shadow-xl text-center"><h2 class="text-2xl mb-4">Configurar Tempo do Round</h2><div class="flex justify-center items-center space-x-2"><input type="number" id="minutes-input" min="0" max="59" class="w-20 h-16 text-4xl text-center bg-gray-800 rounded" value="1"><span class="text-4xl">:</span><input type="number" id="seconds-input" min="0" max="59" class="w-20 h-16 text-4xl text-center bg-gray-800 rounded" value="30"></div><button id="set-time-btn" class="mt-6 bg-blue-600 px-8 py-3 rounded-lg text-lg font-bold hover:bg-blue-700">Confirmar</button></div>
+    </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            // --- Elementos da UI ---
-            const scoreBlueEl = document.getElementById('score-blue');
-            const scoreRedEl = document.getElementById('score-red');
-            const blueRoundWinsEl = document.getElementById('blue-round-wins');
-            const redRoundWinsEl = document.getElementById('red-round-wins');
-            const bluePenaltiesEl = document.getElementById('blue-penalties');
-            const redPenaltiesEl = document.getElementById('red-penalties');
-            const timerDisplay = document.getElementById('timer-display');
-            const roundDisplay = document.getElementById('round-display');
-            const playPauseBtn = document.getElementById('play-pause-btn');
-            const fullscreenBtn = document.getElementById('fullscreen-btn');
-            const helpBtn = document.getElementById('help-btn');
-            const manualAdjustBtn = document.getElementById('manual-adjust-btn');
-            const playIcon = '<svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3l14 9-14 9V3z" /></svg>';
-            const pauseIcon = '<svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 9v6m4-6v6" /></svg>';
-            const timeModal = document.getElementById('time-modal');
-            const summaryModal = document.getElementById('summary-modal');
-            const helpModal = document.getElementById('help-modal');
-            const setTimeBtn = document.getElementById('set-time-btn');
-            const minutesInput = document.getElementById('minutes-input');
-            const secondsInput = document.getElementById('seconds-input');
-            const logContainer = document.getElementById('log-container');
-            const closeSummaryBtn = document.getElementById('close-summary-btn');
-            const closeHelpBtn = document.getElementById('close-help-btn');
+        // Adicionando a configuração customizada do Tailwind para 13 colunas
+        tailwind.config = {
+            theme: {
+                extend: {
+                    gridTemplateColumns: {
+                        '13': 'repeat(13, minmax(0, 1fr))',
+                    }
+                }
+            }
+        }
 
-            // --- Estado Inicial do Jogo ---
+        document.addEventListener('DOMContentLoaded', () => {
+            const ui = {
+                scoreBlue: document.getElementById('score-blue'),
+                scoreRed: document.getElementById('score-red'),
+                blueRoundWins: document.getElementById('blue-round-wins'),
+                redRoundWins: document.getElementById('red-round-wins'),
+                bluePenalties: document.getElementById('blue-penalties'),
+                redPenalties: document.getElementById('red-penalties'),
+                timerDisplay: document.getElementById('timer-display'),
+                roundDisplay: document.getElementById('round-display'),
+                playPauseBtn: document.getElementById('play-pause-btn'),
+                fullscreenBtn: document.getElementById('fullscreen-btn'),
+                helpBtn: document.getElementById('help-btn'),
+                restartBtn: document.getElementById('restart-btn'),
+                manualAdjustBtn: document.getElementById('manual-adjust-btn'),
+                timeModal: document.getElementById('time-modal'),
+                summaryModal: document.getElementById('summary-modal'),
+                helpModal: document.getElementById('help-modal'),
+                restartConfirmModal: document.getElementById('restart-confirm-modal'),
+                welcomeModal: document.getElementById('welcome-modal'),
+                welcomeOkBtn: document.getElementById('welcome-ok-btn'),
+                setTimeBtn: document.getElementById('set-time-btn'),
+                minutesInput: document.getElementById('minutes-input'),
+                secondsInput: document.getElementById('seconds-input'),
+                statsContainer: document.getElementById('stats-summary-container'),
+                finalWinner: document.getElementById('final-winner'),
+                closeSummaryBtn: document.getElementById('close-summary-btn'),
+                closeHelpBtn: document.getElementById('close-help-btn'),
+                confirmRestartBtn: document.getElementById('confirm-restart-btn'),
+                cancelRestartBtn: document.getElementById('cancel-restart-btn'),
+                intervalWinnerMessage: document.getElementById('interval-winner-message'),
+                playIcon: '<svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3l14 9-14 9V3z" /></svg>',
+                pauseIcon: '<svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 9v6m4-6v6" /></svg>'
+            };
+
             let state;
+            let lastConfiguredTime = 90;
 
             const getInitialState = () => ({
                 scores: { blue: 0, red: 0 },
                 round: 1,
                 maxRounds: 2,
                 roundWins: { blue: 0, red: 0 },
-                penalties: { blue: 0, red: 0},
-                timer: {
-                    initialTime: 90,
-                    currentTime: 90,
-                    isRunning: false,
-                    intervalId: null
-                },
+                penalties: { blue: 0, red: 0 },
+                timer: { initialTime: lastConfiguredTime, currentTime: lastConfiguredTime, isRunning: false, intervalId: null },
+                interval: { duration: 30, currentTime: 30, intervalId: null },
                 bonus: { blue: false, red: false },
                 gameLog: [],
+                roundStats: [],
                 longPressDuration: 800,
                 isRoundOver: false,
                 isGameOver: false,
-                manualAdjustMode: false
+                gameStarted: false,
+                manualAdjustMode: false,
+                lastWinnerMessage: ""
             });
 
             // --- Funções de Atualização da UI ---
-            const updateScores = () => {
-                scoreBlueEl.textContent = state.scores.blue;
-                scoreRedEl.textContent = state.scores.red;
-            };
-            
-            const updateRoundWins = () => {
-                blueRoundWinsEl.innerHTML = '🏆'.repeat(state.roundWins.blue);
-                redRoundWinsEl.innerHTML = '🏆'.repeat(state.roundWins.red);
-            };
-            
-            const updatePenaltiesDisplay = () => {
-                bluePenaltiesEl.innerHTML = '❌'.repeat(state.penalties.blue);
-                redPenaltiesEl.innerHTML = '❌'.repeat(state.penalties.red);
-            };
+            const updateScores = () => { ui.scoreBlue.textContent = state.scores.blue; ui.scoreRed.textContent = state.scores.red; };
+            const updateRoundWins = () => { ui.blueRoundWins.innerHTML = '🏆'.repeat(state.roundWins.blue); ui.redRoundWins.innerHTML = '🏆'.repeat(state.roundWins.red); };
+            const updatePenaltiesDisplay = () => { ui.bluePenalties.innerHTML = '❌'.repeat(state.penalties.blue); ui.redPenalties.innerHTML = '❌'.repeat(state.penalties.red); };
+            const formatTime = (s) => `${String(Math.floor(s/60)).padStart(2,'0')}:${String(s%60).padStart(2,'0')}`;
+            const updateTimerDisplay = () => { ui.timerDisplay.textContent = formatTime(state.timer.currentTime); };
+            const updateRoundDisplay = () => { ui.roundDisplay.textContent = state.isGameOver ? 'FIM DE JOGO' : `ROUND ${state.round}`; };
 
-            const formatTime = (seconds) => {
-                const min = Math.floor(seconds / 60).toString().padStart(2, '0');
-                const sec = (seconds % 60).toString().padStart(2, '0');
-                return `${min}:${sec}`;
-            };
-
-            const updateTimerDisplay = () => {
-                timerDisplay.textContent = formatTime(state.timer.currentTime);
-            };
-
-            const updateRoundDisplay = () => {
-                roundDisplay.textContent = state.isGameOver ? 'FIM DE JOGO' : `ROUND ${state.round}`;
-            };
-            
             const logAction = (action) => {
-                const time = formatTime(state.timer.currentTime);
-                const logEntry = { time, round: state.round, ...action };
-                state.gameLog.push(logEntry);
+                const time = formatTime(state.timer.initialTime - state.timer.currentTime);
+                state.gameLog.push({ time, round: state.round, ...action });
             };
             
             // --- Lógica do Jogo ---
             const startTimer = () => {
                 if (state.timer.isRunning || state.timer.currentTime <= 0 || state.isRoundOver || state.isGameOver) return;
-                
-                if (state.manualAdjustMode) toggleManualAdjust(); // Desliga o modo de ajuste se estiver ativo
-                manualAdjustBtn.classList.add('hidden'); // Esconde o botão de ajuste
-                
+                if (state.manualAdjustMode) toggleManualAdjust();
+                ui.manualAdjustBtn.classList.add('hidden');
+                ui.restartBtn.classList.add('hidden');
+                if (state.round === 1 && !state.gameStarted) state.gameStarted = true;
                 state.timer.isRunning = true;
-                playPauseBtn.innerHTML = pauseIcon;
+                ui.playPauseBtn.innerHTML = ui.pauseIcon;
                 logAction({ event: 'Timer', detail: 'Iniciado' });
                 state.timer.intervalId = setInterval(() => {
                     state.timer.currentTime--;
@@ -340,96 +272,109 @@
             };
 
             const stopTimer = () => {
-                if (state && state.timer) {
-                    clearInterval(state.timer.intervalId);
-                    state.timer.isRunning = false;
-                }
-                playPauseBtn.innerHTML = playIcon;
-                
-                if(state && state.timer && state.timer.currentTime > 0 && !state.isRoundOver && !state.isGameOver) {
+                clearInterval(state.timer.intervalId);
+                state.timer.isRunning = false;
+                ui.playPauseBtn.innerHTML = ui.playIcon;
+                if(state.timer.currentTime > 0 && !state.isRoundOver && !state.isGameOver) {
                     logAction({ event: 'Timer', detail: 'Pausado' });
-                    manualAdjustBtn.classList.remove('hidden'); // Mostra o botão de ajuste
+                    ui.manualAdjustBtn.classList.remove('hidden');
+                    ui.restartBtn.classList.remove('hidden');
                 }
             };
             
+            const startIntervalTimer = () => {
+                state.interval.currentTime = state.interval.duration;
+                ui.roundDisplay.classList.add('text-yellow-400');
+                ui.timerDisplay.classList.add('hidden');
+                ui.intervalWinnerMessage.classList.remove('hidden');
+
+                const updateIntervalText = () => {
+                    ui.intervalWinnerMessage.textContent = state.lastWinnerMessage;
+                    ui.roundDisplay.textContent = `Intervalo: ${state.interval.currentTime}s`;
+                };
+                updateIntervalText();
+
+                state.interval.intervalId = setInterval(() => {
+                    state.interval.currentTime--;
+                    if (state.interval.currentTime >= 0) {
+                        updateIntervalText();
+                    }
+                    if (state.interval.currentTime < 0) {
+                        clearInterval(state.interval.intervalId);
+                        setupNextRound(); 
+                    }
+                }, 1000);
+            };
+
             const forceRoundWin = (winner, reason) => {
+                if(state.isRoundOver) return;
                 logAction({event: reason.event, detail: reason.detail});
                 stopTimer();
-                const loser = winner === 'blue' ? 'red' : 'blue';
-                state.scores[winner] = state.scores[loser] + 1;
-                handleRoundEnd();
-            };
-            
-            const checkPointGap = () => {
-                if (state.isRoundOver || state.isGameOver) return false;
+                ui.manualAdjustBtn.classList.add('hidden');
+                ui.restartBtn.classList.add('hidden');
+
+                state.isRoundOver = true;
+                processRoundStats();
+
+                state.roundWins[winner]++;
+                logAction({ event: 'Resultado do Round', detail: `${winner.toUpperCase()} venceu por desqualificação` });
                 
-                const isAfterRound2End = state.round > 2 || (state.round === 2 && state.timer.currentTime === 0);
-                if (!isAfterRound2End) {
-                    return false;
+                updateRoundWins();
+                
+                const {blue: blueWins, red: redWins} = state.roundWins;
+                
+                if (state.round === 2 && blueWins === redWins) {
+                    state.maxRounds = 3;
                 }
-
-                const gap = Math.abs(state.scores.blue - state.scores.red);
-
-                if (gap >= 20) {
-                    const winner = state.scores.blue > state.scores.red ? 'blue' : 'red';
-                    logAction({event: 'Point Gap', detail: `${winner.toUpperCase()} vence por 20 pontos.`});
-                    stopTimer();
-                    state.isGameOver = true;
-                    state.roundWins[winner] = Math.max(state.roundWins[winner], 2);
-                    
-                    const winnerEl = winner === 'blue' ? scoreBlueEl : scoreRedEl;
-                    winnerEl.innerHTML = '🏆';
-                    winnerEl.className = 'score-display text-yellow-400 text-7xl';
-
-                    endGame();
-                    return true;
+                
+                if (blueWins === 2 || redWins === 2 || state.round >= state.maxRounds) {
+                     endGame();
+                } else {
+                    startIntervalTimer();
                 }
-                return false;
             };
-            
+
             const handleRoundEnd = () => {
                 if(state.isRoundOver) return;
                 stopTimer();
-                manualAdjustBtn.classList.add('hidden'); // Garante que o botão de ajuste está escondido no fim do round
+                ui.manualAdjustBtn.classList.add('hidden');
+                ui.restartBtn.classList.add('hidden');
                 state.isRoundOver = true;
+                processRoundStats();
                 logAction({ event: 'Round', detail: `Fim do Round ${state.round}` });
-
-                if (checkPointGap()) return;
 
                 let roundWinner = null;
                 if (state.scores.blue > state.scores.red) roundWinner = 'blue';
                 else if (state.scores.red > state.scores.blue) roundWinner = 'red';
-
+                
                 if (roundWinner) {
                     state.roundWins[roundWinner]++;
-                    logAction({ event: 'Resultado do Round', detail: `${roundWinner.toUpperCase()} venceu` });
-                    const winnerEl = roundWinner === 'blue' ? scoreBlueEl : scoreRedEl;
-                    const loserEl = roundWinner === 'blue' ? scoreRedEl : scoreBlueEl;
-                    winnerEl.innerHTML = '🏆';
-                    winnerEl.className = 'score-display text-yellow-400 text-7xl';
-                    loserEl.className = 'score-display text-gray-500';
+                    const winnerName = roundWinner === 'blue' ? 'Azul' : 'Vermelho';
+                    state.lastWinnerMessage = `${winnerName} venceu Round ${state.round}!`;
                 } else {
-                    logAction({ event: 'Resultado do Round', detail: 'Empate' });
-                    scoreBlueEl.textContent = 'EMPATE';
-                    scoreRedEl.textContent = 'EMPATE';
-                    scoreBlueEl.className = scoreRedEl.className = 'score-display text-gray-400 text-5xl';
+                    state.lastWinnerMessage = `Round ${state.round} terminou empatado!`;
                 }
                 
                 updateRoundWins();
                 
-                const blueWins = state.roundWins.blue;
-                const redWins = state.roundWins.red;
-                
-                if (blueWins === 2 || redWins === 2) {
-                     endGame();
-                } else if (state.round === 2 && blueWins === 1 && redWins === 1) {
+                const {blue: blueWins, red: redWins} = state.roundWins;
+                if (state.round === 2 && blueWins === redWins) {
                     state.maxRounds = 3;
-                } else if (state.round >= state.maxRounds) {
+                }
+                
+                if (blueWins === 2 || redWins === 2 || state.round >= state.maxRounds) {
                      endGame();
+                } else {
+                    startIntervalTimer();
                 }
             };
             
             const setupNextRound = () => {
+                clearInterval(state.interval.intervalId);
+                ui.timerDisplay.classList.remove('hidden');
+                ui.roundDisplay.classList.remove('text-yellow-400');
+                ui.intervalWinnerMessage.classList.add('hidden');
+
                 state.round++;
                 state.scores = { blue: 0, red: 0 };
                 state.bonus = { blue: false, red: false };
@@ -438,18 +383,13 @@
                 state.isRoundOver = false;
 
                 document.querySelectorAll('.bonus-active').forEach(b => b.classList.remove('bonus-active'));
-                scoreBlueEl.className = 'score-display text-blue-200';
-                scoreRedEl.className = 'score-display text-red-200';
-                
                 updateScores();
                 updateTimerDisplay();
                 updateRoundDisplay();
                 updatePenaltiesDisplay();
-                
-                manualAdjustBtn.classList.remove('hidden'); // Mostra o botão para o novo round
-
+                ui.manualAdjustBtn.classList.remove('hidden');
                 logAction({ event: 'Round', detail: `Iniciando Round ${state.round}` });
-            }
+            };
 
             const endGame = () => {
                 state.isGameOver = true;
@@ -457,129 +397,150 @@
                 setTimeout(displaySummary, 1500);
             };
 
-            const displaySummary = () => {
-                let winnerText = `Empate! (${state.roundWins.blue} x ${state.roundWins.red})`;
-                if (state.roundWins.blue > state.roundWins.red) {
-                    winnerText = `Vencedor: Azul (${state.roundWins.blue} x ${state.roundWins.red})`;
-                } else if (state.roundWins.red > state.roundWins.blue) {
-                    winnerText = `Vencedor: Vermelho (${state.roundWins.blue} x ${state.roundWins.red})`;
-                }
-                
-                document.getElementById('final-scores').textContent = winnerText;
-                logContainer.innerHTML = '';
-                state.gameLog.forEach(log => {
-                    const p = document.createElement('p');
-                    p.className = `mb-1 ${log.player === 'blue' ? 'text-blue-300' : log.player === 'red' ? 'text-red-300' : ''}`;
-                    p.textContent = `[${log.time} R${log.round}] ${log.player ? `[${log.player.toUpperCase()}]` : ''} ${log.event}: ${log.detail}`;
-                    logContainer.appendChild(p);
-                });
-                summaryModal.classList.remove('hidden');
-            };
-
             const resetGame = () => {
-                if (state && state.manualAdjustMode) {
-                    toggleManualAdjust();
-                }
+                if (state && state.manualAdjustMode) toggleManualAdjust();
+                if (state && state.timer.intervalId) stopTimer();
+                if (state && state.interval.intervalId) clearInterval(state.interval.intervalId);
                 state = getInitialState();
-                stopTimer();
                 updateScores();
                 updateTimerDisplay();
                 updateRoundDisplay();
                 updateRoundWins();
                 updatePenaltiesDisplay();
+                ui.playPauseBtn.innerHTML = ui.playIcon;
+                ui.timerDisplay.classList.remove('hidden');
+                ui.roundDisplay.classList.remove('text-yellow-400');
+                ui.intervalWinnerMessage.textContent = '';
+                ui.intervalWinnerMessage.classList.add('hidden');
                 document.querySelectorAll('.bonus-active').forEach(b => b.classList.remove('bonus-active'));
-                scoreBlueEl.className = 'score-display text-blue-200';
-                scoreRedEl.className = 'score-display text-red-200';
-                summaryModal.classList.add('hidden');
-                manualAdjustBtn.classList.remove('hidden');
+                ui.summaryModal.classList.add('hidden');
+                ui.restartConfirmModal.classList.add('hidden');
+                ui.manualAdjustBtn.classList.remove('hidden');
+                ui.restartBtn.classList.add('hidden');
+            };
+            
+            const processRoundStats = () => {
+                const roundLog = state.gameLog.filter(log => log.round === state.round);
+                const stats = {
+                    round: state.round,
+                    scores: { ...state.scores },
+                    hits: { blue: { punch: 0, torso: 0, head: 0 }, red: { punch: 0, torso: 0, head: 0 } }
+                };
+                roundLog.forEach(log => {
+                    if (log.event === 'Pontuação' && log.player && log.type) stats.hits[log.player][log.type]++;
+                });
+                state.roundStats.push(stats);
             };
 
-            // --- Lógica de Pontuação ---
+            const displaySummary = () => {
+                let winnerName = "", winnerColorClass = "";
+                if (state.roundWins.blue > state.roundWins.red) { winnerName = "Azul"; winnerColorClass = "text-blue-400"; }
+                else if (state.roundWins.red > state.roundWins.blue) { winnerName = "Vermelho"; winnerColorClass = "text-red-400"; }
+                
+                if(winnerName) ui.finalWinner.innerHTML = `Vencedor: <span class="font-bold ${winnerColorClass}">${winnerName}</span> (${state.roundWins.blue} x ${state.roundWins.red})`;
+                else ui.finalWinner.textContent = `Empate Final! (${state.roundWins.blue} x ${state.roundWins.red})`;
+                
+                const totals = {
+                    scores: { blue: 0, red: 0 },
+                    hits: { blue: { punch: 0, torso: 0, head: 0 }, red: { punch: 0, torso: 0, head: 0 } },
+                    penalties: { blue: 0, red: 0 }
+                };
+                
+                let summaryHTML = '<div class="space-y-4">';
+                state.roundStats.forEach(stats => {
+                    summaryHTML += `<div class="p-2 bg-gray-900 rounded"><h4 class="font-bold text-lg text-yellow-400">Round ${stats.round}</h4><p>Placar: <span class="text-blue-400">Azul ${stats.scores.blue}</span> x <span class="text-red-400">${stats.scores.red} Vermelho</span></p><p>Ações (Azul): ${stats.hits.blue.punch} Socos, ${stats.hits.blue.torso} Tronco, ${stats.hits.blue.head} Cabeça</p><p>Ações (Vermelho): ${stats.hits.red.punch} Socos, ${stats.hits.red.torso} Tronco, ${stats.hits.red.head} Cabeça</p></div>`;
+                    totals.scores.blue += stats.scores.blue;
+                    totals.scores.red += stats.scores.red;
+                    totals.penalties.blue += state.gameLog.filter(l => l.round === stats.round && l.player === 'blue' && l.event === 'Falta').length;
+                    totals.penalties.red += state.gameLog.filter(l => l.round === stats.round && l.player === 'red' && l.event === 'Falta').length;
+                    for(const hitType of ['punch', 'torso', 'head']) {
+                        totals.hits.blue[hitType] += stats.hits.blue[hitType];
+                        totals.hits.red[hitType] += stats.hits.red[hitType];
+                    }
+                });
+
+                summaryHTML += `<div class="p-2 mt-4 bg-gray-900 rounded border-t-2 border-yellow-400"><h4 class="font-bold text-lg text-yellow-400">Totais da Partida</h4><p>Placar Final: <span class="text-blue-400">Azul ${totals.scores.blue}</span> x <span class="text-red-400">${totals.scores.red} Vermelho</span></p><p>Ações (Azul): ${totals.hits.blue.punch} Socos, ${totals.hits.blue.torso} Tronco, ${totals.hits.blue.head} Cabeça, ${totals.penalties.blue} Faltas</p><p>Ações (Vermelho): ${totals.hits.red.punch} Socos, ${totals.hits.red.torso} Tronco, ${totals.hits.red.head} Cabeça, ${totals.penalties.red} Faltas</p></div>`;
+                
+                summaryHTML += `<div class="p-2 mt-4 bg-gray-900 rounded border-t-2 border-gray-600"><h4 class="font-bold text-lg text-yellow-400 mt-2">Súmula Completa</h4>`;
+                state.gameLog.forEach(log => {
+                    const playerClass = log.player === 'blue' ? 'text-blue-300' : log.player === 'red' ? 'text-red-300' : '';
+                    summaryHTML += `<p class="font-mono text-xs ${playerClass}">[${log.time} R${log.round}] ${log.player ? `[${log.player.toUpperCase()}]` : ''} ${log.event}: ${log.detail}</p>`;
+                });
+                summaryHTML += `</div></div>`;
+
+                ui.statsContainer.innerHTML = summaryHTML;
+                ui.summaryModal.classList.remove('hidden');
+            };
+
             const handleScore = (player, points, type) => {
                 if (state.isRoundOver || state.isGameOver) return;
                 let finalPoints = points;
-                let detail = `${type}`;
-                
-                if (state.bonus[player]) {
+                let detail = `${type.charAt(0).toUpperCase() + type.slice(1)}`;
+                if (type !== 'punch' && state.bonus[player]) {
                     finalPoints += 2; 
                     detail += " com Giro";
                     state.bonus[player] = false;
                     document.querySelector(`button[data-player="${player}"][data-action="bonus"]`).classList.remove('bonus-active');
                 }
                 state.scores[player] += finalPoints;
-                logAction({ player, event: 'Pontuação', detail: `+${finalPoints}pts (${detail})` });
+                logAction({ player, event: 'Pontuação', type, detail: `+${finalPoints}pts (${detail})` });
                 updateScores();
-                checkPointGap();
             };
 
             const handlePointRemoval = (player, points, type) => {
-                 if (state.isRoundOver || state.isGameOver) return;
-                 let pointsToRemove = points;
-                 let detail = type;
-                 let wasBonus = state.bonus[player];
-
-                 if (wasBonus) {
-                     pointsToRemove += 2;
-                     detail += " com Giro";
-                 }
-                
-                 if (state.scores[player] >= pointsToRemove) {
+                if (state.isRoundOver || state.isGameOver) return;
+                let pointsToRemove = points;
+                let detail = type.charAt(0).toUpperCase() + type.slice(1);
+                let wasBonus = type !== 'punch' && state.bonus[player];
+                if (wasBonus) {
+                    pointsToRemove += 2;
+                    detail += " com Giro";
+                }
+                if (state.scores[player] >= pointsToRemove) {
                     state.scores[player] -= pointsToRemove;
-                     if(wasBonus) {
+                    if(wasBonus) {
                         state.bonus[player] = false;
                         document.querySelector(`button[data-player="${player}"][data-action="bonus"]`).classList.remove('bonus-active');
-                     }
-                    logAction({ player, event: 'Remoção', detail: `-${pointsToRemove}pts (${detail})` });
+                    }
+                    logAction({ player, event: 'Remoção', type, detail: `-${pointsToRemove}pts (${detail})` });
                     updateScores();
-                    checkPointGap();
-                 }
+                }
             };
 
             const handlePenalty = (player) => {
                 if (state.isRoundOver || state.isGameOver) return;
                 const opponent = player === 'blue' ? 'red' : 'blue';
-                
                 state.scores[opponent]++;
                 state.penalties[player]++;
-                logAction({ player, event: 'Falta (Gam-geon)', detail: `+1pt para ${opponent}. Falta #${state.penalties[player]}` });
+                logAction({ player, event: 'Falta', detail: `+1pt para ${opponent}. Falta #${state.penalties[player]}` });
                 updateScores();
                 updatePenaltiesDisplay();
-                
-                if(state.penalties[player] >= 5) {
-                    forceRoundWin(opponent, {event: 'Falta Limite', detail: `5ª falta. ${opponent.toUpperCase()} vence.`});
-                } else {
-                    checkPointGap();
-                }
+                if(state.penalties[player] >= 5) forceRoundWin(opponent, {event: 'Falta Limite', detail: `5ª falta. ${opponent.toUpperCase()} vence.`});
             };
 
             const handlePenaltyRemoval = (player) => {
                 if (state.isRoundOver || state.isGameOver || state.penalties[player] <= 0) return;
                 const opponent = player === 'blue' ? 'red' : 'blue';
-
                 state.scores[opponent]--;
                 state.penalties[player]--;
                 logAction({ player, event: 'Remoção de Falta', detail: `-1pt de ${opponent}.` });
                 updateScores();
                 updatePenaltiesDisplay();
-                checkPointGap();
             };
 
             const toggleBonus = (player, button) => {
                 if (state.isRoundOver || state.isGameOver) return;
                 state.bonus[player] = !state.bonus[player];
                 button.classList.toggle('bonus-active');
-                const status = state.bonus[player] ? 'Ativado' : 'Desativado';
-                logAction({ player, event: 'Bônus', detail: status });
+                logAction({ player, event: 'Bônus', detail: state.bonus[player] ? 'Ativado' : 'Desativado' });
             };
             
             const toggleManualAdjust = () => {
                 state.manualAdjustMode = !state.manualAdjustMode;
-                document.querySelectorAll('.manual-adjust-controls').forEach(el => {
-                    el.classList.toggle('hidden', !state.manualAdjustMode);
-                });
-                manualAdjustBtn.classList.toggle('bg-yellow-600', !state.manualAdjustMode);
-                manualAdjustBtn.classList.toggle('bg-red-600', state.manualAdjustMode);
-                manualAdjustBtn.textContent = state.manualAdjustMode ? 'Sair do Ajuste' : 'Ajuste Manual';
+                document.querySelectorAll('.manual-adjust-controls').forEach(el => el.classList.toggle('hidden', !state.manualAdjustMode));
+                ui.manualAdjustBtn.classList.toggle('bg-yellow-600', !state.manualAdjustMode);
+                ui.manualAdjustBtn.classList.toggle('bg-red-600', state.manualAdjustMode);
+                ui.manualAdjustBtn.textContent = state.manualAdjustMode ? 'Sair do Ajuste' : 'Ajuste Manual';
             };
             
             const manualAdjustScore = (player, amount) => {
@@ -589,92 +550,44 @@
                     logAction({ player, event: 'Ajuste Manual', detail: `${amount > 0 ? '+' : ''}${amount}pt` });
                 }
             };
-
-            // --- Funcionalidade de Tela Cheia ---
-            function toggleFullscreen() {
-                const elem = document.documentElement;
-                if (!document.fullscreenElement && !document.webkitFullscreenElement) {
-                    if (elem.requestFullscreen) {
-                        elem.requestFullscreen();
-                    } else if (elem.webkitRequestFullscreen) { /* Safari */
-                        elem.webkitRequestFullscreen();
-                    } else if (elem.msRequestFullscreen) { /* IE11 */
-                        elem.msRequestFullscreen();
-                    }
-                } else {
-                    if (document.exitFullscreen) {
-                        document.exitFullscreen();
-                    } else if (document.webkitExitFullscreen) { /* Safari */
-                        document.webkitExitFullscreen();
-                    } else if (document.msExitFullscreen) { /* IE11 */
-                        document.msExitFullscreen();
-                    }
+            
+            // --- Event Listeners and Initialization ---
+            const showWelcomePopup = () => {
+                if (!localStorage.getItem('carcaraTdkSystemFirstVisit')) {
+                    ui.welcomeModal.classList.remove('hidden');
                 }
-            }
+            };
 
-            function updateFullscreenButton() {
-                if (document.fullscreenElement || document.webkitFullscreenElement) {
-                    fullscreenBtn.textContent = 'Sair';
-                } else {
-                    fullscreenBtn.textContent = 'Tela Cheia';
-                }
-            }
-
-            // --- Event Listeners ---
-            fullscreenBtn.addEventListener('click', toggleFullscreen);
-            document.addEventListener('fullscreenchange', updateFullscreenButton);
-            document.addEventListener('webkitfullscreenchange', updateFullscreenButton);
-
-            helpBtn.addEventListener('click', () => {
-                if (state.timer.isRunning) stopTimer();
-                helpModal.classList.remove('hidden');
-            });
-            
-            closeHelpBtn.addEventListener('click', () => {
-                helpModal.classList.add('hidden');
-            });
-            
-            manualAdjustBtn.addEventListener('click', toggleManualAdjust);
-            
-            document.querySelectorAll('.manual-adjust-controls button').forEach(button => {
-                button.addEventListener('click', () => {
-                    const player = button.dataset.player;
-                    const amount = button.dataset.adjust === 'plus' ? 1 : -1;
-                    manualAdjustScore(player, amount);
-                });
+            ui.welcomeOkBtn.addEventListener('click', () => {
+                ui.welcomeModal.classList.add('hidden');
+                localStorage.setItem('carcaraTdkSystemFirstVisit', 'true');
             });
 
-            playPauseBtn.addEventListener('click', () => {
+            ui.playPauseBtn.addEventListener('click', () => {
                 if (state.isGameOver) return;
                 if (state.manualAdjustMode) toggleManualAdjust();
-                
                 if (state.isRoundOver) {
+                    clearInterval(state.interval.intervalId);
                     setupNextRound();
+                    startTimer(); 
                 } else {
                     state.timer.isRunning ? stopTimer() : startTimer();
                 }
             });
-
-            timerDisplay.addEventListener('click', () => {
-                if(state.timer.isRunning) stopTimer();
-                timeModal.classList.remove('hidden');
+            ui.timerDisplay.addEventListener('click', () => {
+                if(!state.gameStarted && !state.timer.isRunning) ui.timeModal.classList.remove('hidden');
             });
-            
-            setTimeBtn.addEventListener('click', () => {
-                const minutes = parseInt(minutesInput.value) || 0;
-                const seconds = parseInt(secondsInput.value) || 0;
-                const totalSeconds = (minutes * 60) + seconds;
-                if(totalSeconds > 0 && !state.timer.isRunning){
+            ui.setTimeBtn.addEventListener('click', () => {
+                const totalSeconds = (parseInt(ui.minutesInput.value) * 60) + parseInt(ui.secondsInput.value);
+                if(totalSeconds > 0){
+                    lastConfiguredTime = totalSeconds;
                     state.timer.initialTime = totalSeconds;
                     state.timer.currentTime = totalSeconds;
                     updateTimerDisplay();
-                    logAction({ event: 'Config', detail: `Tempo alterado para ${formatTime(totalSeconds)}` });
                 }
-                timeModal.classList.add('hidden');
+                ui.timeModal.classList.add('hidden');
             });
 
-            closeSummaryBtn.addEventListener('click', resetGame);
-            
             document.querySelectorAll('.control-button').forEach(button => {
                 const player = button.dataset.player;
                 const action = button.dataset.action;
@@ -688,8 +601,9 @@
                     pressTimer = setTimeout(() => {
                         isLongPress = true;
                         switch (action) {
-                            case 'torso': handlePointRemoval(player, 2, 'Tórax'); break;
-                            case 'head': handlePointRemoval(player, 3, 'Cabeça'); break;
+                            case 'punch': handlePointRemoval(player, 1, 'punch'); break;
+                            case 'torso': handlePointRemoval(player, 2, 'torso'); break;
+                            case 'head': handlePointRemoval(player, 3, 'head'); break;
                             case 'penalty': handlePenaltyRemoval(player); break;
                         }
                     }, state.longPressDuration);
@@ -700,8 +614,9 @@
                     clearTimeout(pressTimer);
                     if (!isLongPress && !state.manualAdjustMode) {
                         switch (action) {
-                            case 'torso': handleScore(player, 2, 'Tórax'); break;
-                            case 'head': handleScore(player, 3, 'Cabeça'); break;
+                            case 'punch': handleScore(player, 1, 'punch'); break;
+                            case 'torso': handleScore(player, 2, 'torso'); break;
+                            case 'head': handleScore(player, 3, 'head'); break;
                             case 'bonus': toggleBonus(player, button); break;
                             case 'penalty': handlePenalty(player); break;
                         }
@@ -714,9 +629,25 @@
                 button.addEventListener('mouseleave', () => clearTimeout(pressTimer));
                 button.addEventListener('touchend', endPress);
             });
+            
+            // Other Listeners
+            ui.helpBtn.addEventListener('click', () => { if (state.timer.isRunning) stopTimer(); ui.helpModal.classList.remove('hidden'); });
+            ui.closeHelpBtn.addEventListener('click', () => ui.helpModal.classList.add('hidden'));
+            ui.restartBtn.addEventListener('click', () => ui.restartConfirmModal.classList.remove('hidden'));
+            ui.cancelRestartBtn.addEventListener('click', () => ui.restartConfirmModal.classList.add('hidden'));
+            ui.confirmRestartBtn.addEventListener('click', resetGame);
+            ui.closeSummaryBtn.addEventListener('click', resetGame);
+            ui.manualAdjustBtn.addEventListener('click', toggleManualAdjust);
+            document.querySelectorAll('.manual-adjust-controls button').forEach(button => {
+                button.addEventListener('click', () => {
+                    const player = button.dataset.player;
+                    const amount = button.dataset.adjust === 'plus' ? 1 : -1;
+                    manualAdjustScore(player, amount);
+                });
+            });
 
-            // --- Inicialização ---
             resetGame();
+            showWelcomePopup();
         });
     </script>
 </body>

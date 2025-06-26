@@ -9,16 +9,18 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
+        /* Estilos para desabilitar a seleção de texto e comportamento padrão de toque longo */
         body {
             font-family: 'Roboto', sans-serif;
-            -webkit-touch-callout: none;
-            -webkit-user-select: none;
-            -khtml-user-select: none;
-            -moz-user-select: none;
-            -ms-user-select: none;
-            user-select: none;
+            -webkit-touch-callout: none; /* iOS Safari */
+            -webkit-user-select: none;   /* Safari */
+            -khtml-user-select: none;    /* Konqueror HTML */
+            -moz-user-select: none;      /* Old versions of Firefox */
+            -ms-user-select: none;       /* Internet Explorer/Edge */
+            user-select: none;           /* Non-prefixed version, currently supported by Chrome, Edge, Opera and Firefox */
         }
         
+        /* Força a orientação paisagem em dispositivos móveis no modo retrato */
         @media (max-width: 768px) and (orientation: portrait) {
             html, body {
                 transform: rotate(-90deg);
@@ -32,6 +34,7 @@
             }
         }
         
+        /* Estilo para o placar, com tamanho de fonte responsivo */
         .score-display {
             font-size: clamp(6rem, 20vw, 12rem);
             line-height: 1;
@@ -39,6 +42,7 @@
             transition: font-size 0.3s ease;
         }
 
+        /* Estilo base para os botões de controle */
         .control-button {
             transition: all 0.2s ease-in-out;
             border-radius: 0.5rem;
@@ -51,20 +55,24 @@
             padding: 0;
         }
 
+        /* Estilo para botões menores (Bônus, Falta) */
         .control-button-sm {
             font-size: 1.1rem !important;
         }
         
+        /* Efeito de clique para botões */
         .control-button:active, .manual-adjust-btn:active, #restart-btn:active {
             transform: scale(0.95);
             box-shadow: 0 2px 4px rgba(0,0,0,0.2);
         }
 
+        /* Estilo para o botão de bônus quando ativo */
         .bonus-active {
-            background-color: #facc15 !important;
-            color: #1f2937 !important;
+            background-color: #facc15 !important; /* Amarelo */
+            color: #1f2937 !important; /* Cinza escuro */
         }
         
+        /* Estilos para os botões de ajuste manual (+/-) */
         .manual-adjust-controls button {
             width: 40px;
             height: 40px;
@@ -82,7 +90,7 @@
 <body class="bg-gray-800 text-white overflow-hidden flex flex-col h-screen">
 
     <!-- Cabeçalho -->
-    <header class="text-center py-2 bg-gray-900 shadow-lg relative flex items-center justify-center">
+    <header class="text-center py-2 bg-gray-900 shadow-lg relative flex items-center justify-center flex-shrink-0">
         <div class="absolute top-1/2 -translate-y-1/2 left-4 flex items-center space-x-2">
             <button id="help-btn" class="bg-gray-600 hover:bg-gray-500 text-white font-bold h-10 w-10 rounded-full text-xl shadow-md transition-transform transform active:scale-95">?</button>
             <button id="restart-btn" class="hidden bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded text-xs md:text-sm shadow-md">Recomeçar</button>
@@ -94,7 +102,7 @@
     </header>
 
     <!-- Conteúdo Principal -->
-    <main class="flex-grow flex w-full">
+    <main class="flex-grow flex w-full min-h-0">
         <!-- Jogador Azul (Esquerda) -->
         <div class="w-1/2 h-full bg-blue-700 flex flex-col justify-end p-2 md:p-4 relative">
             <div id="blue-round-wins" class="absolute top-4 left-4 text-3xl md:text-4xl"></div>
@@ -106,7 +114,7 @@
                 </div>
                 <div id="blue-penalties" class="text-2xl h-8"></div>
             </div>
-            <!-- AJUSTE: Grid com 13 colunas para garantir o tamanho correto dos botões -->
+            <!-- Grid com 13 colunas para garantir o tamanho correto dos botões -->
             <div class="grid grid-cols-13 gap-1 md:gap-2 h-20 md:h-24">
                 <button data-player="blue" data-action="penalty" class="control-button control-button-sm bg-gray-700 col-span-2">G</button>
                 <button data-player="blue" data-action="bonus" class="control-button control-button-sm bg-gray-700 col-span-2">B</button>
@@ -136,7 +144,7 @@
                 </div>
                 <div id="red-penalties" class="text-2xl h-8"></div>
             </div>
-            <!-- AJUSTE: Grid com 13 colunas para garantir o tamanho correto dos botões -->
+            <!-- Grid com 13 colunas para garantir o tamanho correto dos botões -->
             <div class="grid grid-cols-13 gap-1 md:gap-2 h-20 md:h-24">
                 <button data-player="red" data-action="torso" class="control-button bg-red-500 text-3xl md:text-5xl col-span-3">T</button>
                 <button data-player="red" data-action="head" class="control-button bg-red-500 text-3xl md:text-5xl col-span-3">C</button>
@@ -148,30 +156,29 @@
     </main>
 
     <!-- Modals -->
-    <div id="welcome-modal" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center hidden z-50">
+    <div id="welcome-modal" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center hidden z-50 p-4">
         <div class="bg-gray-700 p-8 rounded-lg shadow-xl text-center max-w-sm w-full">
-            <!-- AJUSTE: src da imagem alterado para caminho local -->
-            <img src="resources/logo.png" alt="Logo Parahyba Fighters" class="mx-auto mb-4 rounded-lg w-64" onerror="this.style.display='none'; this.onerror=null;">
+            <img src="https://i.imgur.com/2Y50Lh4.png" alt="Logo Parahyba Fighters" class="mx-auto mb-4 rounded-lg w-64" onerror="this.style.display='none'; this.onerror=null;">
             <p class="text-lg mb-6">O aplicativo funciona melhor na horizontal.</p>
             <button id="welcome-ok-btn" class="bg-blue-600 px-8 py-3 rounded-lg text-lg font-bold hover:bg-blue-700 w-full">OK</button>
         </div>
     </div>
 
-    <div id="restart-confirm-modal" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center hidden z-50">
-        <div class="bg-gray-700 p-8 rounded-lg shadow-xl text-center"><h2 class="text-2xl mb-4">Recomeçar Partida?</h2><p class="mb-6">Tem certeza que deseja apagar os dados da partida atual?</p><div class="flex justify-center space-x-4"><button id="confirm-restart-btn" class="bg-red-600 px-8 py-3 rounded-lg text-lg font-bold hover:bg-red-700">Sim</button><button id="cancel-restart-btn" class="bg-gray-500 px-8 py-3 rounded-lg text-lg font-bold hover:bg-gray-600">Não</button></div></div>
+    <div id="restart-confirm-modal" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center hidden z-50 p-4">
+        <div class="bg-gray-700 p-8 rounded-lg shadow-xl text-center max-w-sm w-full"><h2 class="text-2xl mb-4">Recomeçar Partida?</h2><p class="mb-6">Tem certeza que deseja apagar os dados da partida atual?</p><div class="flex justify-center space-x-4"><button id="confirm-restart-btn" class="bg-red-600 px-8 py-3 rounded-lg text-lg font-bold hover:bg-red-700">Sim</button><button id="cancel-restart-btn" class="bg-gray-500 px-8 py-3 rounded-lg text-lg font-bold hover:bg-gray-600">Não</button></div></div>
     </div>
-    <div id="summary-modal" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center hidden z-50">
+    <div id="summary-modal" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center hidden z-50 p-4">
         <div class="bg-gray-700 rounded-lg shadow-xl text-center max-w-3xl w-full max-h-[90vh] flex flex-col p-6 md:p-8 relative"><button id="close-summary-btn" class="absolute top-2 right-4 text-gray-400 hover:text-white text-4xl font-bold leading-none">&times;</button><h2 class="text-3xl mb-4 font-bold flex-shrink-0">Fim de Jogo</h2><div id="final-winner" class="text-2xl mb-4"></div><div id="stats-summary-container" class="bg-gray-800 p-4 rounded-md text-left text-sm flex-grow min-h-0 overflow-y-auto"></div></div>
     </div>
-    <div id="help-modal" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center hidden z-50">
+    <div id="help-modal" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center hidden z-50 p-4">
         <div class="bg-gray-700 rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] flex flex-col p-6 md:p-8 relative"><button id="close-help-btn" class="absolute top-2 right-4 text-gray-400 hover:text-white text-4xl font-bold leading-none">&times;</button><h2 class="text-3xl mb-4 font-bold flex-shrink-0 text-center">Manual de Uso</h2><div class="bg-gray-800 p-4 rounded-md text-left text-base flex-grow min-h-0 overflow-y-auto space-y-4"><div><h3 class="text-xl font-bold text-yellow-300 mb-2">Controles de Pontuação</h3><ul class="list-disc list-inside space-y-1"><li><strong>T (Tórax):</strong> Clique para adicionar <strong>2 pontos</strong> (chute).</li><li><strong>C (Cabeça):</strong> Clique para adicionar <strong>3 pontos</strong> (chute).</li><li><strong>S (Soco):</strong> Clique para adicionar <strong>1 ponto</strong> (soco no tórax).</li><li><strong>B (Bônus):</strong> Ativa o bônus de giro. O próximo chute (T ou C) valerá <strong>+2 pontos</strong>.</li><li><strong>G (Gam-geon/Falta):</strong> Adiciona <strong>1 ponto para o oponente</strong>.</li></ul></div><div><h3 class="text-xl font-bold text-yellow-300 mb-2">Correção de Erros</h3><ul class="list-disc list-inside space-y-1"><li><strong>Clique Longo:</strong> Para remover pontos ou uma falta, <strong>pressione e segure</strong> o botão correspondente.</li><li><strong>Remover com Bônus:</strong> Para remover um chute com giro, ative o botão 'B' e então pressione e segure 'T' ou 'C'.</li><li><strong>Ajuste Manual:</strong> Com o tempo pausado, clique em <strong>"Ajuste Manual"</strong> para exibir botões de '+' e '-' e corrigir o placar.</li></ul></div><div><h3 class="text-xl font-bold text-yellow-300 mb-2">Controles Centrais</h3><ul class="list-disc list-inside space-y-1"><li><strong>Cronômetro:</strong> Clique no tempo <strong>antes do início do 1º round</strong> para ajustar sua duração.</li><li><strong>Botão Play/Pause:</strong> Inicia/para o tempo. Após o intervalo, um clique inicia o próximo round.</li><li><strong>Botão Recomeçar:</strong> Aparece com o tempo pausado e permite reiniciar toda a partida.</li><li><strong>Intervalo de Descanso:</strong> Um timer de 30s é iniciado automaticamente entre os rounds no lugar do texto "ROUND".</li></ul></div><div><h3 class="text-xl font-bold text-yellow-300 mb-2">Sobre</h3><p>Este sistema foi idealizado e desenvolvido por <strong>Francisco Breno Moura Alves</strong>, atleta e professor de Taekwondo (1º DAN) da Associação Parahyba Fighters.</p><div class="mt-2"><a href="https://www.instagram.com/fbrenomoura/" target="_blank" class="text-blue-400 hover:underline">Instagram</a> | <a href="https://www.linkedin.com/in/fbrenomoura/" target="_blank" class="text-blue-400 hover:underline">LinkedIn</a></div></div></div></div>
     </div>
-    <div id="time-modal" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center hidden z-50">
+    <div id="time-modal" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center hidden z-50 p-4">
         <div class="bg-gray-700 p-8 rounded-lg shadow-xl text-center"><h2 class="text-2xl mb-4">Configurar Tempo do Round</h2><div class="flex justify-center items-center space-x-2"><input type="number" id="minutes-input" min="0" max="59" class="w-20 h-16 text-4xl text-center bg-gray-800 rounded" value="1"><span class="text-4xl">:</span><input type="number" id="seconds-input" min="0" max="59" class="w-20 h-16 text-4xl text-center bg-gray-800 rounded" value="30"></div><button id="set-time-btn" class="mt-6 bg-blue-600 px-8 py-3 rounded-lg text-lg font-bold hover:bg-blue-700">Confirmar</button></div>
     </div>
 
     <script>
-        // Adicionando a configuração customizada do Tailwind para 13 colunas
+        // Adicionando a configuração customizada do Tailwind para 13 colunas no grid
         tailwind.config = {
             theme: {
                 extend: {
@@ -183,6 +190,7 @@
         }
 
         document.addEventListener('DOMContentLoaded', () => {
+            // Mapeamento dos elementos da UI para fácil acesso
             const ui = {
                 scoreBlue: document.getElementById('score-blue'),
                 scoreRed: document.getElementById('score-red'),
@@ -218,8 +226,9 @@
             };
 
             let state;
-            let lastConfiguredTime = 90;
+            let lastConfiguredTime = 90; // Tempo padrão do round em segundos (1:30)
 
+            // Função para obter o estado inicial do jogo
             const getInitialState = () => ({
                 scores: { blue: 0, red: 0 },
                 round: 1,
@@ -231,7 +240,7 @@
                 bonus: { blue: false, red: false },
                 gameLog: [],
                 roundStats: [],
-                longPressDuration: 800,
+                longPressDuration: 800, // Duração do clique longo para remover pontos (ms)
                 isRoundOver: false,
                 isGameOver: false,
                 gameStarted: false,
@@ -247,6 +256,7 @@
             const updateTimerDisplay = () => { ui.timerDisplay.textContent = formatTime(state.timer.currentTime); };
             const updateRoundDisplay = () => { ui.roundDisplay.textContent = state.isGameOver ? 'FIM DE JOGO' : `ROUND ${state.round}`; };
 
+            // Registra uma ação no log do jogo para o sumário final
             const logAction = (action) => {
                 const time = formatTime(state.timer.initialTime - state.timer.currentTime);
                 state.gameLog.push({ time, round: state.round, ...action });
@@ -282,6 +292,7 @@
                 }
             };
             
+            // Inicia o timer de intervalo entre os rounds
             const startIntervalTimer = () => {
                 state.interval.currentTime = state.interval.duration;
                 ui.roundDisplay.classList.add('text-yellow-400');
@@ -298,14 +309,14 @@
                     state.interval.currentTime--;
                     if (state.interval.currentTime >= 0) {
                         updateIntervalText();
-                    }
-                    if (state.interval.currentTime < 0) {
+                    } else {
                         clearInterval(state.interval.intervalId);
                         setupNextRound(); 
                     }
                 }, 1000);
             };
 
+            // Força a vitória no round (ex: 5 faltas)
             const forceRoundWin = (winner, reason) => {
                 if(state.isRoundOver) return;
                 logAction({event: reason.event, detail: reason.detail});
@@ -317,7 +328,7 @@
                 processRoundStats();
 
                 state.roundWins[winner]++;
-                logAction({ event: 'Resultado do Round', detail: `${winner.toUpperCase()} venceu por desqualificação` });
+                logAction({ event: 'Resultado do Round', detail: `${winner.toUpperCase()} venceu por ${reason.detail}` });
                 
                 updateRoundWins();
                 
@@ -328,12 +339,13 @@
                 }
                 
                 if (blueWins === 2 || redWins === 2 || state.round >= state.maxRounds) {
-                     endGame();
+                    endGame();
                 } else {
                     startIntervalTimer();
                 }
             };
 
+            // Lida com o fim do round quando o tempo acaba
             const handleRoundEnd = () => {
                 if(state.isRoundOver) return;
                 stopTimer();
@@ -359,16 +371,17 @@
                 
                 const {blue: blueWins, red: redWins} = state.roundWins;
                 if (state.round === 2 && blueWins === redWins) {
-                    state.maxRounds = 3;
+                    state.maxRounds = 3; // Habilita o terceiro round de desempate
                 }
                 
                 if (blueWins === 2 || redWins === 2 || state.round >= state.maxRounds) {
-                     endGame();
+                    endGame();
                 } else {
                     startIntervalTimer();
                 }
             };
             
+            // Configura o próximo round após o intervalo
             const setupNextRound = () => {
                 clearInterval(state.interval.intervalId);
                 ui.timerDisplay.classList.remove('hidden');
@@ -388,15 +401,18 @@
                 updateRoundDisplay();
                 updatePenaltiesDisplay();
                 ui.manualAdjustBtn.classList.remove('hidden');
+                ui.restartBtn.classList.add('hidden');
                 logAction({ event: 'Round', detail: `Iniciando Round ${state.round}` });
             };
 
+            // Finaliza o jogo
             const endGame = () => {
                 state.isGameOver = true;
                 updateRoundDisplay();
-                setTimeout(displaySummary, 1500);
+                setTimeout(displaySummary, 1500); // Mostra o sumário após um breve delay
             };
 
+            // Reseta todo o jogo para o estado inicial
             const resetGame = () => {
                 if (state && state.manualAdjustMode) toggleManualAdjust();
                 if (state && state.timer.intervalId) stopTimer();
@@ -419,6 +435,7 @@
                 ui.restartBtn.classList.add('hidden');
             };
             
+            // Processa as estatísticas do round para o sumário
             const processRoundStats = () => {
                 const roundLog = state.gameLog.filter(log => log.round === state.round);
                 const stats = {
@@ -432,6 +449,7 @@
                 state.roundStats.push(stats);
             };
 
+            // Gera e exibe o modal de sumário final
             const displaySummary = () => {
                 let winnerName = "", winnerColorClass = "";
                 if (state.roundWins.blue > state.roundWins.red) { winnerName = "Azul"; winnerColorClass = "text-blue-400"; }
@@ -472,6 +490,7 @@
                 ui.summaryModal.classList.remove('hidden');
             };
 
+            // Lida com a adição de pontos
             const handleScore = (player, points, type) => {
                 if (state.isRoundOver || state.isGameOver) return;
                 let finalPoints = points;
@@ -487,6 +506,7 @@
                 updateScores();
             };
 
+            // Lida com a remoção de pontos (clique longo)
             const handlePointRemoval = (player, points, type) => {
                 if (state.isRoundOver || state.isGameOver) return;
                 let pointsToRemove = points;
@@ -507,6 +527,7 @@
                 }
             };
 
+            // Lida com faltas (Gam-geon)
             const handlePenalty = (player) => {
                 if (state.isRoundOver || state.isGameOver) return;
                 const opponent = player === 'blue' ? 'red' : 'blue';
@@ -515,19 +536,21 @@
                 logAction({ player, event: 'Falta', detail: `+1pt para ${opponent}. Falta #${state.penalties[player]}` });
                 updateScores();
                 updatePenaltiesDisplay();
-                if(state.penalties[player] >= 5) forceRoundWin(opponent, {event: 'Falta Limite', detail: `5ª falta. ${opponent.toUpperCase()} vence.`});
+                if(state.penalties[player] >= 5) forceRoundWin(opponent, {event: 'Limite de Faltas', detail: `5ª falta.`});
             };
 
+            // Lida com a remoção de faltas (clique longo)
             const handlePenaltyRemoval = (player) => {
                 if (state.isRoundOver || state.isGameOver || state.penalties[player] <= 0) return;
                 const opponent = player === 'blue' ? 'red' : 'blue';
-                state.scores[opponent]--;
+                if(state.scores[opponent] > 0) state.scores[opponent]--;
                 state.penalties[player]--;
                 logAction({ player, event: 'Remoção de Falta', detail: `-1pt de ${opponent}.` });
                 updateScores();
                 updatePenaltiesDisplay();
             };
 
+            // Ativa/desativa o bônus de giro
             const toggleBonus = (player, button) => {
                 if (state.isRoundOver || state.isGameOver) return;
                 state.bonus[player] = !state.bonus[player];
@@ -535,6 +558,7 @@
                 logAction({ player, event: 'Bônus', detail: state.bonus[player] ? 'Ativado' : 'Desativado' });
             };
             
+            // Ativa/desativa o modo de ajuste manual
             const toggleManualAdjust = () => {
                 state.manualAdjustMode = !state.manualAdjustMode;
                 document.querySelectorAll('.manual-adjust-controls').forEach(el => el.classList.toggle('hidden', !state.manualAdjustMode));
@@ -543,6 +567,7 @@
                 ui.manualAdjustBtn.textContent = state.manualAdjustMode ? 'Sair do Ajuste' : 'Ajuste Manual';
             };
             
+            // Ajusta o placar manualmente
             const manualAdjustScore = (player, amount) => {
                 if(state.scores[player] + amount >= 0) {
                     state.scores[player] += amount;
@@ -551,7 +576,7 @@
                 }
             };
             
-            // --- Event Listeners and Initialization ---
+            // --- Event Listeners e Inicialização ---
             const showWelcomePopup = () => {
                 if (!localStorage.getItem('carcaraTdkSystemFirstVisit')) {
                     ui.welcomeModal.classList.remove('hidden');
@@ -569,7 +594,6 @@
                 if (state.isRoundOver) {
                     clearInterval(state.interval.intervalId);
                     setupNextRound();
-                    startTimer(); 
                 } else {
                     state.timer.isRunning ? stopTimer() : startTimer();
                 }
@@ -578,7 +602,9 @@
                 if(!state.gameStarted && !state.timer.isRunning) ui.timeModal.classList.remove('hidden');
             });
             ui.setTimeBtn.addEventListener('click', () => {
-                const totalSeconds = (parseInt(ui.minutesInput.value) * 60) + parseInt(ui.secondsInput.value);
+                const minutes = parseInt(ui.minutesInput.value) || 0;
+                const seconds = parseInt(ui.secondsInput.value) || 0;
+                const totalSeconds = (minutes * 60) + seconds;
                 if(totalSeconds > 0){
                     lastConfiguredTime = totalSeconds;
                     state.timer.initialTime = totalSeconds;
@@ -588,6 +614,47 @@
                 ui.timeModal.classList.add('hidden');
             });
 
+            // --- Lógica de Tela Cheia (CORRIGIDA) ---
+            const toggleFullScreen = () => {
+                const doc = window.document;
+                const docEl = doc.documentElement;
+
+                // Métodos padronizados e com prefixos para entrar em tela cheia
+                const requestFullScreen = docEl.requestFullscreen || docEl.mozRequestFullScreen || docEl.webkitRequestFullscreen || docEl.msRequestFullscreen;
+                
+                // Métodos padronizados e com prefixos para sair da tela cheia
+                const cancelFullScreen = doc.exitFullscreen || doc.mozCancelFullScreen || doc.webkitExitFullscreen || doc.msExitFullscreen;
+
+                // Verifica se o navegador não está em modo tela cheia e solicita a entrada
+                if (!doc.fullscreenElement && !doc.mozFullScreenElement && !doc.webkitFullscreenElement && !doc.msFullscreenElement) {
+                    if (requestFullScreen) {
+                        requestFullScreen.call(docEl);
+                    }
+                } else { // Se já estiver em tela cheia, solicita a saída
+                    if (cancelFullScreen) {
+                        cancelFullScreen.call(doc);
+                    }
+                }
+            };
+
+            ui.fullscreenBtn.addEventListener('click', toggleFullScreen);
+            
+            // Função para atualizar o texto do botão de tela cheia
+            const updateFullscreenButton = () => {
+                 if (document.fullscreenElement || document.webkitIsFullScreen || document.mozFullScreenElement || document.msFullscreenElement) {
+                    ui.fullscreenBtn.textContent = 'Sair';
+                } else {
+                    ui.fullscreenBtn.textContent = 'Tela Cheia';
+                }
+            }
+            
+            // Adiciona listeners para os eventos de mudança de tela cheia com vários prefixos
+            document.addEventListener('fullscreenchange', updateFullscreenButton);
+            document.addEventListener('webkitfullscreenchange', updateFullscreenButton);
+            document.addEventListener('mozfullscreenchange', updateFullscreenButton);
+            document.addEventListener('MSFullscreenChange', updateFullscreenButton);
+            
+            // --- Lógica de Clique Curto e Longo para Botões de Controle ---
             document.querySelectorAll('.control-button').forEach(button => {
                 const player = button.dataset.player;
                 const action = button.dataset.action;
@@ -596,10 +663,11 @@
 
                 const startPress = (e) => {
                     if ((e.type === 'mousedown' && e.button !== 0) || state.isRoundOver || state.isGameOver || state.manualAdjustMode) return;
-                    e.preventDefault();
+                    e.preventDefault(); // Previne zoom ou outros comportamentos padrão no mobile
                     isLongPress = false;
                     pressTimer = setTimeout(() => {
                         isLongPress = true;
+                        // Ação de clique longo (remover pontos/faltas)
                         switch (action) {
                             case 'punch': handlePointRemoval(player, 1, 'punch'); break;
                             case 'torso': handlePointRemoval(player, 2, 'torso'); break;
@@ -613,6 +681,7 @@
                     e.preventDefault();
                     clearTimeout(pressTimer);
                     if (!isLongPress && !state.manualAdjustMode) {
+                        // Ação de clique curto (adicionar pontos/faltas/bônus)
                         switch (action) {
                             case 'punch': handleScore(player, 1, 'punch'); break;
                             case 'torso': handleScore(player, 2, 'torso'); break;
@@ -624,13 +693,14 @@
                 };
                 
                 button.addEventListener('mousedown', startPress);
-                button.addEventListener('touchstart', startPress);
+                button.addEventListener('touchstart', startPress, { passive: false });
                 button.addEventListener('mouseup', endPress);
                 button.addEventListener('mouseleave', () => clearTimeout(pressTimer));
                 button.addEventListener('touchend', endPress);
+                button.addEventListener('touchcancel', () => clearTimeout(pressTimer)); // Cancela se o toque for interrompido
             });
             
-            // Other Listeners
+            // --- Outros Listeners ---
             ui.helpBtn.addEventListener('click', () => { if (state.timer.isRunning) stopTimer(); ui.helpModal.classList.remove('hidden'); });
             ui.closeHelpBtn.addEventListener('click', () => ui.helpModal.classList.add('hidden'));
             ui.restartBtn.addEventListener('click', () => ui.restartConfirmModal.classList.remove('hidden'));
@@ -646,6 +716,7 @@
                 });
             });
 
+            // --- Inicialização do Jogo ---
             resetGame();
             showWelcomePopup();
         });

@@ -20,20 +20,6 @@
             user-select: none;           /* Non-prefixed version, currently supported by Chrome, Edge, Opera and Firefox */
         }
         
-        /* Força a orientação paisagem em dispositivos móveis no modo retrato */
-        @media (max-width: 768px) and (orientation: portrait) {
-            html, body {
-                transform: rotate(-90deg);
-                transform-origin: left top;
-                width: 100vh;
-                height: 100vw;
-                overflow-x: hidden;
-                position: absolute;
-                top: 100%;
-                left: 0;
-            }
-        }
-        
         /* Estilo para o placar, com tamanho de fonte responsivo */
         .score-display {
             font-size: clamp(6rem, 20vw, 12rem);
@@ -85,75 +71,97 @@
             align-items: center;
             justify-content: center;
         }
+
+        /* Oculta o app e mostra a mensagem para girar o dispositivo em modo retrato */
+        @media (orientation: portrait) {
+            #rotate-device-overlay {
+                display: flex;
+            }
+            #app-container {
+                display: none;
+            }
+        }
     </style>
 </head>
 <body class="bg-gray-800 text-white overflow-hidden flex flex-col h-screen">
 
-    <!-- Cabeçalho -->
-    <header class="text-center py-2 bg-gray-900 shadow-lg relative flex items-center justify-center flex-shrink-0">
-        <div class="absolute top-1/2 -translate-y-1/2 left-4 flex items-center space-x-2">
-            <button id="help-btn" class="bg-gray-600 hover:bg-gray-500 text-white font-bold h-10 w-10 rounded-full text-xl shadow-md transition-transform transform active:scale-95">?</button>
-            <button id="restart-btn" class="hidden bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded text-xs md:text-sm shadow-md">Recomeçar</button>
-        </div>
-        <h1 class="text-xl md:text-3xl font-bold tracking-wider">CARCARÁ OPEN TKD SYSTEM</h1>
-        <div class="absolute top-1/2 -translate-y-1/2 right-4 flex items-center space-x-2">
-            <button id="fullscreen-btn" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded text-xs md:text-sm shadow-md transition-transform transform active:scale-95">Tela Cheia</button>
-        </div>
-    </header>
+    <!-- Container principal do app, que será oculto em modo retrato -->
+    <div id="app-container" class="flex flex-col h-screen">
+        <!-- Cabeçalho -->
+        <header class="text-center py-2 bg-gray-900 shadow-lg relative flex items-center justify-center flex-shrink-0">
+            <div class="absolute top-1/2 -translate-y-1/2 left-4 flex items-center space-x-2">
+                <button id="help-btn" class="bg-gray-600 hover:bg-gray-500 text-white font-bold h-10 w-10 rounded-full text-xl shadow-md transition-transform transform active:scale-95">?</button>
+                <button id="restart-btn" class="hidden bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded text-xs md:text-sm shadow-md">Recomeçar</button>
+            </div>
+            <h1 class="text-xl md:text-3xl font-bold tracking-wider">CARCARÁ OPEN TKD SYSTEM</h1>
+            <div class="absolute top-1/2 -translate-y-1/2 right-4 flex items-center space-x-2">
+                <button id="fullscreen-btn" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded text-xs md:text-sm shadow-md transition-transform transform active:scale-95">Tela Cheia</button>
+            </div>
+        </header>
 
-    <!-- Conteúdo Principal -->
-    <main class="flex-grow flex w-full min-h-0">
-        <!-- Jogador Azul (Esquerda) -->
-        <div class="w-1/2 h-full bg-blue-700 flex flex-col justify-end p-2 md:p-4 relative">
-            <div id="blue-round-wins" class="absolute top-4 left-4 text-3xl md:text-4xl"></div>
-            <div class="flex-grow flex flex-col items-center justify-center">
-                <div class="flex items-center justify-center relative w-full">
-                    <div class="manual-adjust-controls absolute left-2 md:left-4 top-1/2 -translate-y-1/2 hidden"><button data-player="blue" data-adjust="minus" class="bg-red-500 hover:bg-red-600">-</button></div>
-                    <span id="score-blue" class="score-display text-blue-200">0</span>
-                    <div class="manual-adjust-controls absolute right-2 md:right-4 top-1/2 -translate-y-1/2 hidden"><button data-player="blue" data-adjust="plus" class="bg-green-500 hover:bg-green-600">+</button></div>
+        <!-- Conteúdo Principal -->
+        <main class="flex-grow flex w-full min-h-0">
+            <!-- Jogador Azul (Esquerda) -->
+            <div class="w-1/2 h-full bg-blue-700 flex flex-col justify-end p-2 md:p-4 relative">
+                <div id="blue-round-wins" class="absolute top-4 left-4 text-3xl md:text-4xl"></div>
+                <div class="flex-grow flex flex-col items-center justify-center">
+                    <div class="flex items-center justify-center relative w-full">
+                        <div class="manual-adjust-controls absolute left-2 md:left-4 top-1/2 -translate-y-1/2 hidden"><button data-player="blue" data-adjust="minus" class="bg-red-500 hover:bg-red-600">-</button></div>
+                        <span id="score-blue" class="score-display text-blue-200">0</span>
+                        <div class="manual-adjust-controls absolute right-2 md:right-4 top-1/2 -translate-y-1/2 hidden"><button data-player="blue" data-adjust="plus" class="bg-green-500 hover:bg-green-600">+</button></div>
+                    </div>
+                    <div id="blue-penalties" class="text-2xl h-8"></div>
                 </div>
-                <div id="blue-penalties" class="text-2xl h-8"></div>
-            </div>
-            <!-- Grid com 13 colunas para garantir o tamanho correto dos botões -->
-            <div class="grid grid-cols-13 gap-1 md:gap-2 h-20 md:h-24">
-                <button data-player="blue" data-action="penalty" class="control-button control-button-sm bg-gray-700 col-span-2">G</button>
-                <button data-player="blue" data-action="bonus" class="control-button control-button-sm bg-gray-700 col-span-2">B</button>
-                <button data-player="blue" data-action="punch" class="control-button bg-blue-500 text-3xl md:text-5xl col-span-3">S</button>
-                <button data-player="blue" data-action="head" class="control-button bg-blue-500 text-3xl md:text-5xl col-span-3">C</button>
-                <button data-player="blue" data-action="torso" class="control-button bg-blue-500 text-3xl md:text-5xl col-span-3">T</button>
-            </div>
-        </div>
-
-        <!-- Centro -->
-        <div class="w-48 md:w-64 h-full bg-gray-800 flex flex-col items-center justify-center p-2 text-center">
-            <div id="interval-winner-message" class="text-white text-base font-bold h-8 mb-2"></div>
-            <div id="timer-display" class="text-5xl md:text-6xl font-bold cursor-pointer">00:00</div>
-            <div id="round-display" class="text-xl md:text-2xl mt-2 font-bold">ROUND 1</div>
-            <div class="mt-4"><button id="play-pause-btn" class="w-20 h-20 md:w-24 md:h-24 bg-green-600 rounded-full flex items-center justify-center shadow-lg active:bg-green-700"></button></div>
-            <div class="mt-4"><button id="manual-adjust-btn" class="manual-adjust-btn bg-yellow-600 hover:bg-yellow-700 text-white font-bold py-2 px-4 rounded text-xs md:text-sm">Ajuste Manual</button></div>
-        </div>
-
-        <!-- Jogador Vermelho (Direita) -->
-        <div class="w-1/2 h-full bg-red-700 flex flex-col justify-end p-2 md:p-4 relative">
-            <div id="red-round-wins" class="absolute top-4 right-4 text-3xl md:text-4xl"></div>
-            <div class="flex-grow flex flex-col items-center justify-center">
-                <div class="flex items-center justify-center relative w-full">
-                    <div class="manual-adjust-controls absolute left-2 md:left-4 top-1/2 -translate-y-1/2 hidden"><button data-player="red" data-adjust="minus" class="bg-red-500 hover:bg-red-600">-</button></div>
-                    <span id="score-red" class="score-display text-red-200">0</span>
-                    <div class="manual-adjust-controls absolute right-2 md:right-4 top-1/2 -translate-y-1/2 hidden"><button data-player="red" data-adjust="plus" class="bg-green-500 hover:bg-green-600">+</button></div>
+                <!-- Grid com 13 colunas para garantir o tamanho correto dos botões -->
+                <div class="grid grid-cols-13 gap-1 md:gap-2 h-20 md:h-24">
+                    <button data-player="blue" data-action="penalty" class="control-button control-button-sm bg-gray-700 col-span-2">G</button>
+                    <button data-player="blue" data-action="bonus" class="control-button control-button-sm bg-gray-700 col-span-2">B</button>
+                    <button data-player="blue" data-action="punch" class="control-button bg-blue-500 text-3xl md:text-5xl col-span-3">S</button>
+                    <button data-player="blue" data-action="head" class="control-button bg-blue-500 text-3xl md:text-5xl col-span-3">C</button>
+                    <button data-player="blue" data-action="torso" class="control-button bg-blue-500 text-3xl md:text-5xl col-span-3">T</button>
                 </div>
-                <div id="red-penalties" class="text-2xl h-8"></div>
             </div>
-            <!-- Grid com 13 colunas para garantir o tamanho correto dos botões -->
-            <div class="grid grid-cols-13 gap-1 md:gap-2 h-20 md:h-24">
-                <button data-player="red" data-action="torso" class="control-button bg-red-500 text-3xl md:text-5xl col-span-3">T</button>
-                <button data-player="red" data-action="head" class="control-button bg-red-500 text-3xl md:text-5xl col-span-3">C</button>
-                <button data-player="red" data-action="punch" class="control-button bg-red-500 text-3xl md:text-5xl col-span-3">S</button>
-                <button data-player="red" data-action="bonus" class="control-button control-button-sm bg-gray-700 col-span-2">B</button>
-                <button data-player="red" data-action="penalty" class="control-button control-button-sm bg-gray-700 col-span-2">G</button>
+
+            <!-- Centro -->
+            <div class="w-48 md:w-64 h-full bg-gray-800 flex flex-col items-center justify-center p-2 text-center">
+                <div id="interval-winner-message" class="text-white text-base font-bold h-8 mb-2"></div>
+                <div id="timer-display" class="text-5xl md:text-6xl font-bold cursor-pointer">00:00</div>
+                <div id="round-display" class="text-xl md:text-2xl mt-2 font-bold">ROUND 1</div>
+                <div class="mt-4"><button id="play-pause-btn" class="w-20 h-20 md:w-24 md:h-24 bg-green-600 rounded-full flex items-center justify-center shadow-lg active:bg-green-700"></button></div>
+                <div class="mt-4"><button id="manual-adjust-btn" class="manual-adjust-btn bg-yellow-600 hover:bg-yellow-700 text-white font-bold py-2 px-4 rounded text-xs md:text-sm">Ajuste Manual</button></div>
             </div>
-        </div>
-    </main>
+
+            <!-- Jogador Vermelho (Direita) -->
+            <div class="w-1/2 h-full bg-red-700 flex flex-col justify-end p-2 md:p-4 relative">
+                <div id="red-round-wins" class="absolute top-4 right-4 text-3xl md:text-4xl"></div>
+                <div class="flex-grow flex flex-col items-center justify-center">
+                    <div class="flex items-center justify-center relative w-full">
+                        <div class="manual-adjust-controls absolute left-2 md:left-4 top-1/2 -translate-y-1/2 hidden"><button data-player="red" data-adjust="minus" class="bg-red-500 hover:bg-red-600">-</button></div>
+                        <span id="score-red" class="score-display text-red-200">0</span>
+                        <div class="manual-adjust-controls absolute right-2 md:right-4 top-1/2 -translate-y-1/2 hidden"><button data-player="red" data-adjust="plus" class="bg-green-500 hover:bg-green-600">+</button></div>
+                    </div>
+                    <div id="red-penalties" class="text-2xl h-8"></div>
+                </div>
+                <!-- Grid com 13 colunas para garantir o tamanho correto dos botões -->
+                <div class="grid grid-cols-13 gap-1 md:gap-2 h-20 md:h-24">
+                    <button data-player="red" data-action="torso" class="control-button bg-red-500 text-3xl md:text-5xl col-span-3">T</button>
+                    <button data-player="red" data-action="head" class="control-button bg-red-500 text-3xl md:text-5xl col-span-3">C</button>
+                    <button data-player="red" data-action="punch" class="control-button bg-red-500 text-3xl md:text-5xl col-span-3">S</button>
+                    <button data-player="red" data-action="bonus" class="control-button control-button-sm bg-gray-700 col-span-2">B</button>
+                    <button data-player="red" data-action="penalty" class="control-button control-button-sm bg-gray-700 col-span-2">G</button>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Overlay para pedir para girar o dispositivo -->
+    <div id="rotate-device-overlay" class="fixed inset-0 bg-gray-800 flex-col items-center justify-center text-center text-white hidden z-[100]">
+        <svg class="w-16 h-16 mb-4 animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0011.664 0l3.181-3.183m-4.991-2.695v-2.257a2.25 2.25 0 00-2.25-2.25H10.5m-3.75 0a2.25 2.25 0 00-2.25 2.25v2.257m13.5 0v-2.257a2.25 2.25 0 00-2.25-2.25H10.5m-3.75 0a2.25 2.25 0 00-2.25 2.25v2.257" />
+        </svg>
+        <h2 class="text-2xl font-bold">Por favor, gire seu dispositivo</h2>
+        <p class="mt-2 text-lg">Este aplicativo funciona melhor na horizontal.</p>
+    </div>
 
     <!-- Modals -->
     <div id="welcome-modal" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center hidden z-50 p-4">
@@ -567,7 +575,7 @@
                 ui.manualAdjustBtn.textContent = state.manualAdjustMode ? 'Sair do Ajuste' : 'Ajuste Manual';
             };
             
-            // Ajusta o placar manualmente
+            // Ajusta o placar manually
             const manualAdjustScore = (player, amount) => {
                 if(state.scores[player] + amount >= 0) {
                     state.scores[player] += amount;
@@ -578,14 +586,16 @@
             
             // --- Event Listeners e Inicialização ---
             const showWelcomePopup = () => {
-                if (!localStorage.getItem('carcaraTdkSystemFirstVisit')) {
+                // CORREÇÃO: Chave do localStorage alterada para garantir que o popup apareça novamente.
+                if (!localStorage.getItem('carcaraTdkSystemVisited_v3')) {
                     ui.welcomeModal.classList.remove('hidden');
                 }
             };
 
             ui.welcomeOkBtn.addEventListener('click', () => {
                 ui.welcomeModal.classList.add('hidden');
-                localStorage.setItem('carcaraTdkSystemFirstVisit', 'true');
+                // CORREÇÃO: Chave do localStorage alterada para garantir que o popup apareça novamente.
+                localStorage.setItem('carcaraTdkSystemVisited_v3', 'true');
             });
 
             ui.playPauseBtn.addEventListener('click', () => {
@@ -614,7 +624,7 @@
                 ui.timeModal.classList.add('hidden');
             });
 
-            // --- Lógica de Tela Cheia (CORRIGIDA) ---
+            // --- Lógica de Tela Cheia (Funcional) ---
             const toggleFullScreen = () => {
                 const doc = window.document;
                 const docEl = doc.documentElement;

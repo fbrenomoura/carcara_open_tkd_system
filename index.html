@@ -164,14 +164,6 @@
     </div>
 
     <!-- Modals -->
-    <div id="welcome-modal" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center hidden z-50 p-4">
-        <div class="bg-gray-700 p-8 rounded-lg shadow-xl text-center max-w-sm w-full">
-            <img src="https://i.imgur.com/2Y50Lh4.png" alt="Logo Parahyba Fighters" class="mx-auto mb-4 rounded-lg w-64" onerror="this.style.display='none'; this.onerror=null;">
-            <p class="text-lg mb-6">O aplicativo funciona melhor na horizontal.</p>
-            <button id="welcome-ok-btn" class="bg-blue-600 px-8 py-3 rounded-lg text-lg font-bold hover:bg-blue-700 w-full">OK</button>
-        </div>
-    </div>
-
     <div id="restart-confirm-modal" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center hidden z-50 p-4">
         <div class="bg-gray-700 p-8 rounded-lg shadow-xl text-center max-w-sm w-full"><h2 class="text-2xl mb-4">Recomeçar Partida?</h2><p class="mb-6">Tem certeza que deseja apagar os dados da partida atual?</p><div class="flex justify-center space-x-4"><button id="confirm-restart-btn" class="bg-red-600 px-8 py-3 rounded-lg text-lg font-bold hover:bg-red-700">Sim</button><button id="cancel-restart-btn" class="bg-gray-500 px-8 py-3 rounded-lg text-lg font-bold hover:bg-gray-600">Não</button></div></div>
     </div>
@@ -179,7 +171,7 @@
         <div class="bg-gray-700 rounded-lg shadow-xl text-center max-w-3xl w-full max-h-[90vh] flex flex-col p-6 md:p-8 relative"><button id="close-summary-btn" class="absolute top-2 right-4 text-gray-400 hover:text-white text-4xl font-bold leading-none">&times;</button><h2 class="text-3xl mb-4 font-bold flex-shrink-0">Fim de Jogo</h2><div id="final-winner" class="text-2xl mb-4"></div><div id="stats-summary-container" class="bg-gray-800 p-4 rounded-md text-left text-sm flex-grow min-h-0 overflow-y-auto"></div></div>
     </div>
     <div id="help-modal" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center hidden z-50 p-4">
-        <div class="bg-gray-700 rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] flex flex-col p-6 md:p-8 relative"><button id="close-help-btn" class="absolute top-2 right-4 text-gray-400 hover:text-white text-4xl font-bold leading-none">&times;</button><h2 class="text-3xl mb-4 font-bold flex-shrink-0 text-center">Manual de Uso</h2><div class="bg-gray-800 p-4 rounded-md text-left text-base flex-grow min-h-0 overflow-y-auto space-y-4"><div><h3 class="text-xl font-bold text-yellow-300 mb-2">Controles de Pontuação</h3><ul class="list-disc list-inside space-y-1"><li><strong>T (Tórax):</strong> Clique para adicionar <strong>2 pontos</strong> (chute).</li><li><strong>C (Cabeça):</strong> Clique para adicionar <strong>3 pontos</strong> (chute).</li><li><strong>S (Soco):</strong> Clique para adicionar <strong>1 ponto</strong> (soco no tórax).</li><li><strong>B (Bônus):</strong> Ativa o bônus de giro. O próximo chute (T ou C) valerá <strong>+2 pontos</strong>.</li><li><strong>G (Gam-geon/Falta):</strong> Adiciona <strong>1 ponto para o oponente</strong>.</li></ul></div><div><h3 class="text-xl font-bold text-yellow-300 mb-2">Correção de Erros</h3><ul class="list-disc list-inside space-y-1"><li><strong>Clique Longo:</strong> Para remover pontos ou uma falta, <strong>pressione e segure</strong> o botão correspondente.</li><li><strong>Remover com Bônus:</strong> Para remover um chute com giro, ative o botão 'B' e então pressione e segure 'T' ou 'C'.</li><li><strong>Ajuste Manual:</strong> Com o tempo pausado, clique em <strong>"Ajuste Manual"</strong> para exibir botões de '+' e '-' e corrigir o placar.</li></ul></div><div><h3 class="text-xl font-bold text-yellow-300 mb-2">Controles Centrais</h3><ul class="list-disc list-inside space-y-1"><li><strong>Cronômetro:</strong> Clique no tempo <strong>antes do início do 1º round</strong> para ajustar sua duração.</li><li><strong>Botão Play/Pause:</strong> Inicia/para o tempo. Após o intervalo, um clique inicia o próximo round.</li><li><strong>Botão Recomeçar:</strong> Aparece com o tempo pausado e permite reiniciar toda a partida.</li><li><strong>Intervalo de Descanso:</strong> Um timer de 30s é iniciado automaticamente entre os rounds no lugar do texto "ROUND".</li></ul></div><div><h3 class="text-xl font-bold text-yellow-300 mb-2">Sobre</h3><img src="https://i.imgur.com/2Y50Lh4.png" alt="Logo Parahyba Fighters" class="mx-auto my-4 rounded-lg w-48" onerror="this.style.display='none'; this.onerror=null;"><p>Este sistema foi idealizado e desenvolvido por <strong>Francisco Breno Moura Alves</strong>, atleta e professor de Taekwondo (1º DAN) da Associação Parahyba Fighters.</p><div class="mt-2"><a href="https://www.instagram.com/fbrenomoura/" target="_blank" class="text-blue-400 hover:underline">Instagram</a> | <a href="https://www.linkedin.com/in/fbrenomoura/" target="_blank" class="text-blue-400 hover:underline">LinkedIn</a></div></div></div></div>
+        <div class="bg-gray-700 rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] flex flex-col p-6 md:p-8 relative"><button id="close-help-btn" class="absolute top-2 right-4 text-gray-400 hover:text-white text-4xl font-bold leading-none">&times;</button><h2 class="text-3xl mb-4 font-bold flex-shrink-0 text-center">Manual de Uso</h2><div class="bg-gray-800 p-4 rounded-md text-left text-base flex-grow min-h-0 overflow-y-auto space-y-4"><div><h3 class="text-xl font-bold text-yellow-300 mb-2">Controles de Pontuação</h3><ul class="list-disc list-inside space-y-1"><li><strong>T (Tórax):</strong> Clique para adicionar <strong>2 pontos</strong> (chute).</li><li><strong>C (Cabeça):</strong> Clique para adicionar <strong>3 pontos</strong> (chute).</li><li><strong>S (Soco):</strong> Clique para adicionar <strong>1 ponto</strong> (soco no tórax).</li><li><strong>B (Bônus):</strong> Ativa o bônus de giro. O próximo chute (T ou C) valerá <strong>+2 pontos</strong>.</li><li><strong>G (Gam-geon/Falta):</strong> Adiciona <strong>1 ponto para o oponente</strong>.</li></ul></div><div><h3 class="text-xl font-bold text-yellow-300 mb-2">Correção de Erros</h3><ul class="list-disc list-inside space-y-1"><li><strong>Clique Longo:</strong> Para remover pontos ou uma falta, <strong>pressione e segure</strong> o botão correspondente.</li><li><strong>Remover com Bônus:</strong> Para remover um chute com giro, ative o botão 'B' e então pressione e segure 'T' ou 'C'.</li><li><strong>Ajuste Manual:</strong> Com o tempo pausado, clique em <strong>"Ajuste Manual"</strong> para exibir botões de '+' e '-' e corrigir o placar.</li></ul></div><div><h3 class="text-xl font-bold text-yellow-300 mb-2">Controles Centrais</h3><ul class="list-disc list-inside space-y-1"><li><strong>Cronômetro:</strong> Clique no tempo <strong>antes do início do 1º round</strong> para ajustar sua duração.</li><li><strong>Botão Play/Pause:</strong> Inicia/para o tempo. Após o intervalo, um clique inicia o próximo round.</li><li><strong>Botão Recomeçar:</strong> Aparece com o tempo pausado e permite reiniciar toda a partida.</li><li><strong>Intervalo de Descanso:</strong> Um timer de 30s é iniciado automaticamente entre os rounds no lugar do texto "ROUND".</li></ul></div><div><h3 class="text-xl font-bold text-yellow-300 mb-2">Sobre</h3><img src="resources/logo.png" alt="Logo Parahyba Fighters" class="mx-auto my-4 rounded-lg w-48" onerror="this.style.display='none'; this.onerror=null;"><p>Este sistema foi idealizado e desenvolvido por <strong>Francisco Breno Moura Alves</strong>, atleta e professor de Taekwondo (1º DAN) da Associação Parahyba Fighters.</p><div class="mt-2"><a href="https://www.instagram.com/fbrenomoura/" target="_blank" class="text-blue-400 hover:underline">Instagram</a> | <a href="https://www.linkedin.com/in/fbrenomoura/" target="_blank" class="text-blue-400 hover:underline">LinkedIn</a></div></div></div></div>
     </div>
     <div id="time-modal" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center hidden z-50 p-4">
         <div class="bg-gray-700 p-8 rounded-lg shadow-xl text-center"><h2 class="text-2xl mb-4">Configurar Tempo do Round</h2><div class="flex justify-center items-center space-x-2"><input type="number" id="minutes-input" min="0" max="59" class="w-20 h-16 text-4xl text-center bg-gray-800 rounded" value="1"><span class="text-4xl">:</span><input type="number" id="seconds-input" min="0" max="59" class="w-20 h-16 text-4xl text-center bg-gray-800 rounded" value="30"></div><button id="set-time-btn" class="mt-6 bg-blue-600 px-8 py-3 rounded-lg text-lg font-bold hover:bg-blue-700">Confirmar</button></div>
@@ -217,8 +209,6 @@
                 summaryModal: document.getElementById('summary-modal'),
                 helpModal: document.getElementById('help-modal'),
                 restartConfirmModal: document.getElementById('restart-confirm-modal'),
-                welcomeModal: document.getElementById('welcome-modal'),
-                welcomeOkBtn: document.getElementById('welcome-ok-btn'),
                 setTimeBtn: document.getElementById('set-time-btn'),
                 minutesInput: document.getElementById('minutes-input'),
                 secondsInput: document.getElementById('seconds-input'),
@@ -585,19 +575,6 @@
             };
             
             // --- Event Listeners e Inicialização ---
-            const showWelcomePopup = () => {
-                // CORREÇÃO: Chave do localStorage alterada para garantir que o popup apareça novamente.
-                if (!localStorage.getItem('carcaraTdkSystemVisited_v3')) {
-                    ui.welcomeModal.classList.remove('hidden');
-                }
-            };
-
-            ui.welcomeOkBtn.addEventListener('click', () => {
-                ui.welcomeModal.classList.add('hidden');
-                // CORREÇÃO: Chave do localStorage alterada para garantir que o popup apareça novamente.
-                localStorage.setItem('carcaraTdkSystemVisited_v3', 'true');
-            });
-
             ui.playPauseBtn.addEventListener('click', () => {
                 if (state.isGameOver) return;
                 if (state.manualAdjustMode) toggleManualAdjust();
@@ -720,7 +697,6 @@
 
             // --- Inicialização do Jogo ---
             resetGame();
-            showWelcomePopup();
         });
     </script>
 </body>

@@ -260,7 +260,102 @@
                 state.gameLog.push({ time, round: state.round, ...action });
             };
             
-            // --- Lógica do Jogo ---
+            // --- Lógica de Vitória e Fim de Jogo ---
+
+            // CORREÇÃO: Função para forçar o FIM DE UM ROUND por uma regra específica.
+            const forceRoundWin = (winner, reason) => {
+                if (state.isRoundOver || state.isGameOver) return;
+
+                if (state.timer.isRunning) stopTimer();
+                ui.manualAdjustBtn.classList.add('hidden');
+                ui.restartBtn.classList.add('hidden');
+
+                state.isRoundOver = true;
+                logAction({ event: reason.event, detail: reason.detail });
+                processRoundStats();
+
+                state.roundWins[winner]++;
+                const winnerName = winner === 'blue' ? 'Azul' : 'Vermelho';
+                state.lastWinnerMessage = `${winnerName} venceu o Round ${state.round}!`;
+                updateRoundWins();
+                
+                // Verifica se a vitória no round resultou em fim de jogo
+                const { blue: blueWins, red: redWins } = state.roundWins;
+                if (state.round === 2 && blueWins === 1 && redWins === 1) {
+                    state.maxRounds = 3;
+                }
+
+                if (blueWins >= 2 || redWins >= 2 || state.round >= state.maxRounds) {
+                    endGame();
+                } else {
+                    startIntervalTimer();
+                }
+            };
+
+            // CORREÇÃO: Função para checar as condições que encerram um round ANTES do tempo acabar.
+            const checkMidRoundEndConditions = () => {
+                if (state.isGameOver || state.isRoundOver) return false;
+
+                // Regra: Vitória por 5 faltas (qualquer round)
+                if (state.penalties.blue >= 5) {
+                    forceRoundWin('red', { event: 'Fim de Round', detail: '5 Faltas do Azul' });
+                    return true;
+                }
+                if (state.penalties.red >= 5) {
+                    forceRoundWin('blue', { event: 'Fim de Round', detail: '5 Faltas do Vermelho' });
+                    return true;
+                }
+
+                // Regra: Vitória por Point Gap (durante o 2º ou 3º round)
+                if (state.round >= 2) {
+                    const scoreDiff = Math.abs(state.scores.blue - state.scores.red);
+                    if (scoreDiff >= 20) {
+                        const winner = state.scores.blue > state.scores.red ? 'blue' : 'red';
+                        forceRoundWin(winner, { event: 'Fim de Round', detail: 'Point Gap' });
+                        return true;
+                    }
+                }
+                return false;
+            };
+
+            // CORREÇÃO: Função que é chamada quando o tempo do round ACABA.
+            const handleRoundEndByTime = () => {
+                if(state.isRoundOver || state.isGameOver) return;
+                stopTimer();
+                ui.manualAdjustBtn.classList.add('hidden');
+                ui.restartBtn.classList.add('hidden');
+                state.isRoundOver = true;
+                processRoundStats();
+                logAction({ event: 'Round', detail: `Fim do Round ${state.round}` });
+
+                // Compara os pontos para decidir o vencedor do round
+                let roundWinner = null;
+                if (state.scores.blue > state.scores.red) roundWinner = 'blue';
+                else if (state.scores.red > state.scores.blue) roundWinner = 'red';
+                
+                if (roundWinner) {
+                    state.roundWins[roundWinner]++;
+                    const winnerName = roundWinner === 'blue' ? 'Azul' : 'Vermelho';
+                    state.lastWinnerMessage = `${winnerName} venceu Round ${state.round}!`;
+                } else {
+                    state.lastWinnerMessage = `Round ${state.round} terminou empatado!`;
+                }
+                
+                updateRoundWins();
+                
+                const {blue: blueWins, red: redWins} = state.roundWins;
+                if (state.round === 2 && blueWins === 1 && redWins === 1) {
+                    state.maxRounds = 3;
+                }
+                
+                if (blueWins >= 2 || redWins >= 2 || state.round >= state.maxRounds) {
+                    endGame();
+                } else {
+                    startIntervalTimer();
+                }
+            };
+            
+            // --- Lógica de Controle do Jogo (Timers, Rounds, etc.) ---
             const startTimer = () => {
                 if (state.timer.isRunning || state.timer.currentTime <= 0 || state.isRoundOver || state.isGameOver) return;
                 if (state.manualAdjustMode) toggleManualAdjust();
@@ -274,7 +369,7 @@
                     state.timer.currentTime--;
                     updateTimerDisplay();
                     if (state.timer.currentTime <= 0) {
-                        handleRoundEnd();
+                        handleRoundEndByTime();
                     }
                 }, 1000);
             };
@@ -290,7 +385,6 @@
                 }
             };
             
-            // Inicia o timer de intervalo entre os rounds
             const startIntervalTimer = () => {
                 state.interval.currentTime = state.interval.duration;
                 ui.roundDisplay.classList.add('text-yellow-400');
@@ -314,72 +408,6 @@
                 }, 1000);
             };
 
-            // Força a vitória no round (ex: 5 faltas)
-            const forceRoundWin = (winner, reason) => {
-                if(state.isRoundOver) return;
-                logAction({event: reason.event, detail: reason.detail});
-                stopTimer();
-                ui.manualAdjustBtn.classList.add('hidden');
-                ui.restartBtn.classList.add('hidden');
-
-                state.isRoundOver = true;
-                processRoundStats();
-
-                state.roundWins[winner]++;
-                logAction({ event: 'Resultado do Round', detail: `${winner.toUpperCase()} venceu por ${reason.detail}` });
-                
-                updateRoundWins();
-                
-                const {blue: blueWins, red: redWins} = state.roundWins;
-                
-                if (state.round === 2 && blueWins === redWins) {
-                    state.maxRounds = 3;
-                }
-                
-                if (blueWins === 2 || redWins === 2 || state.round >= state.maxRounds) {
-                    endGame();
-                } else {
-                    startIntervalTimer();
-                }
-            };
-
-            // Lida com o fim do round quando o tempo acaba
-            const handleRoundEnd = () => {
-                if(state.isRoundOver) return;
-                stopTimer();
-                ui.manualAdjustBtn.classList.add('hidden');
-                ui.restartBtn.classList.add('hidden');
-                state.isRoundOver = true;
-                processRoundStats();
-                logAction({ event: 'Round', detail: `Fim do Round ${state.round}` });
-
-                let roundWinner = null;
-                if (state.scores.blue > state.scores.red) roundWinner = 'blue';
-                else if (state.scores.red > state.scores.blue) roundWinner = 'red';
-                
-                if (roundWinner) {
-                    state.roundWins[roundWinner]++;
-                    const winnerName = roundWinner === 'blue' ? 'Azul' : 'Vermelho';
-                    state.lastWinnerMessage = `${winnerName} venceu Round ${state.round}!`;
-                } else {
-                    state.lastWinnerMessage = `Round ${state.round} terminou empatado!`;
-                }
-                
-                updateRoundWins();
-                
-                const {blue: blueWins, red: redWins} = state.roundWins;
-                if (state.round === 2 && blueWins === redWins) {
-                    state.maxRounds = 3; // Habilita o terceiro round de desempate
-                }
-                
-                if (blueWins === 2 || redWins === 2 || state.round >= state.maxRounds) {
-                    endGame();
-                } else {
-                    startIntervalTimer();
-                }
-            };
-            
-            // Configura o próximo round após o intervalo
             const setupNextRound = () => {
                 clearInterval(state.interval.intervalId);
                 ui.timerDisplay.classList.remove('hidden');
@@ -403,14 +431,13 @@
                 logAction({ event: 'Round', detail: `Iniciando Round ${state.round}` });
             };
 
-            // Finaliza o jogo
             const endGame = () => {
+                if (state.isGameOver) return;
                 state.isGameOver = true;
                 updateRoundDisplay();
                 setTimeout(displaySummary, 1500); // Mostra o sumário após um breve delay
             };
 
-            // Reseta todo o jogo para o estado inicial
             const resetGame = () => {
                 if (state && state.manualAdjustMode) toggleManualAdjust();
                 if (state && state.timer.intervalId) stopTimer();
@@ -433,9 +460,9 @@
                 ui.restartBtn.classList.add('hidden');
             };
             
-            // Processa as estatísticas do round para o sumário
+            // --- Lógica de Sumário e Estatísticas ---
             const processRoundStats = () => {
-                const roundLog = state.gameLog.filter(log => log.round === state.round);
+                const roundLog = state.gameLog.filter(log => log.round === state.round && !log.processed);
                 const stats = {
                     round: state.round,
                     scores: { ...state.scores },
@@ -443,15 +470,15 @@
                 };
                 roundLog.forEach(log => {
                     if (log.event === 'Pontuação' && log.player && log.type) stats.hits[log.player][log.type]++;
+                    log.processed = true; // Marca o log como processado
                 });
                 state.roundStats.push(stats);
             };
 
-            // Gera e exibe o modal de sumário final
             const displaySummary = () => {
                 let winnerName = "", winnerColorClass = "";
-                if (state.roundWins.blue > state.roundWins.red) { winnerName = "Azul"; winnerColorClass = "text-blue-400"; }
-                else if (state.roundWins.red > state.roundWins.blue) { winnerName = "Vermelho"; winnerColorClass = "text-red-400"; }
+                if (state.roundWins.blue >= 2) { winnerName = "Azul"; winnerColorClass = "text-blue-400"; }
+                else if (state.roundWins.red >= 2) { winnerName = "Vermelho"; winnerColorClass = "text-red-400"; }
                 
                 if(winnerName) ui.finalWinner.innerHTML = `Vencedor: <span class="font-bold ${winnerColorClass}">${winnerName}</span> (${state.roundWins.blue} x ${state.roundWins.red})`;
                 else ui.finalWinner.textContent = `Empate Final! (${state.roundWins.blue} x ${state.roundWins.red})`;
@@ -488,7 +515,7 @@
                 ui.summaryModal.classList.remove('hidden');
             };
 
-            // Lida com a adição de pontos
+            // --- Lógica de Pontuação e Faltas ---
             const handleScore = (player, points, type) => {
                 if (state.isRoundOver || state.isGameOver) return;
                 let finalPoints = points;
@@ -502,9 +529,9 @@
                 state.scores[player] += finalPoints;
                 logAction({ player, event: 'Pontuação', type, detail: `+${finalPoints}pts (${detail})` });
                 updateScores();
+                checkMidRoundEndConditions();
             };
 
-            // Lida com a remoção de pontos (clique longo)
             const handlePointRemoval = (player, points, type) => {
                 if (state.isRoundOver || state.isGameOver) return;
                 let pointsToRemove = points;
@@ -522,10 +549,10 @@
                     }
                     logAction({ player, event: 'Remoção', type, detail: `-${pointsToRemove}pts (${detail})` });
                     updateScores();
+                    checkMidRoundEndConditions();
                 }
             };
 
-            // Lida com faltas (Gam-geon)
             const handlePenalty = (player) => {
                 if (state.isRoundOver || state.isGameOver) return;
                 const opponent = player === 'blue' ? 'red' : 'blue';
@@ -534,10 +561,9 @@
                 logAction({ player, event: 'Falta', detail: `+1pt para ${opponent}. Falta #${state.penalties[player]}` });
                 updateScores();
                 updatePenaltiesDisplay();
-                if(state.penalties[player] >= 5) forceRoundWin(opponent, {event: 'Limite de Faltas', detail: `5ª falta.`});
+                checkMidRoundEndConditions();
             };
 
-            // Lida com a remoção de faltas (clique longo)
             const handlePenaltyRemoval = (player) => {
                 if (state.isRoundOver || state.isGameOver || state.penalties[player] <= 0) return;
                 const opponent = player === 'blue' ? 'red' : 'blue';
@@ -546,9 +572,9 @@
                 logAction({ player, event: 'Remoção de Falta', detail: `-1pt de ${opponent}.` });
                 updateScores();
                 updatePenaltiesDisplay();
+                checkMidRoundEndConditions();
             };
 
-            // Ativa/desativa o bônus de giro
             const toggleBonus = (player, button) => {
                 if (state.isRoundOver || state.isGameOver) return;
                 state.bonus[player] = !state.bonus[player];
@@ -556,7 +582,6 @@
                 logAction({ player, event: 'Bônus', detail: state.bonus[player] ? 'Ativado' : 'Desativado' });
             };
             
-            // Ativa/desativa o modo de ajuste manual
             const toggleManualAdjust = () => {
                 state.manualAdjustMode = !state.manualAdjustMode;
                 document.querySelectorAll('.manual-adjust-controls').forEach(el => el.classList.toggle('hidden', !state.manualAdjustMode));
@@ -565,12 +590,12 @@
                 ui.manualAdjustBtn.textContent = state.manualAdjustMode ? 'Sair do Ajuste' : 'Ajuste Manual';
             };
             
-            // Ajusta o placar manually
             const manualAdjustScore = (player, amount) => {
                 if(state.scores[player] + amount >= 0) {
                     state.scores[player] += amount;
                     updateScores();
                     logAction({ player, event: 'Ajuste Manual', detail: `${amount > 0 ? '+' : ''}${amount}pt` });
+                    checkMidRoundEndConditions();
                 }
             };
             
@@ -601,22 +626,16 @@
                 ui.timeModal.classList.add('hidden');
             });
 
-            // --- Lógica de Tela Cheia (Funcional) ---
             const toggleFullScreen = () => {
                 const doc = window.document;
                 const docEl = doc.documentElement;
-
                 const requestFullScreen = docEl.requestFullscreen || docEl.mozRequestFullScreen || docEl.webkitRequestFullscreen || docEl.msRequestFullscreen;
                 const cancelFullScreen = doc.exitFullscreen || doc.mozCancelFullScreen || doc.webkitExitFullscreen || doc.msExitFullscreen;
 
                 if (!doc.fullscreenElement && !doc.mozFullScreenElement && !doc.webkitFullscreenElement && !doc.msFullscreenElement) {
-                    if (requestFullScreen) {
-                        requestFullScreen.call(docEl);
-                    }
+                    if (requestFullScreen) requestFullScreen.call(docEl);
                 } else { 
-                    if (cancelFullScreen) {
-                        cancelFullScreen.call(doc);
-                    }
+                    if (cancelFullScreen) cancelFullScreen.call(doc);
                 }
             };
 
@@ -635,7 +654,6 @@
             document.addEventListener('mozfullscreenchange', updateFullscreenButton);
             document.addEventListener('MSFullscreenChange', updateFullscreenButton);
             
-            // --- Lógica de Clique Curto e Longo para Botões de Controle ---
             document.querySelectorAll('.control-button').forEach(button => {
                 const player = button.dataset.player;
                 const action = button.dataset.action;
@@ -679,7 +697,6 @@
                 button.addEventListener('touchcancel', () => clearTimeout(pressTimer));
             });
             
-            // --- Outros Listeners ---
             ui.helpBtn.addEventListener('click', () => { if (state.timer.isRunning) stopTimer(); ui.helpModal.classList.remove('hidden'); });
             ui.closeHelpBtn.addEventListener('click', () => ui.helpModal.classList.add('hidden'));
             ui.restartBtn.addEventListener('click', () => ui.restartConfirmModal.classList.remove('hidden'));

@@ -81,6 +81,20 @@
                 display: none;
             }
         }
+        
+        /* Animações de flash para os botões */
+        @keyframes flash-add {
+            50% { filter: brightness(1.75); }
+        }
+        @keyframes flash-remove {
+            50% { filter: brightness(0.6); }
+        }
+        .flash-add {
+            animation: flash-add 0.3s ease-in-out;
+        }
+        .flash-remove {
+            animation: flash-remove 0.6s ease-in-out;
+        }
     </style>
 </head>
 <body class="bg-gray-800 text-white overflow-hidden flex flex-col h-screen">
@@ -102,7 +116,7 @@
         <!-- Conteúdo Principal -->
         <main class="flex-grow flex w-full min-h-0">
             <!-- Jogador Azul (Esquerda) -->
-            <div class="w-1/2 h-full bg-blue-700 flex flex-col justify-end p-2 md:p-4 relative">
+            <div id="blue-player-area" class="w-1/2 h-full bg-blue-700 flex flex-col justify-end p-2 md:p-4 relative">
                 <div id="blue-round-wins" class="absolute top-4 left-4 text-3xl md:text-4xl"></div>
                 <div class="flex-grow flex flex-col items-center justify-center">
                     <div class="flex items-center justify-center relative w-full">
@@ -132,7 +146,7 @@
             </div>
 
             <!-- Jogador Vermelho (Direita) -->
-            <div class="w-1/2 h-full bg-red-700 flex flex-col justify-end p-2 md:p-4 relative">
+            <div id="red-player-area" class="w-1/2 h-full bg-red-700 flex flex-col justify-end p-2 md:p-4 relative">
                 <div id="red-round-wins" class="absolute top-4 right-4 text-3xl md:text-4xl"></div>
                 <div class="flex-grow flex flex-col items-center justify-center">
                     <div class="flex items-center justify-center relative w-full">
@@ -164,6 +178,13 @@
     </div>
 
     <!-- Modals -->
+    <div id="safari-fullscreen-modal" class="fixed inset-0 bg-black bg-opacity-75 flex-col items-center justify-center hidden z-50 p-4 text-center">
+        <div class="bg-gray-700 p-8 rounded-lg shadow-xl max-w-sm w-full">
+            <h2 class="text-2xl mb-4 font-bold text-yellow-300">Aviso de Compatibilidade</h2>
+            <p class="text-lg mb-6">O modo de tela cheia não é suportado pelo navegador Safari no iOS. Para uma melhor experiência, recomendamos instalar o Google Chrome através da App Store.</p>
+            <button id="close-safari-modal-btn" class="bg-blue-600 px-8 py-3 rounded-lg text-lg font-bold hover:bg-blue-700 w-full">Entendi</button>
+        </div>
+    </div>
     <div id="restart-confirm-modal" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center hidden z-50 p-4">
         <div class="bg-gray-700 p-8 rounded-lg shadow-xl text-center max-w-sm w-full"><h2 class="text-2xl mb-4">Recomeçar Partida?</h2><p class="mb-6">Tem certeza que deseja apagar os dados da partida atual?</p><div class="flex justify-center space-x-4"><button id="confirm-restart-btn" class="bg-red-600 px-8 py-3 rounded-lg text-lg font-bold hover:bg-red-700">Sim</button><button id="cancel-restart-btn" class="bg-gray-500 px-8 py-3 rounded-lg text-lg font-bold hover:bg-gray-600">Não</button></div></div>
     </div>
@@ -209,6 +230,8 @@
                 summaryModal: document.getElementById('summary-modal'),
                 helpModal: document.getElementById('help-modal'),
                 restartConfirmModal: document.getElementById('restart-confirm-modal'),
+                safariFullscreenModal: document.getElementById('safari-fullscreen-modal'),
+                closeSafariModalBtn: document.getElementById('close-safari-modal-btn'),
                 setTimeBtn: document.getElementById('set-time-btn'),
                 minutesInput: document.getElementById('minutes-input'),
                 secondsInput: document.getElementById('seconds-input'),
@@ -238,12 +261,13 @@
                 bonus: { blue: false, red: false },
                 gameLog: [],
                 roundStats: [],
-                longPressDuration: 800, // Duração do clique longo para remover pontos (ms)
+                longPressDuration: 800,
                 isRoundOver: false,
                 isGameOver: false,
                 gameStarted: false,
                 manualAdjustMode: false,
-                lastWinnerMessage: ""
+                lastWinnerMessage: "",
+                finalWinnerData: null // Para armazenar o resultado do desempate
             });
 
             // --- Funções de Atualização da UI ---
@@ -271,7 +295,7 @@
                 ui.restartBtn.classList.add('hidden');
 
                 state.isRoundOver = true;
-                processRoundStats(reason.detail); // Passa o motivo da vitória para as estatísticas
+                processRoundStats(reason.detail);
 
                 state.roundWins[winner]++;
                 const winnerName = winner === 'blue' ? 'Azul' : 'Vermelho';
@@ -279,7 +303,6 @@
                 logAction({ event: 'Resultado do Round', detail: `${state.lastWinnerMessage} (${reason.detail})` });
                 updateRoundWins();
                 
-                // Verifica se a vitória no round resultou em fim de jogo
                 const { blue: blueWins, red: redWins } = state.roundWins;
                 if (state.round === 2 && blueWins === 1 && redWins === 1) {
                     state.maxRounds = 3;
@@ -296,7 +319,6 @@
             const checkMidRoundEndConditions = () => {
                 if (state.isGameOver || state.isRoundOver) return false;
 
-                // Regra: Vitória por 5 faltas
                 if (state.penalties.blue >= 5) {
                     forceRoundWin('red', { event: 'Fim de Round', detail: '5 Faltas do Azul' });
                     return true;
@@ -306,7 +328,6 @@
                     return true;
                 }
 
-                // Regra de Point Gap de 12 pontos
                 const scoreDiff = Math.abs(state.scores.blue - state.scores.red);
                 if (scoreDiff >= 12) {
                     const winner = state.scores.blue > state.scores.red ? 'blue' : 'red';
@@ -328,7 +349,6 @@
                 let roundWinner = null;
                 let conclusionReason = "";
 
-                // Compara os pontos para decidir o vencedor do round
                 if (state.scores.blue > state.scores.red) {
                     roundWinner = 'blue';
                     conclusionReason = 'Maioria de Pontos';
@@ -358,11 +378,61 @@
                     state.maxRounds = 3;
                 }
                 
+                if (state.round >= state.maxRounds && blueWins === redWins) {
+                    handleTieBreaker();
+                    return;
+                }
+
                 if (blueWins >= 2 || redWins >= 2 || state.round >= state.maxRounds) {
                     endGame();
                 } else {
                     startIntervalTimer();
                 }
+            };
+
+            // Função que lida com os critérios de desempate
+            const handleTieBreaker = () => {
+                let winner = null;
+                let reason = "Superioridade";
+
+                const getPointsFromLog = (log) => parseInt(log.detail.match(/\+(\d+)pts/)[1]);
+
+                // 1. Pontos com giro
+                const blueSpinPoints = state.gameLog.filter(log => log.player === 'blue' && log.isSpin).reduce((sum, log) => sum + getPointsFromLog(log), 0);
+                const redSpinPoints = state.gameLog.filter(log => log.player === 'red' && log.isSpin).reduce((sum, log) => sum + getPointsFromLog(log), 0);
+
+                if (blueSpinPoints > redSpinPoints) winner = 'blue', reason = 'Maior nº de pontos com giro';
+                else if (redSpinPoints > blueSpinPoints) winner = 'red', reason = 'Maior nº de pontos com giro';
+                else {
+                    // 2. Técnicas de maior valor
+                    const blueHead = state.gameLog.filter(l => l.player === 'blue' && l.type === 'head').length;
+                    const redHead = state.gameLog.filter(l => l.player === 'red' && l.type === 'head').length;
+                    if (blueHead > redHead) winner = 'blue', reason = 'Maior nº de chutes na cabeça';
+                    else if (redHead > blueHead) winner = 'red', reason = 'Maior nº de chutes na cabeça';
+                    else {
+                        const blueTorso = state.gameLog.filter(l => l.player === 'blue' && l.type === 'torso').length;
+                        const redTorso = state.gameLog.filter(l => l.player === 'red' && l.type === 'torso').length;
+                        if (blueTorso > redTorso) winner = 'blue', reason = 'Maior nº de chutes no tronco';
+                        else if (redTorso > blueTorso) winner = 'red', reason = 'Maior nº de chutes no tronco';
+                        else {
+                            const bluePunch = state.gameLog.filter(l => l.player === 'blue' && l.type === 'punch').length;
+                            const redPunch = state.gameLog.filter(l => l.player === 'red' && l.type === 'punch').length;
+                            if (bluePunch > redPunch) winner = 'blue', reason = 'Maior nº de socos';
+                            else if (redPunch > bluePunch) winner = 'red', reason = 'Maior nº de socos';
+                            else {
+                                // 3. Hits registrados
+                                const blueHits = state.gameLog.filter(l => l.player === 'blue' && l.event === 'Pontuação').length;
+                                const redHits = state.gameLog.filter(l => l.player === 'red' && l.event === 'Pontuação').length;
+                                if (blueHits > redHits) winner = 'blue', reason = 'Maior nº de hits registrados';
+                                else if (redHits > blueHits) winner = 'red', reason = 'Maior nº de hits registrados';
+                            }
+                        }
+                    }
+                }
+                
+                if (winner) state.roundWins[winner]++;
+                state.finalWinnerData = { winner, reason };
+                endGame();
             };
             
             // --- Lógica de Controle do Jogo (Timers, Rounds, etc.) ---
@@ -491,23 +561,29 @@
             };
 
             const displaySummary = () => {
-                let winnerName = "", winnerColorClass = "";
-                
-                if (state.roundWins.blue > state.roundWins.red) {
-                    winnerName = "Azul"; 
-                    winnerColorClass = "text-blue-400";
-                } else if (state.roundWins.red > state.roundWins.blue) {
-                    winnerName = "Vermelho"; 
-                    winnerColorClass = "text-red-400";
+                let winnerName = "", winnerColorClass = "", finalReason = "";
+
+                if (state.finalWinnerData) { // Desempate
+                    winnerName = state.finalWinnerData.winner === 'blue' ? 'Azul' : (state.finalWinnerData.winner === 'red' ? 'Vermelho' : '');
+                    winnerColorClass = state.finalWinnerData.winner === 'blue' ? 'text-blue-400' : 'text-red-400';
+                    finalReason = `por ${state.finalWinnerData.reason}`;
+                } else { // Vitória normal
+                    if (state.roundWins.blue > state.roundWins.red) {
+                        winnerName = "Azul"; 
+                        winnerColorClass = "text-blue-400";
+                    } else if (state.roundWins.red > state.roundWins.blue) {
+                        winnerName = "Vermelho"; 
+                        winnerColorClass = "text-red-400";
+                    }
                 }
                 
                 if(winnerName) {
-                    const finalResultText = `Vencedor: ${winnerName} (${state.roundWins.blue} x ${state.roundWins.red})`;
-                    ui.finalWinner.innerHTML = `Vencedor: <span class="font-bold ${winnerColorClass}">${winnerName}</span> (${state.roundWins.blue} x ${state.roundWins.red})`;
+                    const finalResultText = `Vencedor: ${winnerName} (${state.roundWins.blue} x ${state.roundWins.red}) ${finalReason}`;
+                    ui.finalWinner.innerHTML = `Vencedor: <span class="font-bold ${winnerColorClass}">${winnerName}</span> (${state.roundWins.blue} x ${state.roundWins.red}) <span class="text-base font-normal">${finalReason}</span>`;
                     logAction({ event: 'Resultado Final', detail: finalResultText });
                 } else {
-                    ui.finalWinner.textContent = `Empate Final! (${state.roundWins.blue} x ${state.roundWins.red})`;
-                    logAction({ event: 'Resultado Final', detail: `Empate Final! (${state.roundWins.blue} x ${state.roundWins.red})` });
+                    ui.finalWinner.textContent = `Decisão por Superioridade`;
+                    logAction({ event: 'Resultado Final', detail: `Decisão por Superioridade` });
                 }
                 
                 const totals = {
@@ -521,7 +597,6 @@
                 
                 let summaryHTML = '<div class="space-y-4">';
                 state.roundStats.forEach(stats => {
-                    // CORREÇÃO: Adiciona a linha de Resultado e formata a linha de faltas
                     summaryHTML += `<div class="p-2 bg-gray-900 rounded">
                                         <h4 class="font-bold text-lg text-yellow-400">Round ${stats.round}</h4>
                                         <p>Placar: <span class="text-blue-400">Azul ${stats.scores.blue}</span> x <span class="text-red-400">${stats.scores.red} Vermelho</span></p>
@@ -538,7 +613,6 @@
                     }
                 });
 
-                // CORREÇÃO: Separa as linhas de Ações e Faltas nos totais
                 summaryHTML += `<div class="p-2 mt-4 bg-gray-900 rounded border-t-2 border-yellow-400">
                                     <h4 class="font-bold text-lg text-yellow-400">Totais da Partida</h4>
                                     <p>Placar Final: <span class="text-blue-400">Azul ${totals.scores.blue}</span> x <span class="text-red-400">${totals.scores.red} Vermelho</span></p>
@@ -558,25 +632,53 @@
                 ui.summaryModal.classList.remove('hidden');
             };
 
-            // --- Lógica de Pontuação e Faltas ---
-            const handleScore = (player, points, type) => {
+            // --- Lógica de Pontuação, Faltas e Feedbacks ---
+
+            const triggerVibration = (duration) => {
+                if ('vibrate' in navigator) {
+                    navigator.vibrate(duration);
+                }
+            };
+
+            const triggerVisualFeedback = (button, type) => {
+                const flashClass = type === 'add' ? 'flash-add' : 'flash-remove';
+                const duration = type === 'add' ? 300 : 600;
+                
+                button.classList.add(flashClass);
+                setTimeout(() => {
+                    button.classList.remove(flashClass);
+                }, duration);
+            };
+
+            const handleScore = (player, points, type, button) => {
                 if (state.isRoundOver || state.isGameOver) return;
+                triggerVibration(100);
+                triggerVisualFeedback(button, 'add');
+
                 let finalPoints = points;
                 let detail = `${type.charAt(0).toUpperCase() + type.slice(1)}`;
-                if (type !== 'punch' && state.bonus[player]) {
+                let wasBonus = type !== 'punch' && state.bonus[player];
+                
+                if (wasBonus) {
                     finalPoints += 2; 
                     detail += " com Giro";
                     state.bonus[player] = false;
                     document.querySelector(`button[data-player="${player}"][data-action="bonus"]`).classList.remove('bonus-active');
                 }
+                
+                const logData = { player, event: 'Pontuação', type, detail: `+${finalPoints}pts (${detail})`, isSpin: wasBonus };
+                logAction(logData);
+                
                 state.scores[player] += finalPoints;
-                logAction({ player, event: 'Pontuação', type, detail: `+${finalPoints}pts (${detail})` });
                 updateScores();
                 checkMidRoundEndConditions();
             };
 
-            const handlePointRemoval = (player, points, type) => {
+            const handlePointRemoval = (player, points, type, button) => {
                 if (state.isRoundOver || state.isGameOver) return;
+                triggerVibration(400);
+                triggerVisualFeedback(button, 'remove');
+
                 let pointsToRemove = points;
                 let detail = type.charAt(0).toUpperCase() + type.slice(1);
                 let wasBonus = type !== 'punch' && state.bonus[player];
@@ -670,6 +772,12 @@
             });
 
             const toggleFullScreen = () => {
+                const isSafariOnApple = /iPad|iPhone|iPod/.test(navigator.userAgent) && /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+                if (isSafariOnApple && !document.fullscreenElement) {
+                    ui.safariFullscreenModal.classList.remove('hidden');
+                    return;
+                }
+
                 const doc = window.document;
                 const docEl = doc.documentElement;
                 const requestFullScreen = docEl.requestFullscreen || docEl.mozRequestFullScreen || docEl.webkitRequestFullscreen || docEl.msRequestFullscreen;
@@ -683,6 +791,7 @@
             };
 
             ui.fullscreenBtn.addEventListener('click', toggleFullScreen);
+            ui.closeSafariModalBtn.addEventListener('click', () => ui.safariFullscreenModal.classList.add('hidden'));
             
             const updateFullscreenButton = () => {
                  if (document.fullscreenElement || document.webkitIsFullScreen || document.mozFullScreenElement || document.msFullscreenElement) {
@@ -710,9 +819,9 @@
                     pressTimer = setTimeout(() => {
                         isLongPress = true;
                         switch (action) {
-                            case 'punch': handlePointRemoval(player, 1, 'punch'); break;
-                            case 'torso': handlePointRemoval(player, 2, 'torso'); break;
-                            case 'head': handlePointRemoval(player, 3, 'head'); break;
+                            case 'punch': handlePointRemoval(player, 1, 'punch', button); break;
+                            case 'torso': handlePointRemoval(player, 2, 'torso', button); break;
+                            case 'head': handlePointRemoval(player, 3, 'head', button); break;
                             case 'penalty': handlePenaltyRemoval(player); break;
                         }
                     }, state.longPressDuration);
@@ -723,9 +832,9 @@
                     clearTimeout(pressTimer);
                     if (!isLongPress && !state.manualAdjustMode) {
                         switch (action) {
-                            case 'punch': handleScore(player, 1, 'punch'); break;
-                            case 'torso': handleScore(player, 2, 'torso'); break;
-                            case 'head': handleScore(player, 3, 'head'); break;
+                            case 'punch': handleScore(player, 1, 'punch', button); break;
+                            case 'torso': handleScore(player, 2, 'torso', button); break;
+                            case 'head': handleScore(player, 3, 'head', button); break;
                             case 'bonus': toggleBonus(player, button); break;
                             case 'penalty': handlePenalty(player); break;
                         }

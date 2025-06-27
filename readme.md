@@ -6,7 +6,7 @@ Um sistema de placar eletrônico completo para competições de Taekwondo (Kyoru
 
 ## 📜 Descrição
 
-Este projeto é uma aplicação web de página única (SPA) que simula um sistema de pontuação oficial de Taekwondo, incorporando as principais regras e funcionalidades necessárias para gerir uma luta. Foi desenvolvido com foco na usabilidade e na fidelidade às regras da modalidade.
+Este projeto é uma aplicação web de página única (SPA) que simula um sistema de pontuação oficial de Taekwondo, incorporando as principais regras e funcionalidades necessárias para gerir uma luta. Foi desenvolvido com foco na usabilidade, na fidelidade às regras da modalidade e na possibilidade de sincronização entre dispositivos.
 
 O sistema foi idealizado por **Francisco Breno Moura Alves**, atleta e professor de Taekwondo (1º DAN) da Associação Parahyba Fighters.
 
@@ -20,6 +20,10 @@ O sistema foi idealizado por **Francisco Breno Moura Alves**, atleta e professor
     - **B (Bônus de Giro):** Adiciona +2 pontos ao próximo chute válido (Tórax ou Cabeça).
     - **G (Gam-geon):** Adiciona +1 ponto ao oponente e registra uma falta.
 - **Correção de Pontos:** Pressionar longamente um botão de pontuação ou falta remove a última ação correspondente.
+- **Modo de Pares (Online):**
+    - **Conexão por Código:** Permite que dois dispositivos se conectem através de um código de sessão único, sem necessidade de estarem na mesma rede.
+    - **Pontuação Sincronizada:** No modo de pares, um ponto só é computado quando a mesma técnica é registrada em ambos os dispositivos em um curto intervalo de tempo.
+    - **Ajuste Manual Sincronizado:** Qualquer ajuste manual feito no placar é refletido instantaneamente no dispositivo do par.
 - **Gestão de Rounds:**
     - Sistema de melhor de 3 rounds.
     - Transição automática para um terceiro round em caso de empate de vitórias (1x1 ou 0x0).
@@ -35,7 +39,6 @@ O sistema foi idealizado por **Francisco Breno Moura Alves**, atleta e professor
     - **Resumo Final:** Ao final da partida, um popup exibe um relatório detalhado com as estatísticas de cada round, totais da partida e uma súmula completa de todas as ações.
     - **Modo Tela Cheia:** Botão para expandir a aplicação para a tela inteira, ideal para exibição em monitores maiores.
     - **Popup de Ajuda:** Um manual completo acessível através do botão de ajuda (?).
-    - **Boas-Vindas:** Um popup inicial é exibido na primeira visita para orientar o usuário a usar o dispositivo na horizontal.
 
 ## 🚀 Como Usar
 
@@ -49,25 +52,39 @@ A maneira mais fácil de usar o sistema é através do link do GitHub Pages. Nã
 ### Execução Local (Alternativa)
 Se você deseja executar o projeto localmente:
 
-1.  **Estrutura de Ficheiros:**
+1.  **Clone o Repositório:**
+    ```bash
+    git clone [https://github.com/fbrenomoura/carcara_open_tkd_system.git](https://github.com/fbrenomoura/carcara_open_tkd_system.git)
+    cd carcara_open_tkd_system
+    ```
+
+2.  **Estrutura de Ficheiros:**
     Certifique-se de que a estrutura dos ficheiros está correta. O ficheiro de imagem do logo deve estar dentro de uma pasta `resources`:
 
     ```
     .
-    ├── index.html        (Este é o ficheiro principal da aplicação)
+    ├── index.html      (Este é o ficheiro principal da aplicação)
     └── resources/
-        └── logo.png      (A imagem do logo)
+        └── logo.png    (A imagem do logo)
     ```
 
-2.  **Execução:**
+3.  **Configuração do Firebase (Obrigatório para o Modo de Pares):**
+    A funcionalidade "Conectar Pares" depende do Firebase. Para que funcione localmente, você precisa criar um projeto gratuito no Firebase e adicionar suas chaves de configuração ao `index.html`.
+    - Crie um projeto no [Firebase](https://firebase.google.com/).
+    - Adicione um aplicativo da Web ao seu projeto.
+    - O Firebase fornecerá um objeto `firebaseConfig`. Copie-o.
+    - Abra o `index.html` e cole o objeto `firebaseConfig` dentro da função `initFirebase()`, substituindo o conteúdo de exemplo.
+
+4.  **Execução:**
     Abra o ficheiro `index.html` em qualquer navegador web moderno (Google Chrome, Firefox, Safari, Edge).
 
 ## 🛠️ Tecnologias Utilizadas
 
-- **HTML5:** Para a estrutura semântica da página.
-- **CSS3:** Para estilos básicos e animações.
-- **Tailwind CSS:** Um framework CSS "utility-first" para a rápida construção de interfaces customizadas.
-- **JavaScript (ES6+):** Para toda a lógica do jogo, interatividade, manipulação de estado e regras da competição.
+-   **HTML5:** Para a estrutura semântica da página.
+-   **CSS3:** Para estilos básicos e animações.
+-   **Tailwind CSS:** Um framework CSS "utility-first" para a rápida construção de interfaces customizadas.
+-   **JavaScript (ES6+):** Para toda a lógica do jogo, interatividade, manipulação de estado e regras da competição.
+-   **Firebase (Firestore):** Utilizado como o backend em tempo real para possibilitar a funcionalidade de "Modo de Pares", sincronizando os dados entre os dois dispositivos.
 
 ## 📝 Licença e Uso
 
@@ -87,8 +104,8 @@ Se você utilizar este sistema ou parte do seu código em algum estudo acadêmic
 
 Este projeto foi idealizado e desenvolvido por **Francisco Breno Moura Alves**.
 
-- **Instagram:** [@fbrenomoura](https://www.instagram.com/fbrenomoura/)
-- **LinkedIn:** [Francisco Breno Moura Alves](https://www.linkedin.com/in/fbrenomoura/)
+-   **Instagram:** [@fbrenomoura](https://www.instagram.com/fbrenomoura/)
+-   **LinkedIn:** [Francisco Breno Moura Alves](https://www.linkedin.com/in/fbrenomoura/)
 
 ---
-*Este README foi gerado em 26 de junho de 2025.*
+*Este README foi atualizado em 27 de junho de 2025.*

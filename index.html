@@ -8,6 +8,25 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700;900&display=swap" rel="stylesheet">
+    
+    <!-- Firebase -->
+    <script type="module">
+        // Import the functions you need from the SDKs you need
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getFirestore, doc, setDoc, onSnapshot, updateDoc, deleteDoc, getDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        // Pass the configuration to the global window object so the main script can use it
+        window.firebase = {
+            initializeApp,
+            getFirestore,
+            doc,
+            setDoc,
+            onSnapshot,
+            updateDoc,
+            deleteDoc,
+            getDoc
+        };
+    </script>
+
     <style>
         /* Estilos para desabilitar a seleção de texto e comportamento padrão de toque longo */
         body {
@@ -109,6 +128,11 @@
             </div>
             <h1 class="text-xl md:text-3xl font-bold tracking-wider">CARCARÁ OPEN TKD SYSTEM</h1>
             <div class="absolute top-1/2 -translate-y-1/2 right-4 flex items-center space-x-2">
+                 <!-- Botão para conectar pares -->
+                 <div id="peer-mode-container" class="flex items-center space-x-2">
+                    <span id="peer-status-indicator" class="h-3 w-3 rounded-full bg-gray-500"></span>
+                    <button id="peer-connect-btn" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-3 rounded text-xs md:text-sm shadow-md">Conectar Pares</button>
+                 </div>
                 <button id="fullscreen-btn" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded text-xs md:text-sm shadow-md transition-transform transform active:scale-95">Tela Cheia</button>
             </div>
         </header>
@@ -178,6 +202,22 @@
     </div>
 
     <!-- Modals -->
+    <div id="peer-connect-modal" class="fixed inset-0 bg-black bg-opacity-75 flex-col items-center justify-center hidden z-50 p-4 text-center">
+        <div class="bg-gray-700 p-8 rounded-lg shadow-xl max-w-sm w-full relative">
+            <button id="close-peer-modal-btn" class="absolute top-2 right-4 text-gray-400 hover:text-white text-4xl font-bold leading-none">&times;</button>
+            <h2 class="text-2xl mb-4 font-bold text-yellow-300">Conectar com um Par</h2>
+            <div class="mb-4">
+                <p class="text-lg">Seu Código de Sessão:</p>
+                <p id="my-session-code" class="text-3xl font-mono bg-gray-800 rounded p-2 mt-1 select-all cursor-pointer"></p>
+            </div>
+            <div class="mb-4">
+                <label for="peer-session-input" class="text-lg">Digite o código do seu par:</label>
+                <input type="text" id="peer-session-input" class="w-full text-center text-3xl bg-gray-800 rounded p-2 mt-1 font-mono uppercase" placeholder="CÓDIGO">
+            </div>
+            <button id="confirm-peer-connect-btn" class="bg-blue-600 px-8 py-3 rounded-lg text-lg font-bold hover:bg-blue-700 w-full mb-2">Conectar</button>
+            <p id="peer-connect-status" class="text-sm h-5"></p>
+        </div>
+    </div>
     <div id="safari-fullscreen-modal" class="fixed inset-0 bg-black bg-opacity-75 flex-col items-center justify-center hidden z-50 p-4 text-center">
         <div class="bg-gray-700 p-8 rounded-lg shadow-xl max-w-sm w-full">
             <h2 class="text-2xl mb-4 font-bold text-yellow-300">Aviso de Compatibilidade</h2>
@@ -192,7 +232,7 @@
         <div class="bg-gray-700 rounded-lg shadow-xl text-center max-w-3xl w-full max-h-[90vh] flex flex-col p-6 md:p-8 relative"><button id="close-summary-btn" class="absolute top-2 right-4 text-gray-400 hover:text-white text-4xl font-bold leading-none">&times;</button><h2 class="text-3xl mb-4 font-bold flex-shrink-0">Fim de Jogo</h2><div id="final-winner" class="text-2xl mb-4"></div><div id="stats-summary-container" class="bg-gray-800 p-4 rounded-md text-left text-sm flex-grow min-h-0 overflow-y-auto"></div></div>
     </div>
     <div id="help-modal" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center hidden z-50 p-4">
-        <div class="bg-gray-700 rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] flex flex-col p-6 md:p-8 relative"><button id="close-help-btn" class="absolute top-2 right-4 text-gray-400 hover:text-white text-4xl font-bold leading-none">&times;</button><h2 class="text-3xl mb-4 font-bold flex-shrink-0 text-center">Manual de Uso</h2><div class="bg-gray-800 p-4 rounded-md text-left text-base flex-grow min-h-0 overflow-y-auto space-y-4"><div><h3 class="text-xl font-bold text-yellow-300 mb-2">Controles de Pontuação</h3><ul class="list-disc list-inside space-y-1"><li><strong>T (Tórax):</strong> Clique para adicionar <strong>2 pontos</strong> (chute).</li><li><strong>C (Cabeça):</strong> Clique para adicionar <strong>3 pontos</strong> (chute).</li><li><strong>S (Soco):</strong> Clique para adicionar <strong>1 ponto</strong> (soco no tórax).</li><li><strong>B (Bônus):</strong> Ativa o bônus de giro. O próximo chute (T ou C) valerá <strong>+2 pontos</strong>.</li><li><strong>G (Gam-geon/Falta):</strong> Adiciona <strong>1 ponto para o oponente</strong>.</li></ul></div><div><h3 class="text-xl font-bold text-yellow-300 mb-2">Correção de Erros</h3><ul class="list-disc list-inside space-y-1"><li><strong>Clique Longo:</strong> Para remover pontos ou uma falta, <strong>pressione e segure</strong> o botão correspondente.</li><li><strong>Remover com Bônus:</strong> Para remover um chute com giro, ative o botão 'B' e então pressione e segure 'T' ou 'C'.</li><li><strong>Ajuste Manual:</strong> Com o tempo pausado, clique em <strong>"Ajuste Manual"</strong> para exibir botões de '+' e '-' e corrigir o placar.</li></ul></div><div><h3 class="text-xl font-bold text-yellow-300 mb-2">Controles Centrais</h3><ul class="list-disc list-inside space-y-1"><li><strong>Cronômetro:</strong> Clique no tempo <strong>antes do início do 1º round</strong> para ajustar sua duração.</li><li><strong>Botão Play/Pause:</strong> Inicia/para o tempo. Após o intervalo, um clique inicia o próximo round.</li><li><strong>Botão Recomeçar:</strong> Aparece com o tempo pausado e permite reiniciar toda a partida.</li><li><strong>Intervalo de Descanso:</strong> Um timer de 30s é iniciado automaticamente entre os rounds no lugar do texto "ROUND".</li></ul></div><div><h3 class="text-xl font-bold text-yellow-300 mb-2">Sobre</h3><img src="resources/logo.png" alt="Logo Parahyba Fighters" class="mx-auto my-4 rounded-lg w-48" onerror="this.style.display='none'; this.onerror=null;"><p>Este sistema foi idealizado e desenvolvido por <strong>Francisco Breno Moura Alves</strong>, atleta e professor de Taekwondo (1º DAN) da Associação Parahyba Fighters.</p><div class="mt-2"><a href="https://www.instagram.com/fbrenomoura/" target="_blank" class="text-blue-400 hover:underline">Instagram</a> | <a href="https://www.linkedin.com/in/fbrenomoura/" target="_blank" class="text-blue-400 hover:underline">LinkedIn</a></div></div></div></div>
+        <div class="bg-gray-700 rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] flex flex-col p-6 md:p-8 relative"><button id="close-help-btn" class="absolute top-2 right-4 text-gray-400 hover:text-white text-4xl font-bold leading-none">&times;</button><h2 class="text-3xl mb-4 font-bold flex-shrink-0 text-center">Manual de Uso</h2><div class="bg-gray-800 p-4 rounded-md text-left text-base flex-grow min-h-0 overflow-y-auto space-y-4"><div><h3 class="text-xl font-bold text-yellow-300 mb-2">Controles de Pontuação</h3><ul class="list-disc list-inside space-y-1"><li><strong>T (Tórax):</strong> Clique para adicionar <strong>2 pontos</strong> (chute).</li><li><strong>C (Cabeça):</strong> Clique para adicionar <strong>3 pontos</strong> (chute).</li><li><strong>S (Soco):</strong> Clique para adicionar <strong>1 ponto</strong> (soco no tórax).</li><li><strong>B (Bônus):</strong> Ativa o bônus de giro. O próximo chute (T ou C) valerá <strong>+2 pontos</strong>.</li><li><strong>G (Gam-geon/Falta):</strong> Adiciona <strong>1 ponto para o oponente</strong>.</li></ul></div><div><h3 class="text-xl font-bold text-yellow-300 mb-2">Correção de Erros</h3><ul class="list-disc list-inside space-y-1"><li><strong>Clique Longo:</strong> Para remover pontos ou uma falta, <strong>pressione e segure</strong> o botão correspondente.</li><li><strong>Remover com Bônus:</strong> Para remover um chute com giro, ative o botão 'B' e então pressione e segure 'T' ou 'C'.</li><li><strong>Ajuste Manual:</strong> Com o tempo pausado, clique em <strong>"Ajuste Manual"</strong> para exibir botões de '+' e '-' e corrigir o placar.</li></ul></div><div><h3 class="text-xl font-bold text-yellow-300 mb-2">Controles Centrais</h3><ul class="list-disc list-inside space-y-1"><li><strong>Cronômetro:</strong> Clique no tempo <strong>antes do início do 1º round</strong> para ajustar sua duração.</li><li><strong>Botão Play/Pause:</strong> Inicia/para o tempo. Após o intervalo, um clique inicia o próximo round.</li><li><strong>Botão Recomeçar:</strong> Aparece com o tempo pausado e permite reiniciar toda a partida.</li><li><strong>Intervalo de Descanso:</strong> Um timer de 30s é iniciado automaticamente entre os rounds no lugar do texto "ROUND".</li></ul></div><div><h3 class="text-xl font-bold text-yellow-300 mb-2">Modo de Pares (Online)</h3><ul class="list-disc list-inside space-y-1"><li><strong>Ativação:</strong> Antes de iniciar a partida, clique em <strong>"Conectar Pares"</strong>.</li><li><strong>Conexão:</strong> Um pop-up mostrará o seu código de sessão. Compartilhe esse código com seu par.</li><li><strong>Entrando na Sessão:</strong> Seu par deve inserir seu código na caixa de texto e clicar em "Conectar".</li><li><strong>Pontuação Sincronizada:</strong> Para que um ponto seja computado, a <strong>mesma técnica</strong> deve ser pressionada em <strong>ambos os dispositivos</strong> em um intervalo de 3 segundos.</li><li><strong>Ajuste Manual Sincronizado:</strong> O ajuste manual do placar em um dispositivo será refletido instantaneamente no outro.</li><li><strong>Visibilidade:</strong> A opção de conectar desaparecerá assim que o primeiro round começar.</li></ul></div><div><h3 class="text-xl font-bold text-yellow-300 mb-2">Sobre</h3><img src="resources/logo.png" alt="Logo Parahyba Fighters" class="mx-auto my-4 rounded-lg w-48" onerror="this.style.display='none'; this.onerror=null;"><p>Este sistema foi idealizado e desenvolvido por <strong>Francisco Breno Moura Alves</strong>, atleta e professor de Taekwondo (1º DAN) da Associação Parahyba Fighters.</p><div class="mt-2"><a href="https://www.instagram.com/fbrenomoura/" target="_blank" class="text-blue-400 hover:underline">Instagram</a> | <a href="https://www.linkedin.com/in/fbrenomoura/" target="_blank" class="text-blue-400 hover:underline">LinkedIn</a></div></div></div></div>
     </div>
     <div id="time-modal" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center hidden z-50 p-4">
         <div class="bg-gray-700 p-8 rounded-lg shadow-xl text-center"><h2 class="text-2xl mb-4">Configurar Tempo do Round</h2><div class="flex justify-center items-center space-x-2"><input type="number" id="minutes-input" min="0" max="59" class="w-20 h-16 text-4xl text-center bg-gray-800 rounded" value="1"><span class="text-4xl">:</span><input type="number" id="seconds-input" min="0" max="59" class="w-20 h-16 text-4xl text-center bg-gray-800 rounded" value="30"></div><button id="set-time-btn" class="mt-6 bg-blue-600 px-8 py-3 rounded-lg text-lg font-bold hover:bg-blue-700">Confirmar</button></div>
@@ -242,12 +282,259 @@
                 confirmRestartBtn: document.getElementById('confirm-restart-btn'),
                 cancelRestartBtn: document.getElementById('cancel-restart-btn'),
                 intervalWinnerMessage: document.getElementById('interval-winner-message'),
+                peerModeContainer: document.getElementById('peer-mode-container'),
+                peerConnectBtn: document.getElementById('peer-connect-btn'),
+                peerStatusIndicator: document.getElementById('peer-status-indicator'),
+                peerConnectModal: document.getElementById('peer-connect-modal'),
+                closePeerModalBtn: document.getElementById('close-peer-modal-btn'),
+                mySessionCode: document.getElementById('my-session-code'),
+                peerSessionInput: document.getElementById('peer-session-input'),
+                confirmPeerConnectBtn: document.getElementById('confirm-peer-connect-btn'),
+                peerConnectStatus: document.getElementById('peer-connect-status'),
                 playIcon: '<svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3l14 9-14 9V3z" /></svg>',
                 pauseIcon: '<svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 9v6m4-6v6" /></svg>'
             };
 
             let state;
             let lastConfiguredTime = 90; // Tempo padrão do round em segundos (1:30)
+
+            // --- Lógica do Modo de Pares (Firebase) ---
+            let db, sessionRef, localClientId, peerListenerUnsubscribe;
+            
+            let peerState = {
+                connected: false,
+                sessionId: null,
+                mySlot: null,
+                peerSlot: null
+            };
+
+            // Função para inicializar o Firebase
+            async function initFirebase() {
+                if (db) return; // Já inicializado
+                try {
+                    // Your web app's Firebase configuration
+                    const firebaseConfig = {
+                      apiKey: "AIzaSyBN6wDh5SmnAo0kz0BxjS5VZZri9MKnQlU",
+                      authDomain: "cots-701cf.firebaseapp.com",
+                      projectId: "cots-701cf",
+                      storageBucket: "cots-701cf.appspot.com",
+                      messagingSenderId: "392805376504",
+                      appId: "1:392805376504:web:b582d4adf2f4435158760d"
+                    };
+
+                    const app = window.firebase.initializeApp(firebaseConfig);
+                    db = window.firebase.getFirestore(app);
+                    localClientId = `client-${Math.random().toString(36).substr(2, 9)}`;
+                } catch (error) {
+                    console.error("Erro ao inicializar Firebase:", error);
+                    updatePeerConnectStatus("Erro de conexão", "red");
+                }
+            }
+
+            function generateSessionCode() {
+                // Gera um código de 6 dígitos
+                const code = Math.floor(100000 + Math.random() * 900000).toString();
+                ui.mySessionCode.textContent = code;
+                ui.peerSessionInput.value = ''; // Limpa o input
+            }
+
+            async function connectToPeerSession() {
+                const sessionId = ui.peerSessionInput.value.trim().toUpperCase();
+                if (!sessionId) {
+                    updatePeerConnectStatus("Por favor, insira um código.", "red");
+                    return;
+                }
+                
+                await initFirebase();
+                if (!db) return;
+
+                leavePeerSession(); // Garante que qualquer sessão anterior seja encerrada
+
+                updatePeerConnectStatus("Conectando...", "yellow");
+                peerState.sessionId = sessionId;
+                sessionRef = window.firebase.doc(db, "tkd-sessions", sessionId);
+
+                const docSnap = await window.firebase.getDoc(sessionRef);
+                const data = docSnap.data() || {};
+
+                if (!data.peer1) {
+                    // Eu sou o primeiro a entrar
+                    peerState.mySlot = 'peer1';
+                    peerState.peerSlot = 'peer2';
+                    await window.firebase.setDoc(sessionRef, { peer1: { id: localClientId, action: null } }, { merge: true });
+                    updatePeerConnectStatus("Aguardando o par...", "yellow");
+                } else if (!data.peer2 && data.peer1.id !== localClientId) {
+                    // Eu sou o segundo
+                    peerState.mySlot = 'peer2';
+                    peerState.peerSlot = 'peer1';
+                    await window.firebase.updateDoc(sessionRef, { peer2: { id: localClientId, action: null } });
+                } else {
+                     // Sessão cheia ou meu próprio ID está lá
+                    updatePeerConnectStatus("Sessão indisponível ou código inválido.", "red");
+                    peerState.sessionId = null;
+                    sessionRef = null;
+                    return;
+                }
+
+                peerListenerUnsubscribe = window.firebase.onSnapshot(sessionRef, (doc) => {
+                    handlePeerData(doc.data());
+                });
+            }
+
+
+            function handlePeerData(data) {
+                if (!data) { // O documento foi deletado
+                    leavePeerSession();
+                    updatePeerStatusIndicator("gray");
+                    alert("A sessão de pares foi encerrada.");
+                    return;
+                }
+            
+                const myData = data[peerState.mySlot];
+                const peerData = data[peerState.peerSlot];
+            
+                if (myData && peerData) {
+                     // Conexão estabelecida com sucesso
+                    if (!peerState.connected) {
+                        peerState.connected = true;
+                        ui.peerConnectModal.classList.add('hidden');
+                        updatePeerStatusIndicator("green");
+                         // Sincroniza o estado inicial se o outro peer já tiver algo
+                        if(peerData.gameState) syncLocalState(peerData.gameState);
+                    }
+
+                    // Verifica se o peer enviou uma ação para pontuar
+                    if (peerData.action && myData.action) {
+                        const timeDiff = Math.abs(peerData.action.timestamp - myData.action.timestamp);
+                        if (peerData.action.type === myData.action.type && peerData.action.player === myData.action.player && timeDiff < 3000) {
+                            // Ação confirmada!
+                            executeConfirmedAction(myData.action);
+                            // Limpa as ações para evitar pontuação duplicada
+                            clearMyAction();
+                        }
+                    }
+
+                     // Sincroniza o estado do jogo se o peer o atualizou (ex: ajuste manual)
+                    if (peerData.gameState && JSON.stringify(peerData.gameState) !== JSON.stringify(getSyncableState())) {
+                        syncLocalState(peerData.gameState);
+                    }
+
+                } else if (peerState.connected) {
+                     // Um dos pares saiu
+                    peerState.connected = false;
+                    leavePeerSession();
+                    updatePeerStatusIndicator("red");
+                    alert("O par se desconectou.");
+                }
+            }
+             // Executa a ação localmente após confirmação do par
+            function executeConfirmedAction(action) {
+                const { player, type, points, isRemoval } = action.payload;
+                const buttonElement = document.querySelector(`[data-player="${player}"][data-action="${type}"]`);
+                if (isRemoval) {
+                     if (type === 'penalty') {
+                        handlePenaltyRemoval(player, true);
+                     } else {
+                        handlePointRemoval(player, points, type, buttonElement, true);
+                     }
+                } else {
+                     if (type === 'penalty') {
+                        handlePenalty(player, true);
+                     } else {
+                        handleScore(player, points, type, buttonElement, true);
+                     }
+                }
+            }
+
+            // Limpa a própria ação no Firebase
+            async function clearMyAction() {
+                if (peerState.mySlot && sessionRef) {
+                    await window.firebase.updateDoc(sessionRef, { [`${peerState.mySlot}.action`]: null });
+                }
+            }
+            
+            // Sai da sessão de pares
+            function leavePeerSession() {
+                if (peerListenerUnsubscribe) peerListenerUnsubscribe();
+                peerListenerUnsubscribe = null;
+                sessionRef = null;
+                peerState = { connected: false, sessionId: null, mySlot: null, peerSlot: null };
+                updatePeerStatusIndicator("gray");
+            }
+
+            function getSyncableState() {
+                return {
+                    scores: state.scores,
+                    penalties: state.penalties,
+                    roundWins: state.roundWins
+                };
+            }
+
+            // Sincroniza o estado do jogo para o par (usado no ajuste manual)
+             async function syncGameStateToPeer() {
+                if (peerState.connected && peerState.mySlot && sessionRef) {
+                    await window.firebase.updateDoc(sessionRef, {
+                        [`${peerState.mySlot}.gameState`]: getSyncableState()
+                    });
+                }
+            }
+
+            // Atualiza o estado local com base no que veio do par
+            function syncLocalState(remoteGameState) {
+                let changed = false;
+                if(JSON.stringify(state.scores) !== JSON.stringify(remoteGameState.scores)) {
+                    state.scores = remoteGameState.scores;
+                    updateScores();
+                    changed = true;
+                }
+                 if(JSON.stringify(state.penalties) !== JSON.stringify(remoteGameState.penalties)) {
+                    state.penalties = remoteGameState.penalties;
+                    updatePenaltiesDisplay();
+                    changed = true;
+                }
+                 if(JSON.stringify(state.roundWins) !== JSON.stringify(remoteGameState.roundWins)) {
+                    state.roundWins = remoteGameState.roundWins;
+                    updateRoundWins();
+                    changed = true;
+                }
+                if(changed) {
+                    logAction({event: 'Sincronização', detail: 'Estado atualizado pelo par.'});
+                }
+            }
+            
+            // Atualiza a mensagem de status no modal de conexão
+            function updatePeerConnectStatus(message, color) {
+                const colors = {
+                    red: 'text-red-400',
+                    yellow: 'text-yellow-400',
+                    green: 'text-green-400'
+                };
+                ui.peerConnectStatus.textContent = message;
+                ui.peerConnectStatus.className = `text-sm h-5 ${colors[color] || 'text-gray-400'}`;
+            }
+
+            function updatePeerStatusIndicator(color) {
+                ui.peerStatusIndicator.className = `h-3 w-3 rounded-full bg-${color}-500`;
+            }
+
+            // Envia uma ação para o Firebase para ser validada pelo par
+            async function sendActionToPeer(actionPayload) {
+                if (!peerState.connected || !peerState.mySlot || !sessionRef) return;
+                try {
+                    const action = {
+                        type: actionPayload.type,
+                        player: actionPayload.player,
+                        timestamp: Date.now(),
+                        payload: actionPayload // guarda os detalhes para executar depois
+                    };
+                    await window.firebase.updateDoc(sessionRef, {
+                        [`${peerState.mySlot}.action`]: action
+                    });
+                } catch (e) {
+                    console.error("Erro ao enviar ação:", e);
+                }
+            }
+
 
             // Função para obter o estado inicial do jogo
             const getInitialState = () => ({
@@ -302,6 +589,7 @@
                 state.lastWinnerMessage = `${winnerName} venceu o Round ${state.round}!`;
                 logAction({ event: 'Resultado do Round', detail: `${state.lastWinnerMessage} (${reason.detail})` });
                 updateRoundWins();
+                 if (peerState.connected) syncGameStateToPeer(); // Sincroniza
                 
                 const { blue: blueWins, red: redWins } = state.roundWins;
                 if (state.round === 2 && blueWins === 1 && redWins === 1) {
@@ -372,6 +660,7 @@
                 logAction({ event: 'Resultado do Round', detail: state.lastWinnerMessage });
                 
                 updateRoundWins();
+                if (peerState.connected) syncGameStateToPeer(); // Sincroniza
                 
                 const {blue: blueWins, red: redWins} = state.roundWins;
                 if (state.round === 2 && blueWins === 1 && redWins === 1) {
@@ -441,7 +730,10 @@
                 if (state.manualAdjustMode) toggleManualAdjust();
                 ui.manualAdjustBtn.classList.add('hidden');
                 ui.restartBtn.classList.add('hidden');
-                if (state.round === 1 && !state.gameStarted) state.gameStarted = true;
+                if (state.round === 1 && !state.gameStarted) {
+                    state.gameStarted = true;
+                    ui.peerModeContainer.classList.add('hidden'); // Oculta o controle de pares
+                }
                 state.timer.isRunning = true;
                 ui.playPauseBtn.innerHTML = ui.pauseIcon;
                 logAction({ event: 'Timer', detail: 'Iniciado' });
@@ -515,6 +807,11 @@
                 if (state.isGameOver) return;
                 state.isGameOver = true;
                 updateRoundDisplay();
+                 // Deleta o documento da sessão no final
+                if (sessionRef) {
+                    window.firebase.deleteDoc(sessionRef);
+                }
+                leavePeerSession(); // Encerra a sessão de pares
                 setTimeout(displaySummary, 1500); // Mostra o sumário após um breve delay
             };
 
@@ -522,6 +819,11 @@
                 if (state && state.manualAdjustMode) toggleManualAdjust();
                 if (state && state.timer.intervalId) stopTimer();
                 if (state && state.interval.intervalId) clearInterval(state.interval.intervalId);
+                 // Deleta o documento da sessão ao reiniciar
+                if (sessionRef) {
+                    window.firebase.deleteDoc(sessionRef);
+                }
+                leavePeerSession();
                 state = getInitialState();
                 updateScores();
                 updateTimerDisplay();
@@ -538,6 +840,7 @@
                 ui.restartConfirmModal.classList.add('hidden');
                 ui.manualAdjustBtn.classList.remove('hidden');
                 ui.restartBtn.classList.add('hidden');
+                ui.peerModeContainer.classList.remove('hidden'); // Mostra o controle de pares ao reiniciar
             };
             
             // --- Lógica de Sumário e Estatísticas ---
@@ -614,12 +917,12 @@
                 });
 
                 summaryHTML += `<div class="p-2 mt-4 bg-gray-900 rounded border-t-2 border-yellow-400">
-                                    <h4 class="font-bold text-lg text-yellow-400">Totais da Partida</h4>
-                                    <p>Placar Final: <span class="text-blue-400">Azul ${totals.scores.blue}</span> x <span class="text-red-400">${totals.scores.red} Vermelho</span></p>
-                                    <p>Ações (Azul): ${totals.hits.blue.punch} Socos, ${totals.hits.blue.torso} Tronco, ${totals.hits.blue.head} Cabeça</p>
-                                    <p>Ações (Vermelho): ${totals.hits.red.punch} Socos, ${totals.hits.red.torso} Tronco, ${totals.hits.red.head} Cabeça</p>
-                                    <p>Faltas: <span class="text-blue-400">Azul ${totals.penalties.blue}</span> | <span class="text-red-400">Vermelho ${totals.penalties.red}</span></p>
-                                </div>`;
+                                        <h4 class="font-bold text-lg text-yellow-400">Totais da Partida</h4>
+                                        <p>Placar Final: <span class="text-blue-400">Azul ${totals.scores.blue}</span> x <span class="text-red-400">${totals.scores.red} Vermelho</span></p>
+                                        <p>Ações (Azul): ${totals.hits.blue.punch} Socos, ${totals.hits.blue.torso} Tronco, ${totals.hits.blue.head} Cabeça</p>
+                                        <p>Ações (Vermelho): ${totals.hits.red.punch} Socos, ${totals.hits.red.torso} Tronco, ${totals.hits.red.head} Cabeça</p>
+                                        <p>Faltas: <span class="text-blue-400">Azul ${totals.penalties.blue}</span> | <span class="text-red-400">Vermelho ${totals.penalties.red}</span></p>
+                                    </div>`;
                 
                 summaryHTML += `<div class="p-2 mt-4 bg-gray-900 rounded border-t-2 border-gray-600"><h4 class="font-bold text-lg text-yellow-400 mt-2">Súmula Completa</h4>`;
                 state.gameLog.forEach(log => {
@@ -650,8 +953,13 @@
                 }, duration);
             };
 
-            const handleScore = (player, points, type, button) => {
+             const handleScore = (player, points, type, button, fromPeer = false) => {
                 if (state.isRoundOver || state.isGameOver) return;
+                 if (peerState.connected && !fromPeer) {
+                    sendActionToPeer({ player, points, type, isRemoval: false });
+                    return;
+                }
+
                 triggerVibration(100);
                 triggerVisualFeedback(button, 'add');
 
@@ -674,8 +982,12 @@
                 checkMidRoundEndConditions();
             };
 
-            const handlePointRemoval = (player, points, type, button) => {
+            const handlePointRemoval = (player, points, type, button, fromPeer = false) => {
                 if (state.isRoundOver || state.isGameOver) return;
+                 if (peerState.connected && !fromPeer) {
+                    sendActionToPeer({ player, points, type, isRemoval: true });
+                    return;
+                }
                 triggerVibration(400);
                 triggerVisualFeedback(button, 'remove');
 
@@ -698,8 +1010,12 @@
                 }
             };
 
-            const handlePenalty = (player) => {
+            const handlePenalty = (player, fromPeer = false) => {
                 if (state.isRoundOver || state.isGameOver) return;
+                if (peerState.connected && !fromPeer) {
+                     sendActionToPeer({ player, type: 'penalty', isRemoval: false });
+                     return;
+                }
                 const opponent = player === 'blue' ? 'red' : 'blue';
                 state.scores[opponent]++;
                 state.penalties[player]++;
@@ -709,8 +1025,12 @@
                 checkMidRoundEndConditions();
             };
 
-            const handlePenaltyRemoval = (player) => {
+            const handlePenaltyRemoval = (player, fromPeer = false) => {
                 if (state.isRoundOver || state.isGameOver || state.penalties[player] <= 0) return;
+                 if (peerState.connected && !fromPeer) {
+                     sendActionToPeer({ player, type: 'penalty', isRemoval: true });
+                     return;
+                }
                 const opponent = player === 'blue' ? 'red' : 'blue';
                 if(state.scores[opponent] > 0) state.scores[opponent]--;
                 state.penalties[player]--;
@@ -740,6 +1060,9 @@
                     state.scores[player] += amount;
                     updateScores();
                     logAction({ player, event: 'Ajuste Manual', detail: `${amount > 0 ? '+' : ''}${amount}pt` });
+                    if (peerState.connected) { // Sincroniza a mudança
+                        syncGameStateToPeer();
+                    }
                     checkMidRoundEndConditions();
                 }
             };
@@ -864,7 +1187,20 @@
                 });
             });
 
+             // --- Event Listeners para Conexão de Pares ---
+            ui.peerConnectBtn.addEventListener('click', () => {
+                generateSessionCode();
+                updatePeerConnectStatus("Compartilhe seu código ou insira o do seu par.", "blue");
+                ui.peerConnectModal.classList.remove('hidden');
+            });
+            ui.closePeerModalBtn.addEventListener('click', () => {
+                ui.peerConnectModal.classList.add('hidden');
+            });
+            ui.confirmPeerConnectBtn.addEventListener('click', connectToPeerSession);
+
+
             // --- Inicialização do Jogo ---
+            initFirebase();
             resetGame();
         });
     </script>

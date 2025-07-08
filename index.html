@@ -255,7 +255,8 @@
         </div>
     </div>
     <div id="ios-fullscreen-modal" class="fixed inset-0 bg-black bg-opacity-75 flex-col items-center justify-center hidden z-50 p-4 text-center">
-        <div class="bg-gray-700 p-8 rounded-lg shadow-xl max-w-sm w-full">
+        <div class="bg-gray-700 p-8 rounded-lg shadow-xl max-w-sm w-full relative">
+            <button id="close-ios-fullscreen-modal-btn" class="absolute top-2 right-4 text-gray-400 hover:text-white text-4xl font-bold leading-none">&times;</button>
             <h2 class="text-2xl mb-4 font-bold text-yellow-300">Tela Cheia no iOS</h2>
             <p class="text-lg mb-2">Para usar o modo tela cheia, adicione este app à sua Tela de Início:</p>
             <p class="text-left text-base mb-4">
@@ -263,7 +264,6 @@
                 2. Role para baixo e selecione <strong>"Adicionar à Tela de Início"</strong>.<br>
                 3. Abra o aplicativo a partir do novo ícone na sua tela.
             </p>
-            <button id="close-ios-fullscreen-modal-btn" class="bg-blue-600 px-8 py-3 rounded-lg text-lg font-bold hover:bg-blue-700 w-full">Entendi</button>
         </div>
     </div>
     <div id="restart-confirm-modal" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center hidden z-50 p-4">
@@ -273,7 +273,82 @@
         <div class="bg-gray-700 rounded-lg shadow-xl text-center max-w-3xl w-full max-h-[90vh] flex flex-col p-6 md:p-8 relative"><button id="close-summary-btn" class="absolute top-2 right-4 text-gray-400 hover:text-white text-4xl font-bold leading-none">&times;</button><h2 class="text-3xl mb-4 font-bold flex-shrink-0">Fim de Jogo</h2><div id="final-winner" class="text-2xl mb-4"></div><div id="stats-summary-container" class="bg-gray-800 p-4 rounded-md text-left text-sm flex-grow min-h-0 overflow-y-auto"></div></div>
     </div>
     <div id="help-modal" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center hidden z-50 p-4">
-        <div class="bg-gray-700 rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] flex flex-col p-6 md:p-8 relative"><button id="close-help-btn" class="absolute top-2 right-4 text-gray-400 hover:text-white text-4xl font-bold leading-none">&times;</button><h2 class="text-3xl mb-4 font-bold flex-shrink-0 text-center">Manual de Uso</h2><div class="bg-gray-800 p-4 rounded-md text-left text-base flex-grow min-h-0 overflow-y-auto space-y-4"><div><h3 class="text-xl font-bold text-yellow-300 mb-2">Controles de Pontuação</h3><ul class="list-disc list-inside space-y-1"><li><strong>T (Tórax):</strong> Clique para adicionar <strong>2 pontos</strong> (chute).</li><li><strong>C (Cabeça):</strong> Clique para adicionar <strong>3 pontos</strong> (chute).</li><li><strong>S (Soco):</strong> Clique para adicionar <strong>1 ponto</strong> (soco no tórax).</li><li><strong>B (Bônus):</strong> Ativa o bônus de giro. O próximo chute (T ou C) valerá <strong>+2 pontos</strong>.</li><li><strong>G (Gam-geon):</strong> Adiciona <strong>1 ponto para o oponente</strong>.</li></ul></div><div><h3 class="text-xl font-bold text-yellow-300 mb-2">Correção de Erros</h3><ul class="list-disc list-inside space-y-1"><li><strong>Clique Longo:</strong> Para remover pontos ou uma falta, <strong>pressione e segure</strong> o botão correspondente.</li><li><strong>Remover com Bônus:</strong> Para remover um chute com giro, ative o botão 'B' e então pressione e segure 'T' ou 'C'.</li><li><strong>Ajuste Manual:</strong> Com o tempo pausado, clique em <strong>"Ajuste Manual"</strong> para exibir botões de '+' e '-' e corrigir o placar.</li></ul></div><div><h3 class="text-xl font-bold text-yellow-300 mb-2">Controles Centrais</h3><ul class="list-disc list-inside space-y-1"><li><strong>Cronômetro:</strong> Clique no tempo <strong>antes do início do 1º round</strong> para ajustar sua duração.</li><li><strong>Botão Play/Pause:</strong> Inicia/para o tempo. Após o intervalo, um clique inicia o próximo round.</li><li><strong>Botão Recomeçar:</strong> Aparece com o tempo pausado e permite reiniciar toda a partida.</li><li><strong>Intervalo de Descanso:</strong> Um timer de 30s é iniciado automaticamente entre os rounds no lugar do texto "ROUND".</li></ul></div><div><h3 class="text-xl font-bold text-yellow-300 mb-2">Modo de Pares (Online)</h3><ul class="list-disc list-inside space-y-1"><li><strong>Ativação:</strong> Antes de iniciar a partida, ative a chave seletora no canto superior esquerdo.</li><li><strong>Conexão:</strong> Um pop-up mostrará o seu código de sessão. Compartilhe esse código com seu par.</li><li><strong>Entrando na Sessão:</strong> Seu par deve inserir seu código na caixa de texto e clicar em "Conectar".</li><li><strong>Controles:</strong> O Par "A" (quem cria a sessão) controla o cronômetro, ajuste manual e tempo do round. O Par "B" sincroniza essas ações.</li><li><strong>Pontuação Sincronizada:</strong> Para que um ponto seja computado, a <strong>mesma técnica</strong> deve ser pressionada em <strong>ambos os dispositivos</strong> em um intervalo de 3 segundos.</li></ul></div><div><h3 class="text-xl font-bold text-yellow-300 mb-2">Sobre</h3><img src="resources/logo.png" alt="Logo Parahyba Fighters" class="mx-auto my-4 rounded-lg w-48" onerror="this.style.display='none'; this.onerror=null;"><p>Este sistema foi idealizado e desenvolvido por <strong>Francisco Breno Moura Alves</strong>, atleta e professor de Taekwondo (1º DAN) da Associação Parahyba Fighters.</p><div class="mt-2"><a href="https://www.instagram.com/fbrenomoura/" target="_blank" class="text-blue-400 hover:underline">Instagram</a> | <a href="https://www.linkedin.com/in/fbrenomoura/" target="_blank" class="text-blue-400 hover:underline">LinkedIn</a></div></div></div></div>
+        <div class="bg-gray-700 rounded-lg shadow-xl max-w-3xl w-full max-h-[90vh] flex flex-col p-6 md:p-8 relative">
+            <button id="close-help-btn" class="absolute top-2 right-4 text-gray-400 hover:text-white text-4xl font-bold leading-none">&times;</button>
+            <h2 class="text-3xl mb-4 font-bold flex-shrink-0 text-center">Manual de Uso</h2>
+            <div class="bg-gray-800 p-4 rounded-md text-left text-base flex-grow min-h-0 overflow-y-auto space-y-4">
+                <div>
+                    <h3 class="text-xl font-bold text-yellow-300 mb-2">Controles de Pontuação</h3>
+                    <ul class="list-disc list-inside space-y-1">
+                        <li><strong>Botão de Tórax:</strong> Clique para adicionar <strong>2 pontos</strong> (chute).</li>
+                        <li><strong>Botão de Cabeça:</strong> Clique para adicionar <strong>3 pontos</strong> (chute).</li>
+                        <li><strong>Botão de Soco:</strong> Clique para adicionar <strong>1 ponto</strong> (soco no tórax).</li>
+                        <li><strong>B (Bônus):</strong> Ativa o bônus de giro. O próximo chute (Tórax ou Cabeça) valerá <strong>+2 pontos</strong>. O botão fica amarelo quando ativo.</li>
+                        <li><strong>G (Gam-jeom):</strong> Adiciona <strong>1 ponto para o oponente</strong> e uma falta para o atleta.</li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-xl font-bold text-yellow-300 mb-2">Correção de Erros</h3>
+                    <ul class="list-disc list-inside space-y-1">
+                        <li><strong>Clique Longo:</strong> Para remover pontos ou uma falta, <strong>pressione e segure</strong> o botão correspondente por 1 segundo.</li>
+                        <li><strong>Remover com Bônus:</strong> Para remover um chute com giro, ative o botão 'B' e então pressione e segure o botão de Tórax ou Cabeça.</li>
+                        <li><strong>Ajuste Manual:</strong> Com o tempo pausado, clique em <strong>"Ajuste Manual"</strong> para exibir botões de '+' e '-' e corrigir o placar livremente.</li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-xl font-bold text-yellow-300 mb-2">Controles Centrais</h3>
+                    <ul class="list-disc list-inside space-y-1">
+                        <li><strong>Cronômetro:</strong> Clique no tempo <strong>antes do início do 1º round</strong> para ajustar sua duração.</li>
+                        <li><strong>Botão Play/Pause:</strong> Inicia/para o tempo. Durante o intervalo, um clique inicia o próximo round imediatamente.</li>
+                        <li><strong>Botão Recomeçar:</strong> Aparece com o tempo pausado e permite reiniciar toda a partida (apaga todos os dados).</li>
+                        <li><strong>Intervalo de Descanso:</strong> Um timer de 30s é iniciado automaticamente entre os rounds.</li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-xl font-bold text-yellow-300 mb-2">Modo Online: Juiz vs. Juiz e Modo Tela</h3>
+                    <p class="mb-2">O modo online permite que dois dispositivos atuem como juízes ou que um dispositivo espelhe o placar em uma tela maior.</p>
+                    <ul class="list-disc list-inside space-y-2">
+                        <li>
+                            <strong>Conexão Inicial:</strong>
+                            <ol class="list-decimal list-inside ml-4">
+                                <li>Ative a chave seletora <label for="peer-mode-toggle-dummy" class="relative inline-flex items-center align-middle cursor-pointer mx-1"><input type="checkbox" id="peer-mode-toggle-dummy" class="sr-only peer" checked><div class="w-11 h-6 bg-blue-600 rounded-full"></div><div class="absolute top-[2px] left-[2px] bg-white border-gray-300 border rounded-full h-5 w-5 translate-x-full"></div></label> no canto superior esquerdo.</li>
+                                <li>O primeiro a ativar se torna o <strong>Juiz A (Master)</strong> e um código de sessão será exibido.</li>
+                                <li>Compartilhe este código com o outro dispositivo.</li>
+                            </ol>
+                        </li>
+                        <li>
+                            <strong>Modo Juiz vs. Juiz (Par):</strong>
+                            <ol class="list-decimal list-inside ml-4">
+                                <li>O segundo dispositivo (<strong>Juiz B</strong>) deve inserir o código recebido e clicar no botão <strong>"Par"</strong>.</li>
+                                <li><strong>Funcionamento:</strong> Para que um ponto seja computado, a <strong>mesma técnica</strong> (Soco, Tórax ou Cabeça) deve ser pressionada em <strong>ambos os dispositivos</strong> em um intervalo de 3 segundos.</li>
+                                <li>O <strong>Juiz A</strong> tem controle exclusivo sobre o cronômetro, ajuste manual, faltas (Gam-jeom) e reinício da partida.</li>
+                            </ol>
+                        </li>
+                        <li>
+                            <strong>Modo Tela (Espelhamento):</strong>
+                             <ol class="list-decimal list-inside ml-4">
+                                <li>Em um segundo dispositivo (ex: TV, tablet), insira o código da sessão e clique no botão <strong>"Tela"</strong>.</li>
+                                <li><strong>Funcionamento:</strong> O dispositivo no modo "Tela" apenas exibirá o placar em tempo real, sem nenhum controle. É ideal para ser usado como o placar principal visível para todos.</li>
+                            </ol>
+                        </li>
+                         <li><strong>Desconexão:</strong> Se a conexão for perdida, a partida é pausada. Você pode tentar reconectar ou continuar a partida no modo offline.</li>
+                    </ul>
+                </div>
+                 <div>
+                    <h3 class="text-xl font-bold text-yellow-300 mb-2">Outras Funcionalidades</h3>
+                    <ul class="list-disc list-inside space-y-1">
+                        <li><strong>Tela Cheia:</strong> Use o botão no canto superior direito para uma experiência imersiva. No iOS, é necessário adicionar o site à tela de início.</li>
+                         <li><strong>Súmula Final:</strong> Ao final da partida, um resumo detalhado com todas as estatísticas e eventos é exibido.</li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-xl font-bold text-yellow-300 mb-2">Sobre</h3>
+                    <img src="resources/logo.png" alt="Logo Parahyba Fighters" class="mx-auto my-4 rounded-lg w-48" onerror="this.style.display='none'; this.onerror=null;">
+                    <p>Este sistema foi idealizado e desenvolvido por <strong>Francisco Breno Moura Alves</strong>, atleta e professor de Taekwondo (1º DAN) da Associação Parahyba Fighters.</p>
+                    <div class="mt-2"><a href="https://www.instagram.com/fbrenomoura/" target="_blank" class="text-blue-400 hover:underline">Instagram</a> | <a href="https://www.linkedin.com/in/fbrenomoura/" target="_blank" class="text-blue-400 hover:underline">LinkedIn</a></div>
+                </div>
+            </div>
+        </div>
     </div>
     <div id="time-modal" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center hidden z-50 p-4">
         <div class="bg-gray-700 p-8 rounded-lg shadow-xl text-center"><h2 class="text-2xl mb-4">Configurar Tempo do Round</h2><div class="flex justify-center items-center space-x-2"><input type="number" id="minutes-input" min="0" max="59" class="w-20 h-16 text-4xl text-center bg-gray-800 rounded" value="1"><span class="text-4xl">:</span><input type="number" id="seconds-input" min="0" max="59" class="w-20 h-16 text-4xl text-center bg-gray-800 rounded" value="30"></div><button id="set-time-btn" class="mt-6 bg-blue-600 px-8 py-3 rounded-lg text-lg font-bold hover:bg-blue-700">Confirmar</button></div>
@@ -506,12 +581,12 @@
                     leavePeerSession(true);
                     return;
                 }
-            
+                
                 if (!peerState.connected) {
                     const isReadyToConnect =
                         (peerState.isMaster && data.peer2) || 
                         (!peerState.isMaster);
-            
+                
                     if (isReadyToConnect) {
                         peerState.connected = true;
                         if (!peerState.isMaster) {
@@ -523,7 +598,7 @@
                         }
                     }
                 }
-            
+                
                 if (peerState.connected) {
                     if (peerState.isMaster && data.logQueue && data.logQueue.length > 0) {
                         const currentLogCount = state.gameLog.length;
@@ -547,14 +622,14 @@
                         const peerSlotKey = peerState.isMaster ? 'peer2' : 'peer1';
                         const myData = data[mySlotKey];
                         const peerData = data[peerSlotKey];
-            
+                        
                         if (myData.actionQueue.length > 0 && peerData.actionQueue.length > 0) {
                             const now = Date.now();
                             if (now - peerData.lastSeen > PEER_TIMEOUT_MS) {
                                 handlePeerDisconnect();
                                 return;
                             }
-            
+                            
                             const myActions = [...myData.actionQueue];
                             let peerActions = [...peerData.actionQueue];
                             let matchedMyActions = [];
@@ -585,7 +660,7 @@
                             }
                         }
                     }
-            
+                
                     if (data.sharedState && JSON.stringify(data.sharedState) !== JSON.stringify(state)) {
                         syncLocalState(data.sharedState);
                     }
@@ -637,15 +712,15 @@
                 if (isRemoval) {
                      if (type === 'penalty') {
                         handlePenaltyRemoval(player);
-                      } else {
+                       } else {
                         handlePointRemoval(player, points, type, buttonElement, true, isBonus);
-                      }
+                       }
                 } else {
                      if (type === 'penalty') {
                         handlePenalty(player);
-                      } else {
+                       } else {
                         handleScore(player, points, type, buttonElement, true, isBonus);
-                      }
+                       }
                 }
             }
             
@@ -1206,12 +1281,12 @@
             
             const triggerScreenFeedback = (player, type, isBonus) => {
                 if (!peerState.isScreenMode) return;
-            
+                
                 const actionButton = document.querySelector(`.control-button[data-player="${player}"][data-action="${type}"]`);
                 
                 if (actionButton) {
                     actionButton.classList.remove('opacity-50');
-            
+                
                     if (isBonus) {
                         const bonusButton = document.querySelector(`.control-button[data-player="${player}"][data-action="bonus"]`);
                         if (bonusButton) {
@@ -1221,7 +1296,7 @@
                             }, 1000);
                         }
                     }
-            
+                
                     setTimeout(() => {
                         actionButton.classList.add('opacity-50');
                     }, 1000);
@@ -1230,9 +1305,9 @@
 
             const handleScore = (player, points, type, button, fromPeer = false, isBonus = false) => {
                 if (state.isRoundOver || state.isGameOver) return;
-            
+                
                 let wasBonusActive;
-            
+                
                 if (peerState.connected) {
                     if (fromPeer) {
                         wasBonusActive = isBonus;
@@ -1247,14 +1322,14 @@
                 } else {
                     wasBonusActive = state.bonus[player];
                 }
-            
+                
                 triggerVibration(100);
                 triggerVisualFeedback(button, 'add');
                 let finalPoints = points;
                 let detail = `${type.charAt(0).toUpperCase() + type.slice(1)}`;
                 let newState = { ...state };
-            
-                if (wasBonusActive) {
+                
+                if (wasBonusActive && type !== 'punch') {
                     finalPoints += 2;
                     detail += " com Giro";
                     
@@ -1269,7 +1344,7 @@
                         newState.bonus = { ...state.bonus, [player]: false };
                     }
                 }
-            
+                
                 const logData = { player, event: 'Pontuação', type, detail: `+${finalPoints}pts (${detail})`, isSpin: wasBonusActive };
                 newState.scores = { ...state.scores, [player]: state.scores[player] + finalPoints };
                 newState.gameLog = [...state.gameLog, { time: formatTime(state.timer.initialTime - state.timer.currentTime), round: state.round, ...logData }];
@@ -1279,9 +1354,9 @@
             
             const handlePointRemoval = (player, points, type, button, fromPeer = false, isBonus = false) => {
                 if (state.isRoundOver || state.isGameOver) return;
-            
+                
                 let wasBonusActive;
-            
+                
                 if (peerState.connected) {
                     if (fromPeer) {
                         wasBonusActive = isBonus;
@@ -1296,17 +1371,17 @@
                 } else {
                     wasBonusActive = state.bonus[player];
                 }
-            
+                
                 triggerVibration(400);
                 triggerVisualFeedback(button, 'remove');
                 let pointsToRemove = points;
                 let detail = type.charAt(0).toUpperCase() + type.slice(1);
                 let newState = { ...state };
-            
-                if (wasBonusActive) {
+                
+                if (wasBonusActive && type !== 'punch') {
                     pointsToRemove += 2;
                     detail += " com Giro";
-            
+                
                     if (peerState.connected) {
                         if (peerState.isMaster) {
                              window.firebase.updateDoc(sessionRef, {
@@ -1318,7 +1393,7 @@
                         newState.bonus = { ...state.bonus, [player]: false };
                     }
                 }
-            
+                
                 if (state.scores[player] >= pointsToRemove) {
                     newState.scores = { ...state.scores, [player]: state.scores[player] - pointsToRemove };
                     const logData = { player, event: 'Remoção', type, detail: `-${pointsToRemove}pts (${detail})` };

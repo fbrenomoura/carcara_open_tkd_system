@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
     <title>Placar de Taekwondo</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -253,11 +254,16 @@
             <p id="firebase-status-in-modal" class="text-xs mt-2 h-4"></p>
         </div>
     </div>
-    <div id="safari-fullscreen-modal" class="fixed inset-0 bg-black bg-opacity-75 flex-col items-center justify-center hidden z-50 p-4 text-center">
+    <div id="ios-fullscreen-modal" class="fixed inset-0 bg-black bg-opacity-75 flex-col items-center justify-center hidden z-50 p-4 text-center">
         <div class="bg-gray-700 p-8 rounded-lg shadow-xl max-w-sm w-full">
-            <h2 class="text-2xl mb-4 font-bold text-yellow-300">Aviso de Compatibilidade</h2>
-            <p class="text-lg mb-6">O modo de tela cheia não é suportado pelo navegador Safari no iOS. Para uma melhor experiência, recomendamos instalar o Google Chrome através da App Store.</p>
-            <button id="close-safari-modal-btn" class="bg-blue-600 px-8 py-3 rounded-lg text-lg font-bold hover:bg-blue-700 w-full">Entendi</button>
+            <h2 class="text-2xl mb-4 font-bold text-yellow-300">Tela Cheia no iOS</h2>
+            <p class="text-lg mb-2">Para usar o modo tela cheia, adicione este app à sua Tela de Início:</p>
+            <p class="text-left text-base mb-4">
+                1. Toque no botão de <strong>Compartilhar</strong> <img src="https://i.stack.imgur.com/ES2sM.png" class="inline h-5 w-5 mx-1"> no seu navegador.<br>
+                2. Role para baixo e selecione <strong>"Adicionar à Tela de Início"</strong>.<br>
+                3. Abra o aplicativo a partir do novo ícone na sua tela.
+            </p>
+            <button id="close-ios-fullscreen-modal-btn" class="bg-blue-600 px-8 py-3 rounded-lg text-lg font-bold hover:bg-blue-700 w-full">Entendi</button>
         </div>
     </div>
     <div id="restart-confirm-modal" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center hidden z-50 p-4">
@@ -309,8 +315,8 @@
                 summaryModal: document.getElementById('summary-modal'),
                 helpModal: document.getElementById('help-modal'),
                 restartConfirmModal: document.getElementById('restart-confirm-modal'),
-                safariFullscreenModal: document.getElementById('safari-fullscreen-modal'),
-                closeSafariModalBtn: document.getElementById('close-safari-modal-btn'),
+                iosFullscreenModal: document.getElementById('ios-fullscreen-modal'),
+                closeIosFullscreenModalBtn: document.getElementById('close-ios-fullscreen-modal-btn'),
                 setTimeBtn: document.getElementById('set-time-btn'),
                 minutesInput: document.getElementById('minutes-input'),
                 secondsInput: document.getElementById('seconds-input'),
@@ -1409,9 +1415,9 @@
             });
 
             const toggleFullScreen = () => {
-                const isSafariOnApple = /iPad|iPhone|iPod/.test(navigator.userAgent) && /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
-                if (isSafariOnApple && !document.fullscreenElement) {
-                    ui.safariFullscreenModal.classList.remove('hidden');
+                const isIos = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+                if (isIos) {
+                    ui.iosFullscreenModal.classList.remove('hidden');
                     return;
                 }
                 const doc = window.document;
@@ -1426,7 +1432,7 @@
             };
 
             ui.fullscreenBtn.addEventListener('click', toggleFullScreen);
-            ui.closeSafariModalBtn.addEventListener('click', () => ui.safariFullscreenModal.classList.add('hidden'));
+            ui.closeIosFullscreenModalBtn.addEventListener('click', () => ui.iosFullscreenModal.classList.add('hidden'));
             
             const updateFullscreenButton = () => {
                  if (document.fullscreenElement || document.webkitIsFullScreen || document.mozFullScreenElement || document.msFullscreenElement) {
@@ -1489,7 +1495,10 @@
                 ui.restartConfirmModal.classList.add('hidden');
                 resetGame();
             });
-            ui.closeSummaryBtn.addEventListener('click', () => resetGame());
+            ui.closeSummaryBtn.addEventListener('click', () => {
+                ui.summaryModal.classList.add('hidden');
+                resetGame();
+            });
             ui.manualAdjustBtn.addEventListener('click', toggleManualAdjust);
             document.querySelectorAll('.manual-adjust-controls button').forEach(button => {
                 button.addEventListener('click', () => {

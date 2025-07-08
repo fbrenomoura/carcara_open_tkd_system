@@ -157,9 +157,15 @@
                 <div class="grid grid-cols-13 gap-1 md:gap-2 h-20 md:h-24">
                     <button data-player="blue" data-action="penalty" class="control-button control-button-sm bg-gray-700 col-span-2">G</button>
                     <button data-player="blue" data-action="bonus" class="control-button control-button-sm bg-gray-700 col-span-2">B</button>
-                    <button data-player="blue" data-action="punch" class="control-button bg-blue-500 text-3xl md:text-5xl col-span-3">S</button>
-                    <button data-player="blue" data-action="head" class="control-button bg-blue-500 text-3xl md:text-5xl col-span-3">C</button>
-                    <button data-player="blue" data-action="torso" class="control-button bg-blue-500 text-3xl md:text-5xl col-span-3">T</button>
+                    <button data-player="blue" data-action="punch" class="control-button bg-blue-500 col-span-3">
+                        <img src="resources/punch.png" alt="Soco" class="h-full w-auto p-2 mx-auto">
+                    </button>
+                    <button data-player="blue" data-action="head" class="control-button bg-blue-500 col-span-3">
+                        <img src="resources/head_blue.png" alt="Cabeça" class="h-full w-auto p-2 mx-auto">
+                    </button>
+                    <button data-player="blue" data-action="torso" class="control-button bg-blue-500 col-span-3">
+                        <img src="resources/chest_blue.png" alt="Tórax" class="h-full w-auto p-2 mx-auto">
+                    </button>
                 </div>
             </div>
 
@@ -187,9 +193,15 @@
                 </div>
                 <!-- Grid com 13 colunas para garantir o tamanho correto dos botões -->
                 <div class="grid grid-cols-13 gap-1 md:gap-2 h-20 md:h-24">
-                    <button data-player="red" data-action="torso" class="control-button bg-red-500 text-3xl md:text-5xl col-span-3">T</button>
-                    <button data-player="red" data-action="head" class="control-button bg-red-500 text-3xl md:text-5xl col-span-3">C</button>
-                    <button data-player="red" data-action="punch" class="control-button bg-red-500 text-3xl md:text-5xl col-span-3">S</button>
+                    <button data-player="red" data-action="torso" class="control-button bg-red-500 col-span-3">
+                        <img src="resources/chest_red.png" alt="Tórax" class="h-full w-auto p-2 mx-auto">
+                    </button>
+                    <button data-player="red" data-action="head" class="control-button bg-red-500 col-span-3">
+                        <img src="resources/head_red.png" alt="Cabeça" class="h-full w-auto p-2 mx-auto">
+                    </button>
+                    <button data-player="red" data-action="punch" class="control-button bg-red-500 col-span-3">
+                        <img src="resources/punch.png" alt="Soco" class="h-full w-auto p-2 mx-auto">
+                    </button>
                     <button data-player="red" data-action="bonus" class="control-button control-button-sm bg-gray-700 col-span-2">B</button>
                     <button data-player="red" data-action="penalty" class="control-button control-button-sm bg-gray-700 col-span-2">G</button>
                 </div>
@@ -1086,23 +1098,19 @@
             
                 if (peerState.connected) {
                     if (fromPeer) {
-                        // Ação sendo executada pelo mestre, `isBonus` é o status confirmado
                         wasBonusActive = isBonus;
                     } else {
-                        // Clique do usuário no modo de pares, enviar para a lógica de pares
                         wasBonusActive = peerState.localBonus[player];
                         sendScoreActionToPeer({ player, points, type, isRemoval: false, isBonus: wasBonusActive });
                         if (wasBonusActive) {
-                            updateLocalBonusState(player, false); // Desativa o bônus visualmente imediatamente para o usuário que clicou
+                            updateLocalBonusState(player, false);
                         }
-                        return; // Para a execução aqui, aguarda a confirmação
+                        return;
                     }
                 } else {
-                    // Modo local
                     wasBonusActive = state.bonus[player];
                 }
             
-                // Se chegamos aqui, ou é modo local ou o mestre executando uma ação confirmada de pares.
                 triggerVibration(100);
                 triggerVisualFeedback(button, 'add');
                 let finalPoints = points;
@@ -1113,17 +1121,14 @@
                     finalPoints += 2;
                     detail += " com Giro";
                     
-                    // Reseta o estado do bônus
                     if (peerState.connected) {
                         if (peerState.isMaster) {
-                            // O mestre reseta o estado do bônus para ambos os pares no Firebase
                              window.firebase.updateDoc(sessionRef, {
                                 [`peer1.bonus.${player}`]: false,
                                 [`peer2.bonus.${player}`]: false
                             });
                         }
                     } else {
-                        // Reseta o estado do bônus para o modo local
                         newState.bonus = { ...state.bonus, [player]: false };
                     }
                 }

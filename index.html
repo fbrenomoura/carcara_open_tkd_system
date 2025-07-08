@@ -154,16 +154,16 @@
                     <div id="blue-penalties" class="text-2xl h-8"></div>
                 </div>
                 <!-- Grid com 13 colunas para garantir o tamanho correto dos botões -->
-                <div class="grid grid-cols-13 gap-1 md:gap-2 h-20 md:h-24">
-                    <button data-player="blue" data-action="penalty" class="control-button control-button-sm bg-gray-700 col-span-2">G</button>
-                    <button data-player="blue" data-action="bonus" class="control-button control-button-sm bg-gray-700 col-span-2">B</button>
-                    <button data-player="blue" data-action="punch" class="control-button bg-blue-500 col-span-3">
+                <div class="grid grid-cols-13 gap-1 md:gap-2">
+                    <button data-player="blue" data-action="penalty" class="control-button control-button-sm bg-gray-700 col-span-2 aspect-[2/4]">G</button>
+                    <button data-player="blue" data-action="bonus" class="control-button control-button-sm bg-gray-700 col-span-2 aspect-[2/4]">B</button>
+                    <button data-player="blue" data-action="punch" class="control-button bg-blue-500 col-span-3 aspect-[3/4]">
                         <img src="resources/punch.png" alt="Soco" class="h-full w-auto p-2 mx-auto">
                     </button>
-                    <button data-player="blue" data-action="head" class="control-button bg-blue-500 col-span-3">
+                    <button data-player="blue" data-action="head" class="control-button bg-blue-500 col-span-3 aspect-[3/4]">
                         <img src="resources/head_blue.png" alt="Cabeça" class="h-full w-auto p-2 mx-auto">
                     </button>
-                    <button data-player="blue" data-action="torso" class="control-button bg-blue-500 col-span-3">
+                    <button data-player="blue" data-action="torso" class="control-button bg-blue-500 col-span-3 aspect-[3/4]">
                         <img src="resources/chest_blue.png" alt="Tórax" class="h-full w-auto p-2 mx-auto">
                     </button>
                 </div>
@@ -192,18 +192,18 @@
                     <div id="red-penalties" class="text-2xl h-8"></div>
                 </div>
                 <!-- Grid com 13 colunas para garantir o tamanho correto dos botões -->
-                <div class="grid grid-cols-13 gap-1 md:gap-2 h-20 md:h-24">
-                    <button data-player="red" data-action="torso" class="control-button bg-red-500 col-span-3">
+                <div class="grid grid-cols-13 gap-1 md:gap-2">
+                    <button data-player="red" data-action="torso" class="control-button bg-red-500 col-span-3 aspect-[3/4]">
                         <img src="resources/chest_red.png" alt="Tórax" class="h-full w-auto p-2 mx-auto">
                     </button>
-                    <button data-player="red" data-action="head" class="control-button bg-red-500 col-span-3">
+                    <button data-player="red" data-action="head" class="control-button bg-red-500 col-span-3 aspect-[3/4]">
                         <img src="resources/head_red.png" alt="Cabeça" class="h-full w-auto p-2 mx-auto">
                     </button>
-                    <button data-player="red" data-action="punch" class="control-button bg-red-500 col-span-3">
+                    <button data-player="red" data-action="punch" class="control-button bg-red-500 col-span-3 aspect-[3/4]">
                         <img src="resources/punch.png" alt="Soco" class="h-full w-auto p-2 mx-auto">
                     </button>
-                    <button data-player="red" data-action="bonus" class="control-button control-button-sm bg-gray-700 col-span-2">B</button>
-                    <button data-player="red" data-action="penalty" class="control-button control-button-sm bg-gray-700 col-span-2">G</button>
+                    <button data-player="red" data-action="bonus" class="control-button control-button-sm bg-gray-700 col-span-2 aspect-[2/4]">B</button>
+                    <button data-player="red" data-action="penalty" class="control-button control-button-sm bg-gray-700 col-span-2 aspect-[2/4]">G</button>
                 </div>
             </div>
         </main>
@@ -273,7 +273,11 @@
                 extend: {
                     gridTemplateColumns: {
                         '13': 'repeat(13, minmax(0, 1fr))',
-                    }
+                    },
+                    aspectRatio: {
+                        '2/4': '2 / 4',
+                        '3/4': '3 / 4',
+                    },
                 }
             }
         }

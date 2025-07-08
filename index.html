@@ -13,7 +13,7 @@
     <script type="module">
         // Import the functions you need from the SDKs you need
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getFirestore, doc, setDoc, onSnapshot, updateDoc, deleteDoc, getDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, doc, setDoc, onSnapshot, updateDoc, deleteDoc, getDoc, arrayUnion } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
         // Pass the configuration to the global window object so the main script can use it
         window.firebase = {
             initializeApp,
@@ -23,7 +23,8 @@
             onSnapshot,
             updateDoc,
             deleteDoc,
-            getDoc
+            getDoc,
+            arrayUnion
         };
     </script>
 
@@ -240,10 +241,15 @@
                 <label for="peer-session-input" class="text-lg">Digite o código do seu par:</label>
                 <input type="text" id="peer-session-input" class="w-full text-center text-3xl bg-gray-800 rounded p-2 mt-1 font-mono uppercase" placeholder="CÓDIGO">
             </div>
-            <button id="confirm-peer-connect-btn" class="bg-blue-600 px-8 py-3 rounded-lg text-lg font-bold hover:bg-blue-700 w-full mb-2">Conectar</button>
+            <div class="mb-4">
+                <p class="text-sm">Conectar como:</p>
+                <div class="flex justify-center space-x-4 mt-2">
+                    <button id="connect-as-peer-btn" class="bg-blue-600 px-8 py-3 rounded-lg text-lg font-bold hover:bg-blue-700 w-full">Par</button>
+                    <button id="connect-as-screen-btn" class="bg-gray-600 px-8 py-3 rounded-lg text-lg font-bold hover:bg-gray-700 w-full">Tela</button>
+                </div>
+            </div>
             <p id="peer-connect-status" class="text-sm h-5"></p>
             <p id="firebase-status-in-modal" class="text-xs mt-2 h-4"></p>
-             <p id="usage-estimate" class="text-xs text-gray-400 mt-2 h-4"></p>
         </div>
     </div>
     <div id="safari-fullscreen-modal" class="fixed inset-0 bg-black bg-opacity-75 flex-col items-center justify-center hidden z-50 p-4 text-center">
@@ -322,12 +328,12 @@
                 closePeerModalBtn: document.getElementById('close-peer-modal-btn'),
                 mySessionCode: document.getElementById('my-session-code'),
                 peerSessionInput: document.getElementById('peer-session-input'),
-                confirmPeerConnectBtn: document.getElementById('confirm-peer-connect-btn'),
+                connectAsPeerBtn: document.getElementById('connect-as-peer-btn'),
+                connectAsScreenBtn: document.getElementById('connect-as-screen-btn'),
                 peerConnectStatus: document.getElementById('peer-connect-status'),
                 firebaseStatusInModal: document.getElementById('firebase-status-in-modal'),
                 connectionLostModal: document.getElementById('connection-lost-modal'),
                 disconnectPeerBtn: document.getElementById('disconnect-peer-btn'),
-                usageEstimate: document.getElementById('usage-estimate'),
                 penaltyButtons: document.querySelectorAll('.control-button[data-action="penalty"]'),
                 bonusButtons: document.querySelectorAll('.control-button[data-action="bonus"]'),
                 playIcon: '<svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3l14 9-14 9V3z" /></svg>',
@@ -346,7 +352,8 @@
             let peerState = {
                 connected: false,
                 sessionId: null,
-                isMaster: false, // Is this client the master clock?
+                isMaster: false, 
+                isScreenMode: false,
                 firebaseReady: false,
                 heartbeatInterval: null,
                 localBonus: { blue: false, red: false }
@@ -378,34 +385,54 @@
                     updateFirebaseStatusInModal("Erro ao conectar com Firebase", "red");
                 }
             }
+
+            async function checkFirebaseStatus() {
+                if (!db) {
+                    updateFirebaseStatusInModal("Firebase não inicializado", "red");
+                    return;
+                }
+                try {
+                    // Tenta ler um documento que não requer autenticação para verificar o status
+                    const statusCheckDoc = window.firebase.doc(db, "status", "check");
+                    await window.firebase.getDoc(statusCheckDoc);
+                    updateFirebaseStatusInModal("Firebase: Ativo", "green");
+                } catch (error) {
+                    if (error.code === 'permission-denied') {
+                        updateFirebaseStatusInModal("Firebase: Limite de uso excedido", "red");
+                    } else {
+                        console.error("Erro de conexão com Firebase:", error);
+                        updateFirebaseStatusInModal("Firebase: Erro de conexão", "red");
+                    }
+                }
+            }
             
             async function createAndListenToSession() {
                 await initFirebase();
                 if (!db) {
-                    ui.peerModeToggle.checked = false; // Reverte o toggle se o firebase falhar
+                    ui.peerModeToggle.checked = false; 
                     return;
                 };
 
-                leavePeerSession(); // Garante que sessões anteriores sejam limpas
+                leavePeerSession(); 
 
                 const sessionId = Math.floor(100000 + Math.random() * 900000).toString();
                 ui.mySessionCode.textContent = sessionId;
                 ui.peerConnectModal.classList.remove('hidden');
+                checkFirebaseStatus();
 
                 peerState.sessionId = sessionId;
                 peerState.isMaster = true;
+                peerState.isScreenMode = false;
 
-                updateFirebaseStatusInModal(peerState.firebaseReady ? "Firebase conectado" : "Firebase desconectado", peerState.firebaseReady ? "green" : "red");
                 updatePeerConnectStatus("Compartilhe seu código com o par.", "blue");
-                ui.usageEstimate.textContent = 'Estimativa do plano gratuito: ~90 lutas/dia.';
-
-
+                
                 sessionRef = window.firebase.doc(db, "tkd-sessions", sessionId);
                 try {
                     await window.firebase.setDoc(sessionRef, { 
                         peer1: { id: localClientId, action: null, lastSeen: Date.now(), bonus: { blue: false, red: false }},
                         peer2: null,
-                        sharedState: state, // Initial state sync
+                        sharedState: state, 
+                        logQueue: []
                     });
                     peerListenerUnsubscribe = window.firebase.onSnapshot(sessionRef, (doc) => {
                         handlePeerData(doc.data());
@@ -417,7 +444,7 @@
                 }
             }
 
-            async function joinPeerSession() {
+            async function joinPeerSession(role) {
                 const sessionId = ui.peerSessionInput.value.trim().toUpperCase();
                 if (!sessionId) {
                     updatePeerConnectStatus("Por favor, insira um código.", "red");
@@ -434,22 +461,24 @@
                 
                 try {
                     const docSnap = await window.firebase.getDoc(joinSessionRef);
-                    if (!docSnap.exists() || !docSnap.data().peer1) {
+                    if (!docSnap.exists()) {
                         updatePeerConnectStatus("Código de sessão inválido.", "red");
                         return;
                     }
-
-                    const data = docSnap.data();
-                    if (data.peer2) {
-                        updatePeerConnectStatus("Sessão já está cheia.", "red");
-                        return;
-                    }
-
+                    
                     peerState.sessionId = sessionId;
                     peerState.isMaster = false;
+                    peerState.isScreenMode = role === 'screen';
                     sessionRef = joinSessionRef;
 
-                    await window.firebase.updateDoc(sessionRef, { peer2: { id: localClientId, action: null, lastSeen: Date.now(), bonus: { blue: false, red: false } } });
+                    if (role === 'peer') {
+                        const data = docSnap.data();
+                        if (data.peer2) {
+                            updatePeerConnectStatus("Sessão já está cheia.", "red");
+                            return;
+                        }
+                        await window.firebase.updateDoc(sessionRef, { peer2: { id: localClientId, action: null, lastSeen: Date.now(), bonus: { blue: false, red: false } } });
+                    }
 
                     peerListenerUnsubscribe = window.firebase.onSnapshot(sessionRef, (doc) => {
                         handlePeerData(doc.data());
@@ -463,58 +492,83 @@
 
 
             function handlePeerData(data) {
-                if (!data) { 
+                if (!data) {
                     if (peerState.connected) {
                         alert("A sessão de pares foi encerrada.");
                     }
                     leavePeerSession(true);
                     return;
                 }
-                
-                const mySlotKey = peerState.isMaster ? 'peer1' : 'peer2';
-                const peerSlotKey = peerState.isMaster ? 'peer2' : 'peer1';
-                
-                const myData = data[mySlotKey];
-                const peerData = data[peerSlotKey];
-                
-                if (myData && peerData) {
-                    const now = Date.now();
-                    if (now - peerData.lastSeen > PEER_TIMEOUT_MS) {
-                        handlePeerDisconnect();
-                        return;
-                    }
-                    
-                    if (!peerState.connected) {
+            
+                if (!peerState.connected) {
+                    const isReadyToConnect =
+                        (peerState.isMaster && data.peer2) || 
+                        (!peerState.isMaster);
+            
+                    if (isReadyToConnect) {
                         peerState.connected = true;
-                        ui.connectionLostModal.classList.add('hidden');
-                        ui.peerConnectModal.classList.add('hidden');
+                        if (!peerState.isMaster) {
+                           ui.peerConnectModal.classList.add('hidden');
+                        }
                         updatePeerConnectionStatusUI(true);
-                        startHeartbeat();
-                    }
-                    
-                    // Sincroniza ações de pontuação
-                    if (peerData.action && myData.action) {
-                        const timeDiff = Math.abs(peerData.action.timestamp - myData.action.timestamp);
-                        if (peerData.action.type === myData.action.type && peerData.action.player === myData.action.player && timeDiff < 3000) {
-                            if(peerState.isMaster) {
-                                const isBonusConfirmed = myData.action.isBonusAction && peerData.action.isBonusAction;
-                                executeScoreAction({...myData.action.payload, isBonus: isBonusConfirmed});
-                            }
-                            clearMyScoreAction();
+                        if (!peerState.isScreenMode) {
+                            startHeartbeat();
                         }
                     }
-                    
-                    if(data.sharedState && JSON.stringify(data.sharedState) !== JSON.stringify(state)) {
-                        syncLocalState(data.sharedState);
+                }
+            
+                if (peerState.connected) {
+                    if (peerState.isMaster && data.logQueue && data.logQueue.length > 0) {
+                        const currentLogCount = state.gameLog.length;
+                        const combinedLogs = [...state.gameLog];
+                        
+                        data.logQueue.forEach(logFromQueue => {
+                            if (!combinedLogs.find(l => l.time === logFromQueue.time && l.detail === logFromQueue.detail && l.clientId === logFromQueue.clientId)) {
+                                combinedLogs.push(logFromQueue);
+                            }
+                        });
+
+                        if (combinedLogs.length > currentLogCount) {
+                            const newState = { ...state, gameLog: combinedLogs };
+                            updateSharedState(newState);
+                            window.firebase.updateDoc(sessionRef, { logQueue: [] });
+                        }
                     }
 
-                } else if (peerState.connected) {
-                    // Peer has left, timeout will handle it.
+                    if (!peerState.isScreenMode) {
+                        const mySlotKey = peerState.isMaster ? 'peer1' : 'peer2';
+                        const peerSlotKey = peerState.isMaster ? 'peer2' : 'peer1';
+                        const myData = data[mySlotKey];
+                        const peerData = data[peerSlotKey];
+            
+                        if (myData && peerData) {
+                            const now = Date.now();
+                            if (now - peerData.lastSeen > PEER_TIMEOUT_MS) {
+                                handlePeerDisconnect();
+                                return;
+                            }
+            
+                            if (peerData.action && myData.action) {
+                                const timeDiff = Math.abs(peerData.action.timestamp - myData.action.timestamp);
+                                if (peerData.action.type === myData.action.type && peerData.action.player === myData.action.player && timeDiff < 3000) {
+                                    if (peerState.isMaster) {
+                                        const isBonusConfirmed = myData.action.isBonusAction && peerData.action.isBonusAction;
+                                        executeScoreAction({ ...myData.action.payload, isBonus: isBonusConfirmed });
+                                    }
+                                    clearMyScoreAction();
+                                }
+                            }
+                        }
+                    }
+            
+                    if (data.sharedState && JSON.stringify(data.sharedState) !== JSON.stringify(state)) {
+                        syncLocalState(data.sharedState);
+                    }
                 }
             }
 
             function handlePeerDisconnect() {
-                if (!peerState.connected) return;
+                if (!peerState.connected || peerState.isScreenMode) return;
                 
                 console.warn("Conexão com o par perdida.");
                 
@@ -539,7 +593,7 @@
             }
 
             async function sendHeartbeat() {
-                if (sessionRef) {
+                if (sessionRef && !peerState.isScreenMode) {
                     try {
                         const mySlotKey = peerState.isMaster ? 'peer1' : 'peer2';
                         await window.firebase.updateDoc(sessionRef, {
@@ -553,6 +607,11 @@
             
             function executeScoreAction(action) {
                 const { player, type, points, isRemoval, isBonus } = action;
+
+                if (peerState.isScreenMode) {
+                    triggerScreenFeedback(player, type, isBonus);
+                }
+
                 const buttonElement = document.querySelector(`[data-player="${player}"][data-action="${type}"]`);
                 if (isRemoval) {
                      if (type === 'penalty') {
@@ -570,7 +629,7 @@
             }
 
             async function clearMyScoreAction() {
-                if (sessionRef) {
+                if (sessionRef && !peerState.isScreenMode) {
                     const mySlotKey = peerState.isMaster ? 'peer1' : 'peer2';
                     await window.firebase.updateDoc(sessionRef, { [`${mySlotKey}.action`]: null });
                 }
@@ -580,7 +639,7 @@
                 stopHeartbeat();
                 if (globalTimerInterval) clearInterval(globalTimerInterval);
 
-                if (!sessionAlreadyDeleted && sessionRef) {
+                if (!sessionAlreadyDeleted && sessionRef && peerState.isMaster) {
                     window.firebase.deleteDoc(sessionRef).catch(e => console.error("Falha ao deletar sessão:", e));
                 }
                 if (peerListenerUnsubscribe) peerListenerUnsubscribe();
@@ -589,14 +648,20 @@
                 peerState.connected = false;
                 peerState.sessionId = null;
                 peerState.isMaster = false;
+                peerState.isScreenMode = false;
                 updatePeerConnectionStatusUI(false);
             }
             
             function updatePeerConnectionStatusUI(isConnected) {
                 ui.peerModeToggle.checked = isConnected;
                 if (isConnected) {
-                    const peerId = peerState.isMaster ? '(A)' : '(B)';
-                    ui.peerStatusLabel.textContent = `Conectado ${peerId}`;
+                    let statusText = "Conectado";
+                    if(peerState.isScreenMode) {
+                        statusText += " (Tela)";
+                    } else {
+                        statusText += peerState.isMaster ? ' (A)' : ' (B)';
+                    }
+                    ui.peerStatusLabel.textContent = statusText;
                     ui.peerStatusLabel.classList.remove('text-gray-300');
                     ui.peerStatusLabel.classList.add('text-green-400');
                 } else {
@@ -620,7 +685,18 @@
             }
 
             function syncLocalState(remoteState) {
-                if (JSON.stringify(remoteState) === JSON.stringify(state)) return; // Avoid loops
+                if (peerState.isScreenMode && state && remoteState.gameLog.length > state.gameLog.length) {
+                    const newLogEntry = remoteState.gameLog[remoteState.gameLog.length - 1];
+                    if (newLogEntry.event === 'Pontuação') {
+                        triggerScreenFeedback(newLogEntry.player, newLogEntry.type, newLogEntry.isSpin);
+                    }
+                }
+
+                if (remoteState.isGameOver && (!state || !state.isGameOver)) {
+                    displaySummary(remoteState);
+                }
+
+                if (JSON.stringify(remoteState) === JSON.stringify(state)) return;
                 state = remoteState;
                 updateAllUI();
             }
@@ -647,17 +723,26 @@
             }
 
             async function sendScoreActionToPeer(actionPayload) {
-                if (!peerState.connected || !sessionRef) return;
+                if (!peerState.connected || !sessionRef || peerState.isScreenMode) return;
                 
                 const peerId = peerState.isMaster ? 'A' : 'B';
                 const actionDetail = actionPayload.isRemoval ? 
                     `Remoção de ${actionPayload.type}` : 
                     `+${actionPayload.points || 1}pts (${actionPayload.type})`;
-                logAction({ 
+                const logEntry = { 
                     player: actionPayload.player, 
                     event: 'Ação Individual', 
-                    detail: `${actionDetail} por Juiz ${peerId}`
-                });
+                    detail: `${actionDetail} por Juiz ${peerId}`,
+                    time: formatTime(state.timer.initialTime - state.timer.currentTime),
+                    round: state.round,
+                    clientId: localClientId
+                };
+
+                if (peerState.isMaster) {
+                    logAction(logEntry);
+                } else {
+                    window.firebase.updateDoc(sessionRef, { logQueue: window.firebase.arrayUnion(logEntry) });
+                }
                 
                 try {
                     const mySlotKey = peerState.isMaster ? 'peer1' : 'peer2';
@@ -682,7 +767,7 @@
                 peerState.localBonus[player] = value;
                 document.querySelector(`button[data-player="${player}"][data-action="bonus"]`).classList.toggle('bonus-active', value);
                 
-                if(!peerState.connected) return;
+                if(!peerState.connected || peerState.isScreenMode) return;
                  try {
                     const mySlotKey = peerState.isMaster ? 'peer1' : 'peer2';
                     await window.firebase.updateDoc(sessionRef, {
@@ -717,18 +802,21 @@
             function updateControlPermissions() {
                 const isMaster = peerState.isMaster;
                 const isConnected = peerState.connected;
-                
+                const isScreen = peerState.isScreenMode;
+
+                const allControls = document.querySelectorAll('.control-button, #play-pause-btn, #manual-adjust-btn, #restart-btn, .manual-adjust-controls button');
                 const masterControls = [ui.playPauseBtn, ui.manualAdjustBtn, ui.restartBtn, ...ui.penaltyButtons];
-                if (isConnected && !isMaster) {
+                
+                allControls.forEach(el => el.classList.remove('opacity-50', 'pointer-events-none'));
+                ui.timerDisplay.style.pointerEvents = 'auto';
+
+                if (isScreen) {
+                    allControls.forEach(el => el.classList.add('opacity-50', 'pointer-events-none'));
+                } else if (isConnected && !isMaster) {
                     masterControls.forEach(el => {
                         el.classList.add('opacity-50', 'pointer-events-none');
                     });
-                     ui.timerDisplay.style.pointerEvents = 'none';
-                } else {
-                     masterControls.forEach(el => {
-                        el.classList.remove('opacity-50', 'pointer-events-none');
-                    });
-                      ui.timerDisplay.style.pointerEvents = 'auto';
+                    ui.timerDisplay.style.pointerEvents = 'none';
                 }
             }
             
@@ -775,7 +863,7 @@
                 ui.manualAdjustBtn.classList.toggle('bg-red-600', state.manualAdjustMode);
                 ui.manualAdjustBtn.textContent = state.manualAdjustMode ? 'Sair do Ajuste' : 'Ajuste Manual';
                 
-                ui.summaryModal.classList.toggle('hidden', !state.isGameOver || (peerState.connected && !peerState.isMaster));
+                ui.summaryModal.classList.toggle('hidden', !state.isGameOver);
                 
                 document.querySelectorAll('button[data-action="bonus"]').forEach(button => {
                     const player = button.dataset.player;
@@ -795,7 +883,9 @@
 
             const logAction = (action) => {
                 const time = formatTime(state.timer.initialTime - state.timer.currentTime);
-                state.gameLog.push({ time, round: state.round, ...action });
+                const logEntry = { time, round: state.round, ...action };
+                const newState = { ...state, gameLog: [...state.gameLog, logEntry] };
+                updateSharedState(newState);
             };
             
             const forceRoundWin = (winner, reason) => {
@@ -1010,8 +1100,6 @@
             };
 
             const displaySummary = (summaryState) => {
-                if (peerState.connected && !peerState.isMaster) return;
-
                 let winnerName = "", winnerColorClass = "", finalReason = "";
                 if (summaryState.finalWinnerData) {
                     winnerName = summaryState.finalWinnerData.winner === 'blue' ? 'Azul' : (summaryState.finalWinnerData.winner === 'red' ? 'Vermelho' : '');
@@ -1048,7 +1136,7 @@
                                         <p>Resultado: <span class="font-semibold">${stats.conclusion}</span></p>
                                         <p>Ações (Azul): ${stats.hits.blue.punch} Socos, ${stats.hits.blue.torso} Tronco, ${stats.hits.blue.head} Cabeça</p>
                                         <p>Ações (Vermelho): ${stats.hits.red.punch} Socos, ${stats.hits.red.torso} Tronco, ${stats.hits.red.head} Cabeça</p>
-                                        <p>Faltas: <span class="text-blue-400">Azul ${stats.penalties.blue}</span> | <span class="text-red-400">Vermelho ${stats.penalties.red}</span></p>
+                                        <p>Faltas: <span class="text-blue-400">Azul ${stats.penalties.blue}</span> | <span class="text-red-400">Vermelho ${totals.penalties.red}</span></p>
                                     </div>`;
                     totals.scores.blue += stats.scores.blue;
                     totals.scores.red += stats.scores.red;
@@ -1093,6 +1181,30 @@
                 setTimeout(() => {
                     button.classList.remove(flashClass);
                 }, duration);
+            };
+            
+            const triggerScreenFeedback = (player, type, isBonus) => {
+                if (!peerState.isScreenMode) return;
+            
+                const actionButton = document.querySelector(`.control-button[data-player="${player}"][data-action="${type}"]`);
+                
+                if (actionButton) {
+                    actionButton.classList.remove('opacity-50', 'pointer-events-none');
+            
+                    if (isBonus) {
+                        const bonusButton = document.querySelector(`.control-button[data-player="${player}"][data-action="bonus"]`);
+                        if (bonusButton) {
+                            bonusButton.classList.remove('opacity-50', 'pointer-events-none');
+                            setTimeout(() => {
+                                bonusButton.classList.add('opacity-50', 'pointer-events-none');
+                            }, 1000);
+                        }
+                    }
+            
+                    setTimeout(() => {
+                        actionButton.classList.add('opacity-50', 'pointer-events-none');
+                    }, 1000);
+                }
             };
 
             const handleScore = (player, points, type, button, fromPeer = false, isBonus = false) => {
@@ -1389,9 +1501,10 @@
                 }
                 ui.peerConnectModal.classList.add('hidden');
             });
-
-            ui.confirmPeerConnectBtn.addEventListener('click', joinPeerSession);
             
+            ui.connectAsPeerBtn.addEventListener('click', () => joinPeerSession('peer'));
+            ui.connectAsScreenBtn.addEventListener('click', () => joinPeerSession('screen'));
+
             ui.disconnectPeerBtn.addEventListener('click', () => {
                 leavePeerSession();
                 ui.connectionLostModal.classList.add('hidden');

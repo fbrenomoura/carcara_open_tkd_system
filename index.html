@@ -693,19 +693,20 @@
             }
 
             function syncLocalState(remoteState) {
-                if (peerState.isScreenMode && state && remoteState.gameLog.length > state.gameLog.length) {
-                    const newLogEntry = remoteState.gameLog[remoteState.gameLog.length - 1];
-                    if (newLogEntry.event === 'Pontuação') {
-                        triggerScreenFeedback(newLogEntry.player, newLogEntry.type, newLogEntry.isSpin);
-                    }
-                }
-                
+                const oldState = state ? JSON.parse(JSON.stringify(state)) : null;
+
                 if (JSON.stringify(remoteState) === JSON.stringify(state)) return;
                 state = remoteState;
                 updateAllUI();
 
-                if (state.isGameOver) {
-                    displaySummary(state);
+                if (peerState.isScreenMode && oldState) {
+                    const oldScores = oldState.scores;
+                    const newScores = state.scores;
+                    const lastLog = state.gameLog[state.gameLog.length - 1];
+                    
+                    if ((newScores.blue !== oldScores.blue || newScores.red !== oldScores.red) && lastLog && lastLog.event === 'Pontuação') {
+                        triggerScreenFeedback(lastLog.player, lastLog.type, lastLog.isSpin);
+                    }
                 }
             }
             
@@ -873,8 +874,9 @@
                 ui.manualAdjustBtn.textContent = state.manualAdjustMode ? 'Sair do Ajuste' : 'Ajuste Manual';
                 
                 if (state.isGameOver) {
-                    if (!ui.summaryModal.classList.contains('hidden')) return;
-                    displaySummary(state);
+                    if (ui.summaryModal.classList.contains('hidden')) {
+                        displaySummary(state);
+                    }
                 } else {
                     ui.summaryModal.classList.add('hidden');
                 }
@@ -1202,20 +1204,20 @@
                 const actionButton = document.querySelector(`.control-button[data-player="${player}"][data-action="${type}"]`);
                 
                 if (actionButton) {
-                    actionButton.classList.remove('opacity-50', 'pointer-events-none');
+                    actionButton.classList.remove('opacity-50');
             
                     if (isBonus) {
                         const bonusButton = document.querySelector(`.control-button[data-player="${player}"][data-action="bonus"]`);
                         if (bonusButton) {
-                            bonusButton.classList.remove('opacity-50', 'pointer-events-none');
+                            bonusButton.classList.remove('opacity-50');
                             setTimeout(() => {
-                                bonusButton.classList.add('opacity-50', 'pointer-events-none');
+                                bonusButton.classList.add('opacity-50');
                             }, 1000);
                         }
                     }
             
                     setTimeout(() => {
-                        actionButton.classList.add('opacity-50', 'pointer-events-none');
+                        actionButton.classList.add('opacity-50');
                     }, 1000);
                 }
             };

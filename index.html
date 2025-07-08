@@ -13,7 +13,7 @@
     <script type="module">
         // Import the functions you need from the SDKs you need
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getFirestore, doc, setDoc, onSnapshot, updateDoc, deleteDoc, getDoc, arrayUnion } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, doc, setDoc, onSnapshot, updateDoc, deleteDoc, getDoc, arrayUnion, arrayRemove } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
         // Pass the configuration to the global window object so the main script can use it
         window.firebase = {
             initializeApp,
@@ -24,7 +24,8 @@
             updateDoc,
             deleteDoc,
             getDoc,
-            arrayUnion
+            arrayUnion,
+            arrayRemove
         };
     </script>
 
@@ -429,7 +430,7 @@
                 sessionRef = window.firebase.doc(db, "tkd-sessions", sessionId);
                 try {
                     await window.firebase.setDoc(sessionRef, { 
-                        peer1: { id: localClientId, action: null, lastSeen: Date.now(), bonus: { blue: false, red: false }},
+                        peer1: { id: localClientId, actionQueue: [], lastSeen: Date.now(), bonus: { blue: false, red: false }},
                         peer2: null,
                         sharedState: state, 
                         logQueue: []
@@ -477,7 +478,7 @@
                             updatePeerConnectStatus("Sessão já está cheia.", "red");
                             return;
                         }
-                        await window.firebase.updateDoc(sessionRef, { peer2: { id: localClientId, action: null, lastSeen: Date.now(), bonus: { blue: false, red: false } } });
+                        await window.firebase.updateDoc(sessionRef, { peer2: { id: localClientId, actionQueue: [], lastSeen: Date.now(), bonus: { blue: false, red: false } } });
                     }
 
                     peerListenerUnsubscribe = window.firebase.onSnapshot(sessionRef, (doc) => {
@@ -535,28 +536,46 @@
                         }
                     }
 
-                    if (!peerState.isScreenMode) {
+                    if (!peerState.isScreenMode && data.peer1 && data.peer2) {
                         const mySlotKey = peerState.isMaster ? 'peer1' : 'peer2';
                         const peerSlotKey = peerState.isMaster ? 'peer2' : 'peer1';
                         const myData = data[mySlotKey];
                         const peerData = data[peerSlotKey];
             
-                        if (myData && peerData) {
+                        if (myData.actionQueue.length > 0 && peerData.actionQueue.length > 0) {
                             const now = Date.now();
                             if (now - peerData.lastSeen > PEER_TIMEOUT_MS) {
                                 handlePeerDisconnect();
                                 return;
                             }
             
-                            if (peerData.action && myData.action) {
-                                const timeDiff = Math.abs(peerData.action.timestamp - myData.action.timestamp);
-                                if (peerData.action.type === myData.action.type && peerData.action.player === myData.action.player && timeDiff < 3000) {
-                                    if (peerState.isMaster) {
-                                        const isBonusConfirmed = myData.action.isBonusAction && peerData.action.isBonusAction;
-                                        executeScoreAction({ ...myData.action.payload, isBonus: isBonusConfirmed });
+                            const myActions = [...myData.actionQueue];
+                            let peerActions = [...peerData.actionQueue];
+                            let matchedMyActions = [];
+                            let matchedPeerActions = [];
+
+                            for (const myAction of myActions) {
+                                for (let i = 0; i < peerActions.length; i++) {
+                                    const peerAction = peerActions[i];
+                                    const timeDiff = Math.abs(myAction.timestamp - peerAction.timestamp);
+                                    if (myAction.type === peerAction.type && myAction.player === peerAction.player && timeDiff < 3000) {
+                                        if (peerState.isMaster) {
+                                            const isBonusConfirmed = myAction.isBonusAction && peerAction.isBonusAction;
+                                            executeScoreAction({ ...myAction.payload, isBonus: isBonusConfirmed });
+                                        }
+                                        matchedMyActions.push(myAction);
+                                        matchedPeerActions.push(peerAction);
+                                        peerActions.splice(i, 1); 
+                                        break; 
                                     }
-                                    clearMyScoreAction();
                                 }
+                            }
+
+                            if (matchedMyActions.length > 0) {
+                                window.firebase.updateDoc(sessionRef, {
+                                    [mySlotKey + '.actionQueue']: window.firebase.arrayRemove(...matchedMyActions),
+                                    [peerSlotKey + '.actionQueue']: window.firebase.arrayRemove(...matchedPeerActions)
+                                });
                             }
                         }
                     }
@@ -608,10 +627,6 @@
             function executeScoreAction(action) {
                 const { player, type, points, isRemoval, isBonus } = action;
 
-                if (peerState.isScreenMode) {
-                    triggerScreenFeedback(player, type, isBonus);
-                }
-
                 const buttonElement = document.querySelector(`[data-player="${player}"][data-action="${type}"]`);
                 if (isRemoval) {
                      if (type === 'penalty') {
@@ -625,13 +640,6 @@
                       } else {
                         handleScore(player, points, type, buttonElement, true, isBonus);
                       }
-                }
-            }
-
-            async function clearMyScoreAction() {
-                if (sessionRef && !peerState.isScreenMode) {
-                    const mySlotKey = peerState.isMaster ? 'peer1' : 'peer2';
-                    await window.firebase.updateDoc(sessionRef, { [`${mySlotKey}.action`]: null });
                 }
             }
             
@@ -691,14 +699,14 @@
                         triggerScreenFeedback(newLogEntry.player, newLogEntry.type, newLogEntry.isSpin);
                     }
                 }
-
-                if (remoteState.isGameOver && (!state || !state.isGameOver)) {
-                    displaySummary(remoteState);
-                }
-
+                
                 if (JSON.stringify(remoteState) === JSON.stringify(state)) return;
                 state = remoteState;
                 updateAllUI();
+
+                if (state.isGameOver) {
+                    displaySummary(state);
+                }
             }
             
             function updatePeerConnectStatus(message, color) {
@@ -749,6 +757,7 @@
                     const isBonus = actionPayload.isBonus || false;
                     
                     const action = {
+                        id: crypto.randomUUID(),
                         type: actionPayload.type,
                         player: actionPayload.player,
                         timestamp: Date.now(),
@@ -756,7 +765,7 @@
                         isBonusAction: isBonus 
                     };
                     await window.firebase.updateDoc(sessionRef, {
-                        [`${mySlotKey}.action`]: action
+                        [`${mySlotKey}.actionQueue`]: window.firebase.arrayUnion(action)
                     });
                 } catch (e) {
                     console.error("Erro ao enviar ação de pontuação:", e);
@@ -863,7 +872,12 @@
                 ui.manualAdjustBtn.classList.toggle('bg-red-600', state.manualAdjustMode);
                 ui.manualAdjustBtn.textContent = state.manualAdjustMode ? 'Sair do Ajuste' : 'Ajuste Manual';
                 
-                ui.summaryModal.classList.toggle('hidden', !state.isGameOver);
+                if (state.isGameOver) {
+                    if (!ui.summaryModal.classList.contains('hidden')) return;
+                    displaySummary(state);
+                } else {
+                    ui.summaryModal.classList.add('hidden');
+                }
                 
                 document.querySelectorAll('button[data-action="bonus"]').forEach(button => {
                     const player = button.dataset.player;
@@ -1073,7 +1087,6 @@
                 if (state.isGameOver) return;
                 const newState = { ...finalState, isGameOver: true, timer: {...finalState.timer, isRunning: false} };
                 updateSharedState(newState);
-                setTimeout(() => displaySummary(newState), 500);
             };
 
             const resetGame = () => {
@@ -1136,7 +1149,7 @@
                                         <p>Resultado: <span class="font-semibold">${stats.conclusion}</span></p>
                                         <p>Ações (Azul): ${stats.hits.blue.punch} Socos, ${stats.hits.blue.torso} Tronco, ${stats.hits.blue.head} Cabeça</p>
                                         <p>Ações (Vermelho): ${stats.hits.red.punch} Socos, ${stats.hits.red.torso} Tronco, ${stats.hits.red.head} Cabeça</p>
-                                        <p>Faltas: <span class="text-blue-400">Azul ${stats.penalties.blue}</span> | <span class="text-red-400">Vermelho ${totals.penalties.red}</span></p>
+                                        <p>Faltas: <span class="text-blue-400">Azul ${stats.penalties.blue}</span> | <span class="text-red-400">Vermelho ${stats.penalties.red}</span></p>
                                     </div>`;
                     totals.scores.blue += stats.scores.blue;
                     totals.scores.red += stats.scores.red;

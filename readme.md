@@ -1,8 +1,8 @@
 # Carcará Open TKD System
 
-![Logo](resources/logo.png)
+![Logo do Carcará Open TKD System](https://raw.githubusercontent.com/fbrenomoura/cots/main/resources/logo.png)
 
-Um sistema de placar eletrônico completo para competições de Taekwondo (Kyorugi), desenvolvido para ser executado diretamente no navegador, com suporte total a dispositivos móveis e otimizado para uso na horizontal.
+Um sistema de placar eletrónico completo para competições de Taekwondo (Kyorugi), desenvolvido para ser executado diretamente no navegador, com suporte total a dispositivos móveis e otimizado para uso na horizontal.
 
 ## 📜 Descrição
 
@@ -12,100 +12,101 @@ O sistema foi idealizado por **Francisco Breno Moura Alves**, atleta e professor
 
 ## ✨ Funcionalidades
 
-- **Pontuação em Tempo Real:** Interface para dois competidores (Azul e Vermelho) com placares independentes.
-- **Controles Completos:**
-    - **T (Tórax):** +2 pontos por chute.
-    - **C (Cabeça):** +3 pontos por chute.
-    - **S (Soco):** +1 ponto por soco válido.
-    - **B (Bônus de Giro):** Adiciona +2 pontos ao próximo chute válido (Tórax ou Cabeça).
-    - **G (Gam-geon):** Adiciona +1 ponto ao oponente e registra uma falta.
-- **Correção de Pontos:** Pressionar longamente um botão de pontuação ou falta remove a última ação correspondente.
-- **Modo de Pares (Online):**
-    - **Conexão por Código:** Permite que dois dispositivos se conectem através de um código de sessão único, sem necessidade de estarem na mesma rede.
-    - **Pontuação Sincronizada:** No modo de pares, um ponto só é computado quando a mesma técnica é registrada em ambos os dispositivos em um curto intervalo de tempo.
-    - **Ajuste Manual Sincronizado:** Qualquer ajuste manual feito no placar é refletido instantaneamente no dispositivo do par.
-- **Gestão de Rounds:**
-    - Sistema de melhor de 3 rounds.
-    - Transição automática para um terceiro round em caso de empate de vitórias (1x1 ou 0x0).
-    - Intervalo de descanso automático de 30 segundos entre os rounds.
-- **Regras Oficiais:**
-    - **Vitória por Faltas:** O oponente vence o round se um atleta cometer 5 faltas (Gam-geons).
-- **Controles da Partida:**
-    - **Cronômetro Ajustável:** O tempo de cada round pode ser configurado antes do início da partida.
-    - **Controle de Pausa:** O cronômetro pode ser pausado e retomado a qualquer momento.
-    - **Ajuste Manual:** Um modo especial, acessível com o tempo pausado, que permite adicionar ou subtrair pontos individualmente.
-    - **Recomeçar Partida:** Opção para reiniciar completamente a luta, zerando todos os placares e rounds.
-- **Relatórios e Interface:**
-    - **Resumo Final:** Ao final da partida, um popup exibe um relatório detalhado com as estatísticas de cada round, totais da partida e uma súmula completa de todas as ações.
-    - **Modo Tela Cheia:** Botão para expandir a aplicação para a tela inteira, ideal para exibição em monitores maiores.
-    - **Popup de Ajuda:** Um manual completo acessível através do botão de ajuda (?).
+* **Pontuação em Tempo Real:** Interface para dois competidores (Azul e Vermelho) com placares independentes.
+* **Controles Completos de Pontuação:**
+    * **Tórax:** +2 pontos por chute.
+    * **Cabeça:** +3 pontos por chute.
+    * **Soco:** +1 ponto por soco válido.
+    * **Bónus de Giro (B):** Adiciona +2 pontos ao próximo chute válido (Tórax ou Cabeça).
+    * **Falta (G - Gam-jeom):** Adiciona +1 ponto ao oponente e regista uma falta.
+* **Correção de Ações:** Pressionar longamente um botão de pontuação ou falta remove a última ação correspondente.
+* **Gestão de Rounds:**
+    * Sistema de melhor de 3 rounds.
+    * Transição automática para um terceiro round em caso de empate de vitórias.
+    * Intervalo de descanso automático de 30 segundos entre os rounds.
+* **Regras Oficiais Implementadas:**
+    * **Vitória por Faltas:** O oponente vence o round se um atleta cometer 5 faltas (Gam-jeons).
+    * **Vitória por Point Gap:** O round termina se houver uma diferença de 12 pontos entre os atletas.
+* **Critérios de Desempate (Superioridade):** Em caso de empate no número de rounds vencidos ao final da partida, o sistema aplica automaticamente os seguintes critérios para determinar o vencedor:
+    1.  Maior número de pontos marcados com a técnica de giro.
+    2.  Maior número de chutes na cabeça.
+    3.  Maior número de chutes no tronco.
+    4.  Maior número de socos.
+    5.  Maior número total de golpes registados.
+* **Modo Online (Sincronização via Firebase):**
+    * **Conexão por Código:** Permite que múltiplos dispositivos se conectem através de um código de sessão único, sem necessidade de estarem na mesma rede.
+    * **Modo Juiz vs. Juiz:** Dois dispositivos atuam como juízes. Um ponto só é computado quando a mesma técnica é registada em ambos os dispositivos num curto intervalo de tempo. O Juiz "A" (master) controla o tempo e as faltas.
+    * **Modo Tela (Espelhamento):** Permite que um dispositivo atue como uma tela de visualização, espelhando o placar em tempo real sem botões de controle. Ideal para ser usado como o placar principal visível para o público.
+* **Controles da Partida:**
+    * **Cronómetro Ajustável:** O tempo de cada round pode ser configurado antes do início da partida.
+    * **Pausa e Reinício:** O cronómetro pode ser pausado e retomado a qualquer momento.
+    * **Ajuste Manual:** Um modo especial, acessível com o tempo pausado, que permite adicionar ou subtrair pontos individualmente.
+    * **Recomeçar Partida:** Opção para reiniciar completamente a luta, zerando todos os placares e rounds.
+* **Interface e Experiência de Uso:**
+    * **Resumo Final Detalhado:** Ao final da partida, um popup exibe um relatório completo com estatísticas de cada round, totais da partida e uma súmula de todos os eventos.
+    * **Feedback Visual e Tátil:** Animações e vibrações confirmam o registo de pontos, melhorando a experiência do utilizador.
+    * **Modo Tela Cheia:** Botão para expandir a aplicação, ideal para exibição em monitores maiores.
+    * **Instruções para iOS:** Popup com instruções para adicionar o app à tela de início e obter uma experiência de tela cheia real.
+    * **Manual de Ajuda:** Um guia completo acessível a qualquer momento através do botão de ajuda (?).
 
 ## 🚀 Como Usar
 
-A aplicação está disponível online e pode ser acessada de qualquer dispositivo com um navegador web.
+A aplicação está disponível online e pode ser acedida de qualquer dispositivo com um navegador web.
 
 ### Acesso Online (Recomendado)
+
 A maneira mais fácil de usar o sistema é através do link do GitHub Pages. Não é preciso instalar nada.
 
-**➡️ [Acessar o Carcará Open TKD System](https://fbrenomoura.github.io/carcara_open_tkd_system/)**
+**➡️ [Aceder ao Carcará Open TKD System](https://fbrenomoura.github.io/cots/)**
 
 ### Execução Local (Alternativa)
+
 Se você deseja executar o projeto localmente:
 
 1.  **Clone o Repositório:**
     ```bash
-    git clone [https://github.com/fbrenomoura/carcara_open_tkd_system.git](https://github.com/fbrenomoura/carcara_open_tkd_system.git)
-    cd carcara_open_tkd_system
+    git clone [https://github.com/fbrenomoura/cots.git](https://github.com/fbrenomoura/cots.git)
+    cd cots
     ```
 
-2.  **Estrutura de Ficheiros:**
-    Certifique-se de que a estrutura dos ficheiros está correta. O ficheiro de imagem do logo deve estar dentro de uma pasta `resources`:
-
-    ```
-    .
-    ├── index.html      (Este é o ficheiro principal da aplicação)
-    └── resources/
-        └── logo.png    (A imagem do logo)
-    ```
-
-3.  **Configuração do Firebase (Obrigatório para o Modo de Pares):**
-    A funcionalidade "Conectar Pares" depende do Firebase. Para que funcione localmente, você precisa criar um projeto gratuito no Firebase e adicionar suas chaves de configuração ao `index.html`.
-    - Crie um projeto no [Firebase](https://firebase.google.com/).
-    - Adicione um aplicativo da Web ao seu projeto.
-    - O Firebase fornecerá um objeto `firebaseConfig`. Copie-o.
-    - Abra o `index.html` e cole o objeto `firebaseConfig` dentro da função `initFirebase()`, substituindo o conteúdo de exemplo.
-
-4.  **Execução:**
+2.  **Execução:**
     Abra o ficheiro `index.html` em qualquer navegador web moderno (Google Chrome, Firefox, Safari, Edge).
 
 ## 🛠️ Tecnologias Utilizadas
 
--   **HTML5:** Para a estrutura semântica da página.
--   **CSS3:** Para estilos básicos e animações.
--   **Tailwind CSS:** Um framework CSS "utility-first" para a rápida construção de interfaces customizadas.
--   **JavaScript (ES6+):** Para toda a lógica do jogo, interatividade, manipulação de estado e regras da competição.
--   **Firebase (Firestore):** Utilizado como o backend em tempo real para possibilitar a funcionalidade de "Modo de Pares", sincronizando os dados entre os dois dispositivos.
+* **HTML5:** Para a estrutura semântica da página.
+* **CSS3:** Para estilos básicos e animações.
+* **Tailwind CSS:** Um framework CSS "utility-first" para a rápida construção de interfaces customizadas.
+* **JavaScript (ES6+):** Para toda a lógica do jogo, interatividade, manipulação de estado e regras da competição.
+* **Firebase (Firestore):** Utilizado como o backend em tempo real para possibilitar a funcionalidade de "Modo Online", sincronizando os dados entre os dispositivos.
 
 ## 📝 Licença e Uso
 
 Este projeto é totalmente de código aberto e está licenciado sob a **Licença MIT**.
 
 Isso significa que você tem total liberdade para:
--   **Usar** a aplicação para fins pessoais, comerciais ou educacionais.
--   **Modificar** o código-fonte para adaptá-lo às suas necessidades.
--   **Distribuir** cópias originais ou modificadas da aplicação.
+* **Usar** a aplicação para fins pessoais, comerciais ou educacionais.
+* **Modificar** o código-fonte para adaptá-lo às suas necessidades.
+* **Distribuir** cópias originais ou modificadas da aplicação.
 
 Esta é uma aplicação desenvolvida sem fins lucrativos, com o objetivo de apoiar a comunidade do Taekwondo.
 
-### Uso Acadêmico
-Se você utilizar este sistema ou parte do seu código em algum estudo acadêmico, tese ou artigo, por favor, **cite Francisco Breno Moura Alves como parte da autoria** do software utilizado na pesquisa.
+### Uso Académico
+
+Se você utilizar este sistema ou parte do seu código em algum estudo académico, tese ou artigo, por favor, **cite Francisco Breno Moura Alves como parte da autoria** do software utilizado na pesquisa.
 
 ## 👨‍💻 Autor
 
 Este projeto foi idealizado e desenvolvido por **Francisco Breno Moura Alves**.
 
--   **Instagram:** [@fbrenomoura](https://www.instagram.com/fbrenomoura/)
--   **LinkedIn:** [Francisco Breno Moura Alves](https://www.linkedin.com/in/fbrenomoura/)
+* **Instagram:** [@fbrenomoura](https://www.instagram.com/fbrenomoura/)
+* **LinkedIn:** [Francisco Breno Moura Alves](https://www.linkedin.com/in/fbrenomoura/)
+
+## 🙏 Agradecimentos
+
+* **Samuel Yure (Sayu):** Pelo design dos ícones e revisões de UI/UX.
+* **Laídia Evangelista:** Pelos testes multi-plataforma.
+* **Adriane Brandão:** Pela revisão de regras oficiais do Taekwondo.
 
 ---
-*Este README foi atualizado em 27 de junho de 2025.*
+*Este README foi atualizado em 09 de julho de 2025.*

@@ -57,7 +57,7 @@ A aplicação está disponível online e pode ser acedida de qualquer dispositiv
 
 A maneira mais fácil de usar o sistema é através do link do GitHub Pages. Não é preciso instalar nada.
 
-**➡️ [Aceder ao Carcará Open TKD System](https://fbrenomoura.github.io/cots/)**
+**➡️ [Aceder ao Carcará Open TKD System](https://fbrenomoura.github.io/carcara_open_tkd_system/)**
 
 ### Execução Local (Alternativa)
 
@@ -110,3 +110,4 @@ Este projeto foi idealizado e desenvolvido por **Francisco Breno Moura Alves**.
 
 ---
 *Este README foi atualizado em 09 de julho de 2025.*
+

@@ -1,7 +1,5 @@
 # Carcará Open TKD System
 
-![Logo do Carcará Open TKD System](https://raw.githubusercontent.com/fbrenomoura/cots/main/resources/logo.png)
-
 Um sistema de placar eletrónico completo para competições de Taekwondo (Kyorugi), desenvolvido para ser executado diretamente no navegador, com suporte total a dispositivos móveis e otimizado para uso na horizontal.
 
 ## 📜 Descrição
@@ -110,4 +108,5 @@ Este projeto foi idealizado e desenvolvido por **Francisco Breno Moura Alves**.
 
 ---
 *Este README foi atualizado em 09 de julho de 2025.*
+
 

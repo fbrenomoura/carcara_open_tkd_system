@@ -81,6 +81,7 @@
         /* Estilo para botões menores (Bônus, Falta) */
         .control-button-sm {
             font-size: clamp(1.5rem, min(4vw, 7vh), 3.5rem) !important;
+            color: #ffffff !important;
         }
         
         /* Efeito de clique para botões */
@@ -176,7 +177,7 @@
                 <div class="grid grid-cols-11 gap-1 md:gap-2 relative action-grid">
                     <div class="relative col-span-2 aspect-[2/4]">
                         <button id="blue-passive-penalty-btn" class="absolute -top-12 left-1/2 -translate-x-1/2 bg-yellow-500 bg-opacity-75 text-black font-bold text-xl rounded-full w-10 h-10 flex items-center justify-center opacity-0 pointer-events-none transition-opacity duration-200 z-20">+1</button>
-                        <button data-player="blue" data-action="penalty" class="control-button control-button-sm bg-gray-700 w-full h-full">G</button>
+                        <button data-player="blue" data-action="penalty" class="control-button control-button-sm bg-gray-700 w-full h-full text-white">✖</button>
                     </div>
                     <button data-player="blue" data-action="punch" class="control-button bg-blue-500 col-span-3 aspect-[3/4]">
                         <img src="resources/punch.png" alt="Soco" class="h-full w-auto p-2 mx-auto">
@@ -239,7 +240,7 @@
                     </button>
                     <div class="relative col-span-2 aspect-[2/4]">
                         <button id="red-passive-penalty-btn" class="absolute -top-12 left-1/2 -translate-x-1/2 bg-yellow-500 bg-opacity-75 text-black font-bold text-xl rounded-full w-10 h-10 flex items-center justify-center opacity-0 pointer-events-none transition-opacity duration-200 z-20">+1</button>
-                        <button data-player="red" data-action="penalty" class="control-button control-button-sm bg-gray-700 w-full h-full">G</button>
+                        <button data-player="red" data-action="penalty" class="control-button control-button-sm bg-gray-700 w-full h-full text-white">✖</button>
                     </div>
                 </div>
             </div>
@@ -336,7 +337,7 @@
                         <li><strong>Botão de Cabeça:</strong> Clique para adicionar <strong>3 pontos</strong> (chute).</li>
                         <li><strong>Botão de Soco:</strong> Clique para adicionar <strong>1 ponto</strong> (soco no tórax).</li>
                         <li><strong>Bônus de Giro (x2):</strong> Após marcar um chute (Tórax ou Cabeça), um botão "x2" aparecerá acima por 2 segundos. Clique nele para confirmar o giro e <strong>dobrar</strong> o valor do golpe.</li>
-                        <li><strong>G (Gam-jeom):</strong> Adiciona <strong>1 ponto para o oponente</strong> e uma falta para o atleta.</li>
+                        <li><strong>✖ (Gam-jeom):</strong> Adiciona <strong>1 ponto para o oponente</strong> e uma falta para o atleta.</li>
                     </ul>
                 </div>
                 <div>

@@ -44,10 +44,25 @@
         
         /* Estilo para o placar, com tamanho de fonte responsivo */
         .score-display {
-            font-size: clamp(6rem, 20vw, 12rem);
-            line-height: 1;
+            font-size: clamp(8rem, min(42vw, 60vh), 35rem);
+            line-height: 0.85;
             font-weight: 900;
             transition: font-size 0.3s ease;
+        }
+
+        /* Estilos específicos para o modo Tela (Espectador) */
+        body.screen-mode .action-grid {
+            display: none !important;
+        }
+        
+        body.screen-mode .score-display {
+            font-size: clamp(8rem, min(38vw, 70vh), 30rem);
+            font-variant-numeric: tabular-nums;
+        }
+        
+        body.screen-mode #blue-hit-indicator,
+        body.screen-mode #red-hit-indicator {
+            bottom: 2rem !important;
         }
 
         /* Estilo base para os botões de controle */
@@ -124,9 +139,9 @@
     <!-- Container principal do app, que será oculto em modo retrato -->
     <div id="app-container" class="flex flex-col h-screen">
         <!-- Cabeçalho -->
-        <header class="text-center py-2 bg-gray-900 shadow-lg relative flex items-center justify-center flex-shrink-0">
+        <header id="app-header" class="absolute top-0 w-full z-50 text-center py-2 bg-gray-900 shadow-lg flex items-center justify-center flex-shrink-0 transition-colors duration-300">
             <div class="absolute top-1/2 -translate-y-1/2 left-4 flex items-center space-x-4">
-                <button id="help-btn" class="bg-gray-600 hover:bg-gray-500 text-white font-bold h-10 w-10 rounded-full text-xl shadow-md transition-transform transform active:scale-95">?</button>
+                <button id="help-btn" class="bg-gray-600 hover:bg-gray-500 text-white font-bold h-10 w-10 rounded-full text-xl shadow-md transition-all duration-300 transform active:scale-95">?</button>
                  <!-- Chave seletora para conectar pares -->
                 <div id="peer-mode-container" class="flex items-center space-x-2">
                      <label for="peer-mode-toggle" class="relative inline-flex items-center cursor-pointer">
@@ -137,38 +152,47 @@
                 </div>
                 <button id="restart-btn" class="hidden bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded text-xs md:text-sm shadow-md">Recomeçar</button>
             </div>
-            <h1 class="text-xl md:text-3xl font-bold tracking-wider">CARCARÁ OPEN TKD SYSTEM</h1>
+            <h1 class="text-xl md:text-3xl font-bold tracking-wider transition-opacity duration-300">CARCARÁ OPEN TKD SYSTEM</h1>
             <div class="absolute top-1/2 -translate-y-1/2 right-4 flex items-center space-x-2">
-                <button id="fullscreen-btn" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded text-xs md:text-sm shadow-md transition-transform transform active:scale-95">Tela Cheia</button>
+                <button id="fullscreen-btn" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded text-xs md:text-sm shadow-md transition-all duration-300 transform active:scale-95">Tela Cheia</button>
             </div>
         </header>
 
         <!-- Conteúdo Principal -->
-        <main class="flex-grow flex w-full min-h-0">
+        <main class="flex-grow flex w-full h-screen">
             <!-- Jogador Azul (Esquerda) -->
-            <div id="blue-player-area" class="w-1/2 h-full bg-blue-700 flex flex-col justify-end p-2 md:p-4 relative">
-                <div id="blue-round-wins" class="absolute top-4 left-4 text-3xl md:text-4xl"></div>
+            <div id="blue-player-area" class="w-1/2 h-full bg-blue-700 flex flex-col justify-end p-2 md:p-4 pt-16 md:pt-20 relative">
+                <div id="blue-round-wins" class="absolute top-14 md:top-16 left-4 text-3xl md:text-4xl transition-all duration-300"></div>
+                <div id="blue-hit-indicator" class="absolute bottom-32 md:bottom-40 left-4 md:left-8 flex gap-2 z-30"></div>
                 <div class="flex-grow flex flex-col items-center justify-center">
-                    <div class="flex items-center justify-center relative w-full">
+                    <div class="flex items-center justify-center relative w-full pt-4 md:pt-8">
                         <div class="manual-adjust-controls absolute left-2 md:left-4 top-1/2 -translate-y-1/2 hidden"><button data-player="blue" data-adjust="minus" class="bg-red-500 hover:bg-red-600">-</button></div>
                         <span id="score-blue" class="score-display text-blue-200">0</span>
                         <div class="manual-adjust-controls absolute right-2 md:right-4 top-1/2 -translate-y-1/2 hidden"><button data-player="blue" data-adjust="plus" class="bg-green-500 hover:bg-green-600">+</button></div>
                     </div>
                     <div id="blue-penalties" class="text-2xl h-8"></div>
                 </div>
-                <!-- Grid com 13 colunas para garantir o tamanho correto dos botões -->
-                <div class="grid grid-cols-13 gap-1 md:gap-2">
-                    <button data-player="blue" data-action="penalty" class="control-button control-button-sm bg-gray-700 col-span-2 aspect-[2/4]">G</button>
-                    <button data-player="blue" data-action="bonus" class="control-button control-button-sm bg-gray-700 col-span-2 aspect-[2/4]">B</button>
+                <!-- Grid com 11 colunas para garantir o tamanho correto dos botões sem o botão de Bônus -->
+                <div class="grid grid-cols-11 gap-1 md:gap-2 relative action-grid">
+                    <div class="relative col-span-2 aspect-[2/4]">
+                        <button id="blue-passive-penalty-btn" class="absolute -top-12 left-1/2 -translate-x-1/2 bg-yellow-500 bg-opacity-75 text-black font-bold text-xl rounded-full w-10 h-10 flex items-center justify-center opacity-0 pointer-events-none transition-opacity duration-200 z-20">+1</button>
+                        <button data-player="blue" data-action="penalty" class="control-button control-button-sm bg-gray-700 w-full h-full">G</button>
+                    </div>
                     <button data-player="blue" data-action="punch" class="control-button bg-blue-500 col-span-3 aspect-[3/4]">
                         <img src="resources/punch.png" alt="Soco" class="h-full w-auto p-2 mx-auto">
                     </button>
-                    <button data-player="blue" data-action="head" class="control-button bg-blue-500 col-span-3 aspect-[3/4]">
-                        <img src="resources/head.png" alt="Cabeça" class="h-full w-auto p-2 mx-auto">
-                    </button>
-                    <button data-player="blue" data-action="torso" class="control-button bg-blue-500 col-span-3 aspect-[3/4]">
-                        <img src="resources/chest.png" alt="Tórax" class="h-full w-auto p-2 mx-auto">
-                    </button>
+                    <div class="relative col-span-3 aspect-[3/4]">
+                        <button id="blue-bonus-head-btn" class="absolute -top-12 left-1/2 -translate-x-1/2 bg-blue-400 bg-opacity-75 text-white font-bold text-xl rounded-full px-4 py-1 flex items-center justify-center opacity-0 pointer-events-none transition-opacity duration-200 z-20 shadow-lg">x2</button>
+                        <button data-player="blue" data-action="head" class="control-button bg-blue-500 w-full h-full">
+                            <img src="resources/head.png" alt="Cabeça" class="h-full w-auto p-2 mx-auto">
+                        </button>
+                    </div>
+                    <div class="relative col-span-3 aspect-[3/4]">
+                        <button id="blue-bonus-torso-btn" class="absolute -top-12 left-1/2 -translate-x-1/2 bg-blue-400 bg-opacity-75 text-white font-bold text-xl rounded-full px-4 py-1 flex items-center justify-center opacity-0 pointer-events-none transition-opacity duration-200 z-20 shadow-lg">x2</button>
+                        <button data-player="blue" data-action="torso" class="control-button bg-blue-500 w-full h-full">
+                            <img src="resources/chest.png" alt="Tórax" class="h-full w-auto p-2 mx-auto">
+                        </button>
+                    </div>
                 </div>
             </div>
 
@@ -178,35 +202,45 @@
                 <div id="timer-display" class="text-5xl md:text-6xl font-bold cursor-pointer">00:00</div>
                 <div id="round-display" class="text-xl md:text-2xl mt-2 font-bold">ROUND 1</div>
                 <div class="mt-4"><button id="play-pause-btn" class="w-20 h-20 md:w-24 md:h-24 bg-green-600 rounded-full flex items-center justify-center shadow-lg active:bg-green-700"></button></div>
-                <div id="match-controls" class="mt-4">
-                    <button id="manual-adjust-btn" class="manual-adjust-btn bg-yellow-600 hover:bg-yellow-700 text-white font-bold py-2 px-4 rounded text-xs md:text-sm">Ajuste Manual</button>
+                <div id="match-controls" class="mt-4 flex flex-col items-center space-y-2">
+                    <button id="manual-adjust-btn" class="manual-adjust-btn bg-yellow-600 hover:bg-yellow-700 text-white font-bold py-2 px-4 rounded text-xs md:text-sm w-full">Ajuste Manual</button>
+                    <button id="revert-round-btn" class="hidden bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded text-xs md:text-sm w-full">Voltar ao Round Anterior</button>
                 </div>
             </div>
 
             <!-- Jogador Vermelho (Direita) -->
-            <div id="red-player-area" class="w-1/2 h-full bg-red-700 flex flex-col justify-end p-2 md:p-4 relative">
-                <div id="red-round-wins" class="absolute top-4 right-4 text-3xl md:text-4xl"></div>
+            <div id="red-player-area" class="w-1/2 h-full bg-red-700 flex flex-col justify-end p-2 md:p-4 pt-16 md:pt-20 relative">
+                <div id="red-round-wins" class="absolute top-14 md:top-16 right-4 text-3xl md:text-4xl transition-all duration-300"></div>
+                <div id="red-hit-indicator" class="absolute bottom-32 md:bottom-40 right-4 md:right-8 flex gap-2 z-30"></div>
                 <div class="flex-grow flex flex-col items-center justify-center">
-                    <div class="flex items-center justify-center relative w-full">
+                    <div class="flex items-center justify-center relative w-full pt-4 md:pt-8">
                         <div class="manual-adjust-controls absolute left-2 md:left-4 top-1/2 -translate-y-1/2 hidden"><button data-player="red" data-adjust="minus" class="bg-red-500 hover:bg-red-600">-</button></div>
                         <span id="score-red" class="score-display text-red-200">0</span>
                         <div class="manual-adjust-controls absolute right-2 md:right-4 top-1/2 -translate-y-1/2 hidden"><button data-player="red" data-adjust="plus" class="bg-green-500 hover:bg-green-600">+</button></div>
                     </div>
                     <div id="red-penalties" class="text-2xl h-8"></div>
                 </div>
-                <!-- Grid com 13 colunas para garantir o tamanho correto dos botões -->
-                <div class="grid grid-cols-13 gap-1 md:gap-2">
-                    <button data-player="red" data-action="torso" class="control-button bg-red-500 col-span-3 aspect-[3/4]">
-                        <img src="resources/chest.png" alt="Tórax" class="h-full w-auto p-2 mx-auto">
-                    </button>
-                    <button data-player="red" data-action="head" class="control-button bg-red-500 col-span-3 aspect-[3/4]">
-                        <img src="resources/head.png" alt="Cabeça" class="h-full w-auto p-2 mx-auto">
-                    </button>
+                <!-- Grid com 11 colunas para garantir o tamanho correto dos botões sem o botão de Bônus -->
+                <div class="grid grid-cols-11 gap-1 md:gap-2 relative action-grid">
+                    <div class="relative col-span-3 aspect-[3/4]">
+                        <button id="red-bonus-torso-btn" class="absolute -top-12 left-1/2 -translate-x-1/2 bg-red-400 bg-opacity-75 text-white font-bold text-xl rounded-full px-4 py-1 flex items-center justify-center opacity-0 pointer-events-none transition-opacity duration-200 z-20 shadow-lg">x2</button>
+                        <button data-player="red" data-action="torso" class="control-button bg-red-500 w-full h-full">
+                            <img src="resources/chest.png" alt="Tórax" class="h-full w-auto p-2 mx-auto">
+                        </button>
+                    </div>
+                    <div class="relative col-span-3 aspect-[3/4]">
+                        <button id="red-bonus-head-btn" class="absolute -top-12 left-1/2 -translate-x-1/2 bg-red-400 bg-opacity-75 text-white font-bold text-xl rounded-full px-4 py-1 flex items-center justify-center opacity-0 pointer-events-none transition-opacity duration-200 z-20 shadow-lg">x2</button>
+                        <button data-player="red" data-action="head" class="control-button bg-red-500 w-full h-full">
+                            <img src="resources/head.png" alt="Cabeça" class="h-full w-auto p-2 mx-auto">
+                        </button>
+                    </div>
                     <button data-player="red" data-action="punch" class="control-button bg-red-500 col-span-3 aspect-[3/4]">
                         <img src="resources/punch.png" alt="Soco" class="h-full w-auto p-2 mx-auto">
                     </button>
-                    <button data-player="red" data-action="bonus" class="control-button control-button-sm bg-gray-700 col-span-2 aspect-[2/4]">B</button>
-                    <button data-player="red" data-action="penalty" class="control-button control-button-sm bg-gray-700 col-span-2 aspect-[2/4]">G</button>
+                    <div class="relative col-span-2 aspect-[2/4]">
+                        <button id="red-passive-penalty-btn" class="absolute -top-12 left-1/2 -translate-x-1/2 bg-yellow-500 bg-opacity-75 text-black font-bold text-xl rounded-full w-10 h-10 flex items-center justify-center opacity-0 pointer-events-none transition-opacity duration-200 z-20">+1</button>
+                        <button data-player="red" data-action="penalty" class="control-button control-button-sm bg-gray-700 w-full h-full">G</button>
+                    </div>
                 </div>
             </div>
         </main>
@@ -223,39 +257,57 @@
 
     <!-- Modals -->
     <div id="connection-lost-modal" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center hidden z-50 p-4">
-        <div class="bg-gray-700 p-8 rounded-lg shadow-xl text-center max-w-sm w-full">
-            <h2 class="text-2xl mb-4 font-bold text-yellow-300">Conexão Perdida</h2>
-            <p class="mb-6">A conexão com o seu par foi perdida. O jogo está pausado. Aguardando reconexão...</p>
-            <div class="flex justify-center space-x-4">
-                <button id="disconnect-peer-btn" class="bg-red-600 px-8 py-3 rounded-lg text-lg font-bold hover:bg-red-700">Continuar Sozinho</button>
+        <div class="bg-gray-700 p-8 rounded-lg shadow-xl text-center max-w-sm w-full max-h-[95vh] overflow-y-auto">
+            <h2 class="text-2xl mb-4 font-bold text-yellow-300">Par Desconectado</h2>
+            <p class="mb-4">A conexão com o seu par foi perdida. O jogo foi pausado.</p>
+            <div class="mb-6">
+                <p class="text-sm">Código da Sessão para reconectar:</p>
+                <p id="lost-session-code" class="text-2xl font-mono bg-gray-800 rounded p-2 select-all cursor-pointer text-yellow-400 mt-1"></p>
+            </div>
+            <div class="flex flex-col space-y-3">
+                <button id="disconnect-peer-btn" class="bg-blue-600 px-6 py-3 rounded-lg text-lg font-bold hover:bg-blue-700">Continuar Sozinho (Manter Telas)</button>
+                <button id="destroy-session-btn" class="bg-red-600 px-6 py-2 rounded-lg text-sm font-bold hover:bg-red-700">Encerrar Sessão Completamente</button>
             </div>
         </div>
     </div>
-    <div id="peer-connect-modal" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center hidden z-50 p-4 text-center">
-        <div class="bg-gray-700 p-8 rounded-lg shadow-xl max-w-sm w-full relative">
-            <button id="close-peer-modal-btn" class="absolute top-2 right-4 text-gray-400 hover:text-white text-4xl font-bold leading-none">&times;</button>
-            <h2 class="text-2xl mb-4 font-bold text-yellow-300">Conectar com um Par</h2>
-            <div class="mb-4">
-                <p class="text-lg">Seu Código de Sessão:</p>
-                <p id="my-session-code" class="text-3xl font-mono bg-gray-800 rounded p-2 mt-1 select-all cursor-pointer"></p>
+    <div id="peer-connect-modal" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center hidden z-50 p-2 text-center">
+        <div class="bg-gray-700 p-3 sm:p-4 rounded-lg shadow-xl max-w-sm w-full relative overflow-y-auto max-h-[95vh]">
+            <button id="close-peer-modal-btn" class="absolute top-1 right-2 text-gray-400 hover:text-white text-2xl font-bold leading-none">&times;</button>
+            <h2 class="text-lg mb-1 font-bold text-yellow-300">Conectar com um Par</h2>
+            <div class="mb-1">
+                <p class="text-sm">Seu Código de Sessão:</p>
+                <p id="my-session-code" class="text-xl font-mono bg-gray-800 rounded p-1 select-all cursor-pointer"></p>
             </div>
-            <div class="mb-4">
-                <label for="peer-session-input" class="text-lg">Digite o código do seu par:</label>
-                <input type="text" id="peer-session-input" class="w-full text-center text-3xl bg-gray-800 rounded p-2 mt-1 font-mono uppercase" placeholder="CÓDIGO">
+            <div class="mb-1">
+                <label for="peer-session-input" class="text-sm">Digite o código do seu par:</label>
+                <input type="text" id="peer-session-input" class="w-full text-center text-xl bg-gray-800 rounded p-1 font-mono uppercase" placeholder="CÓDIGO">
             </div>
-            <div class="mb-4">
-                <p class="text-sm">Conectar como:</p>
-                <div class="flex justify-center space-x-4 mt-2">
-                    <button id="connect-as-peer-btn" class="bg-blue-600 px-8 py-3 rounded-lg text-lg font-bold hover:bg-blue-700 w-full">Par</button>
-                    <button id="connect-as-screen-btn" class="bg-gray-600 px-8 py-3 rounded-lg text-lg font-bold hover:bg-gray-700 w-full">Tela</button>
+            <div class="mb-1">
+                <p class="text-xs">Conectar como:</p>
+                <div class="flex justify-center space-x-2 mt-1">
+                    <button id="connect-as-peer-btn" class="bg-blue-600 px-3 py-1 rounded-lg text-sm font-bold hover:bg-blue-700 w-full">Par</button>
+                    <button id="connect-as-screen-btn" class="bg-gray-600 px-3 py-1 rounded-lg text-sm font-bold hover:bg-gray-700 w-full">Tela</button>
                 </div>
             </div>
-            <p id="peer-connect-status" class="text-sm h-5"></p>
-            <p id="firebase-status-in-modal" class="text-xs mt-2 h-4"></p>
+            <p id="peer-connect-status" class="text-xs h-4"></p>
+            <div id="connected-devices-info" class="text-xs text-gray-300 bg-gray-800 p-1 rounded hidden">
+                <span id="connected-devices-text">Nenhum dispositivo conectado.</span>
+            </div>
+            <p id="firebase-status-in-modal" class="text-[10px] h-3"></p>
+        </div>
+    </div>
+    <div id="superiority-modal" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center hidden z-50 p-4 text-center">
+        <div class="bg-gray-700 p-6 rounded-lg shadow-xl max-w-sm w-full relative max-h-[95vh] overflow-y-auto">
+            <h2 class="text-2xl mb-4 font-bold text-yellow-300">Decisão por Superioridade</h2>
+            <p class="text-lg mb-6">Round empatado em todos os critérios. Qual lado foi superior de acordo com os árbitros?</p>
+            <div class="flex justify-between space-x-4">
+                <button id="superiority-blue-btn" class="bg-blue-600 w-full py-4 rounded-lg text-white font-bold text-xl shadow-lg hover:bg-blue-700">AZUL</button>
+                <button id="superiority-red-btn" class="bg-red-600 w-full py-4 rounded-lg text-white font-bold text-xl shadow-lg hover:bg-red-700">VERMELHO</button>
+            </div>
         </div>
     </div>
     <div id="ios-fullscreen-modal" class="fixed inset-0 bg-black bg-opacity-75 flex-col items-center justify-center hidden z-50 p-4 text-center">
-        <div class="bg-gray-700 p-8 rounded-lg shadow-xl max-w-sm w-full relative">
+        <div class="bg-gray-700 p-8 rounded-lg shadow-xl max-w-sm w-full relative max-h-[95vh] overflow-y-auto">
             <button id="close-ios-fullscreen-modal-btn" class="absolute top-2 right-4 text-gray-400 hover:text-white text-4xl font-bold leading-none">&times;</button>
             <h2 class="text-2xl mb-4 font-bold text-yellow-300">Tela Cheia no iOS</h2>
             <p class="text-lg mb-2">Para usar o modo tela cheia, adicione este app à sua Tela de Início:</p>
@@ -267,7 +319,7 @@
         </div>
     </div>
     <div id="restart-confirm-modal" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center hidden z-50 p-4">
-        <div class="bg-gray-700 p-8 rounded-lg shadow-xl text-center max-w-sm w-full"><h2 class="text-2xl mb-4">Recomeçar Partida?</h2><p class="mb-6">Tem certeza que deseja apagar os dados da partida atual?</p><div class="flex justify-center space-x-4"><button id="confirm-restart-btn" class="bg-red-600 px-8 py-3 rounded-lg text-lg font-bold hover:bg-red-700">Sim</button><button id="cancel-restart-btn" class="bg-gray-500 px-8 py-3 rounded-lg text-lg font-bold hover:bg-gray-600">Não</button></div></div>
+        <div class="bg-gray-700 p-8 rounded-lg shadow-xl text-center max-w-sm w-full max-h-[95vh] overflow-y-auto"><h2 class="text-2xl mb-4">Recomeçar Partida?</h2><p class="mb-6">Tem certeza que deseja apagar os dados da partida atual?</p><div class="flex justify-center space-x-4"><button id="confirm-restart-btn" class="bg-red-600 px-8 py-3 rounded-lg text-lg font-bold hover:bg-red-700">Sim</button><button id="cancel-restart-btn" class="bg-gray-500 px-8 py-3 rounded-lg text-lg font-bold hover:bg-gray-600">Não</button></div></div>
     </div>
     <div id="summary-modal" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center hidden z-50 p-4">
         <div class="bg-gray-700 rounded-lg shadow-xl text-center max-w-3xl w-full max-h-[90vh] flex flex-col p-6 md:p-8 relative"><button id="close-summary-btn" class="absolute top-2 right-4 text-gray-400 hover:text-white text-4xl font-bold leading-none">&times;</button><h2 class="text-3xl mb-4 font-bold flex-shrink-0">Fim de Jogo</h2><div id="final-winner" class="text-2xl mb-4"></div><div id="stats-summary-container" class="bg-gray-800 p-4 rounded-md text-left text-sm flex-grow min-h-0 overflow-y-auto"></div></div>
@@ -283,7 +335,7 @@
                         <li><strong>Botão de Tórax:</strong> Clique para adicionar <strong>2 pontos</strong> (chute).</li>
                         <li><strong>Botão de Cabeça:</strong> Clique para adicionar <strong>3 pontos</strong> (chute).</li>
                         <li><strong>Botão de Soco:</strong> Clique para adicionar <strong>1 ponto</strong> (soco no tórax).</li>
-                        <li><strong>B (Bônus):</strong> Ativa o bônus de giro. O próximo chute (Tórax ou Cabeça) valerá <strong>+2 pontos</strong>. O botão fica amarelo quando ativo.</li>
+                        <li><strong>Bônus de Giro (x2):</strong> Após marcar um chute (Tórax ou Cabeça), um botão "x2" aparecerá acima por 2 segundos. Clique nele para confirmar o giro e <strong>dobrar</strong> o valor do golpe.</li>
                         <li><strong>G (Gam-jeom):</strong> Adiciona <strong>1 ponto para o oponente</strong> e uma falta para o atleta.</li>
                     </ul>
                 </div>
@@ -291,7 +343,7 @@
                     <h3 class="text-xl font-bold text-yellow-300 mb-2">Correção de Erros</h3>
                     <ul class="list-disc list-inside space-y-1">
                         <li><strong>Clique Longo:</strong> Para remover pontos ou uma falta, <strong>pressione e segure</strong> o botão correspondente por 1 segundo.</li>
-                        <li><strong>Remover com Bônus:</strong> Para remover um chute com giro, ative o botão 'B' e então pressione e segure o botão de Tórax ou Cabeça.</li>
+                        <li><strong>Remover Pontos e Bônus:</strong> Ao pressionar e segurar para remover um chute, o sistema identificará se havia bônus associado e o removerá automaticamente.</li>
                         <li><strong>Ajuste Manual:</strong> Com o tempo pausado, clique em <strong>"Ajuste Manual"</strong> para exibir botões de '+' e '-' e corrigir o placar livremente.</li>
                     </ul>
                 </div>
@@ -334,6 +386,14 @@
                          <li><strong>Desconexão:</strong> Se a conexão for perdida, a partida é pausada. Você pode tentar reconectar ou continuar a partida no modo offline.</li>
                     </ul>
                 </div>
+                <div>
+                    <h3 class="text-xl font-bold text-yellow-300 mb-2">Novas Regras e Interface</h3>
+                    <ul class="list-disc list-inside space-y-1">
+                        <li><strong>Interface Limpa:</strong> Durante a luta, a barra superior desaparece para dar foco 100% à partida, reaparecendo nos intervalos e pausas.</li>
+                        <li><strong>Indicador de Hits (Modo Tela):</strong> Hits aguardando confirmação possuem borda cinza (branca). Quando são confirmados, acendem com borda e ícone em verde antes de desaparecer.</li>
+                        <li><strong>Desempate (Art. 15.5):</strong> Todo round empatado é decidido na prioridade: 1º Pontos de giro; 2º Técnicas de maior valor (Cabeça > Tronco > Soco > Gam-jeom); 3º Volume total de ataques/tentativas; 4º Decisão manual dos Árbitros (Superioridade).</li>
+                    </ul>
+                </div>
                  <div>
                     <h3 class="text-xl font-bold text-yellow-300 mb-2">Outras Funcionalidades</h3>
                     <ul class="list-disc list-inside space-y-1">
@@ -359,7 +419,18 @@
         </div>
     </div>
     <div id="time-modal" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center hidden z-50 p-4">
-        <div class="bg-gray-700 p-8 rounded-lg shadow-xl text-center"><h2 class="text-2xl mb-4">Configurar Tempo do Round</h2><div class="flex justify-center items-center space-x-2"><input type="number" id="minutes-input" min="0" max="59" class="w-20 h-16 text-4xl text-center bg-gray-800 rounded" value="1"><span class="text-4xl">:</span><input type="number" id="seconds-input" min="0" max="59" class="w-20 h-16 text-4xl text-center bg-gray-800 rounded" value="30"></div><button id="set-time-btn" class="mt-6 bg-blue-600 px-8 py-3 rounded-lg text-lg font-bold hover:bg-blue-700">Confirmar</button></div>
+        <div class="bg-gray-700 p-8 rounded-lg shadow-xl text-center max-w-sm w-full max-h-[95vh] overflow-y-auto">
+            <h2 class="text-2xl mb-4">Configurar Tempo do Round</h2>
+            <div class="flex justify-center items-center space-x-2">
+                <input type="number" id="minutes-input" min="0" max="59" class="w-20 h-16 text-4xl text-center bg-gray-800 rounded" value="1">
+                <span class="text-4xl">:</span>
+                <input type="number" id="seconds-input" min="0" max="59" class="w-20 h-16 text-4xl text-center bg-gray-800 rounded" value="30">
+            </div>
+            <div class="mt-6 flex justify-center space-x-4">
+                <button id="cancel-time-btn" class="bg-gray-500 px-6 py-3 rounded-lg text-lg font-bold hover:bg-gray-600">Cancelar</button>
+                <button id="set-time-btn" class="bg-blue-600 px-6 py-3 rounded-lg text-lg font-bold hover:bg-blue-700">Confirmar</button>
+            </div>
+        </div>
     </div>
 
     <script>
@@ -369,6 +440,7 @@
                 extend: {
                     gridTemplateColumns: {
                         '13': 'repeat(13, minmax(0, 1fr))',
+                        '11': 'repeat(11, minmax(0, 1fr))',
                     },
                     aspectRatio: {
                         '2/4': '2 / 4',
@@ -394,6 +466,7 @@
                 helpBtn: document.getElementById('help-btn'),
                 restartBtn: document.getElementById('restart-btn'),
                 manualAdjustBtn: document.getElementById('manual-adjust-btn'),
+                revertRoundBtn: document.getElementById('revert-round-btn'),
                 timeModal: document.getElementById('time-modal'),
                 summaryModal: document.getElementById('summary-modal'),
                 helpModal: document.getElementById('help-modal'),
@@ -401,6 +474,13 @@
                 iosFullscreenModal: document.getElementById('ios-fullscreen-modal'),
                 closeIosFullscreenModalBtn: document.getElementById('close-ios-fullscreen-modal-btn'),
                 setTimeBtn: document.getElementById('set-time-btn'),
+                cancelTimeBtn: document.getElementById('cancel-time-btn'),
+                bluePassiveBtn: document.getElementById('blue-passive-penalty-btn'),
+                redPassiveBtn: document.getElementById('red-passive-penalty-btn'),
+                blueBonusHeadBtn: document.getElementById('blue-bonus-head-btn'),
+                blueBonusTorsoBtn: document.getElementById('blue-bonus-torso-btn'),
+                redBonusHeadBtn: document.getElementById('red-bonus-head-btn'),
+                redBonusTorsoBtn: document.getElementById('red-bonus-torso-btn'),
                 minutesInput: document.getElementById('minutes-input'),
                 secondsInput: document.getElementById('seconds-input'),
                 statsContainer: document.getElementById('stats-summary-container'),
@@ -413,6 +493,7 @@
                 matchControls: document.getElementById('match-controls'),
                 peerModeContainer: document.getElementById('peer-mode-container'),
                 peerModeToggle: document.getElementById('peer-mode-toggle'),
+                appHeader: document.getElementById('app-header'),
                 peerStatusLabel: document.getElementById('peer-status-label'),
                 peerConnectModal: document.getElementById('peer-connect-modal'),
                 closePeerModalBtn: document.getElementById('close-peer-modal-btn'),
@@ -423,7 +504,12 @@
                 peerConnectStatus: document.getElementById('peer-connect-status'),
                 firebaseStatusInModal: document.getElementById('firebase-status-in-modal'),
                 connectionLostModal: document.getElementById('connection-lost-modal'),
+                superiorityModal: document.getElementById('superiority-modal'),
+                superiorityBlueBtn: document.getElementById('superiority-blue-btn'),
+                superiorityRedBtn: document.getElementById('superiority-red-btn'),
                 disconnectPeerBtn: document.getElementById('disconnect-peer-btn'),
+                destroySessionBtn: document.getElementById('destroy-session-btn'),
+                lostSessionCode: document.getElementById('lost-session-code'),
                 penaltyButtons: document.querySelectorAll('.control-button[data-action="penalty"]'),
                 bonusButtons: document.querySelectorAll('.control-button[data-action="bonus"]'),
                 playIcon: '<svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3l14 9-14 9V3z" /></svg>',
@@ -436,8 +522,8 @@
             // --- Lógica do Modo de Pares (Firebase) ---
             let db, sessionRef, localClientId, peerListenerUnsubscribe;
             
-            const PEER_TIMEOUT_MS = 15000; // 15 segundos
-            const HEARTBEAT_INTERVAL_MS = 5000; // 5 segundos
+            const PEER_TIMEOUT_MS = 6000;
+            const HEARTBEAT_INTERVAL_MS = 2000;
 
             let peerState = {
                 connected: false,
@@ -446,7 +532,8 @@
                 isScreenMode: false,
                 firebaseReady: false,
                 heartbeatInterval: null,
-                localBonus: { blue: false, red: false }
+                peer2Joined: false,
+                processedActionIds: new Set()
             };
             
             // --- Variáveis globais para os timers ---
@@ -513,14 +600,19 @@
                 peerState.sessionId = sessionId;
                 peerState.isMaster = true;
                 peerState.isScreenMode = false;
+                peerState.connected = true;
+                peerState.peer2Joined = false;
+                updatePeerConnectionStatusUI(true);
+                startHeartbeat();
 
                 updatePeerConnectStatus("Compartilhe seu código com o par.", "blue");
                 
                 sessionRef = window.firebase.doc(db, "tkd-sessions", sessionId);
                 try {
                     await window.firebase.setDoc(sessionRef, { 
-                        peer1: { id: localClientId, actionQueue: [], lastSeen: Date.now(), bonus: { blue: false, red: false }},
+                        peer1: { id: localClientId, actionQueue: [], lastSeen: Date.now() },
                         peer2: null,
+                        screens: {},
                         sharedState: state, 
                         logQueue: []
                     });
@@ -561,13 +653,38 @@
                     peerState.isScreenMode = role === 'screen';
                     sessionRef = joinSessionRef;
 
+                    const data = docSnap.data();
+                    const screenCount = data.screens ? Object.keys(data.screens).length : 0;
+                    let totalConnections = (data.peer2 ? 1 : 0) + screenCount;
+                    
                     if (role === 'peer') {
-                        const data = docSnap.data();
-                        if (data.peer2) {
-                            updatePeerConnectStatus("Sessão já está cheia.", "red");
+                        const now = Date.now();
+                        const isPeer1Dead = !data.peer1 || (now - data.peer1.lastSeen > 8000);
+                        const isPeer2Dead = !data.peer2 || (now - data.peer2.lastSeen > 8000);
+
+                        if (isPeer1Dead) {
+                            peerState.isMaster = true;
+                            if (data.sharedState) {
+                                data.sharedState.timer.isRunning = false;
+                                syncLocalState(data.sharedState);
+                            }
+                            await window.firebase.updateDoc(sessionRef, { peer1: { id: localClientId, actionQueue: [], lastSeen: Date.now() }, 'sharedState.timer.isRunning': false });
+                        } else if (isPeer2Dead) {
+                            if (totalConnections >= 3 && !isPeer2Dead) {
+                                updatePeerConnectStatus("Limite de 3 dispositivos atingido.", "red");
+                                return;
+                            }
+                            await window.firebase.updateDoc(sessionRef, { peer2: { id: localClientId, actionQueue: [], lastSeen: Date.now() } });
+                        } else {
+                            updatePeerConnectStatus("Sessão já está cheia (1 Par permitido).", "red");
                             return;
                         }
-                        await window.firebase.updateDoc(sessionRef, { peer2: { id: localClientId, actionQueue: [], lastSeen: Date.now(), bonus: { blue: false, red: false } } });
+                    } else if (role === 'screen') {
+                        if (totalConnections >= 3 && (!data.screens || !data.screens[localClientId])) {
+                            updatePeerConnectStatus("Limite de 3 dispositivos atingido.", "red");
+                            return;
+                        }
+                        await window.firebase.updateDoc(sessionRef, { [`screens.${localClientId}`]: Date.now() });
                     }
 
                     peerListenerUnsubscribe = window.firebase.onSnapshot(sessionRef, (doc) => {
@@ -583,28 +700,73 @@
 
             function handlePeerData(data) {
                 if (!data) {
-                    if (peerState.connected) {
-                        alert("A sessão de pares foi encerrada.");
-                    }
-                    leavePeerSession(true);
+                    handlePeerDisconnect(true);
                     return;
                 }
                 
-                if (!peerState.connected) {
-                    const isReadyToConnect =
-                        (peerState.isMaster && data.peer2) || 
-                        (!peerState.isMaster);
-                
-                    if (isReadyToConnect) {
-                        peerState.connected = true;
-                        if (!peerState.isMaster) {
-                           ui.peerConnectModal.classList.add('hidden');
-                        }
-                        updatePeerConnectionStatusUI(true);
-                        if (!peerState.isScreenMode) {
-                            startHeartbeat();
+                if (peerState.isMaster && data.peer2) {
+                    const now = Date.now();
+                    const isRecent = (now - data.peer2.lastSeen) <= PEER_TIMEOUT_MS;
+                    if (isRecent && !peerState.peer2Joined) {
+                        peerState.peer2Joined = true;
+                        ui.connectionLostModal.classList.add('hidden');
+                    }
+                }
+                if (peerState.isMaster && peerState.peer2Joined && !data.peer2) {
+                    handlePeerDisconnect();
+                    return;
+                }
+
+                if (peerState.isMaster) {
+                    const infoDiv = document.getElementById('connected-devices-info');
+                    const textSpan = document.getElementById('connected-devices-text');
+                    let devicesText = [];
+                    let activeScreens = 0;
+                    const now = Date.now();
+                    
+                    if (data.peer2) devicesText.push("1 Par");
+                    
+                    let needsUpdate = false;
+                    let newScreensObj = data.screens ? { ...data.screens } : {};
+                    if (data.screens) {
+                        for (const [id, lastSeen] of Object.entries(data.screens)) {
+                            if (now - lastSeen > PEER_TIMEOUT_MS) {
+                                delete newScreensObj[id];
+                                needsUpdate = true;
+                                if (peerState.connected) {
+                                    handleScreenDrop();
+                                }
+                            } else {
+                                activeScreens++;
+                            }
                         }
                     }
+                    
+                    if (activeScreens > (peerState.activeScreens || 0)) {
+                        ui.connectionLostModal.classList.add('hidden');
+                    }
+                    peerState.activeScreens = activeScreens;
+                    
+                    if (activeScreens > 0) devicesText.push(`${activeScreens} Tela(s)`);
+                    
+                    if (devicesText.length > 0) {
+                        infoDiv.classList.remove('hidden');
+                        textSpan.textContent = `Conectados: ${devicesText.join(' e ')}`;
+                    } else {
+                        infoDiv.classList.add('hidden');
+                    }
+
+                    if (needsUpdate && peerState.connected) {
+                        window.firebase.updateDoc(sessionRef, { screens: newScreensObj });
+                    }
+                }
+
+                if (!peerState.connected) {
+                    peerState.connected = true;
+                    ui.peerConnectModal.classList.add('hidden');
+                    ui.connectionLostModal.classList.add('hidden');
+                    updatePeerConnectionStatusUI(true);
+                    startHeartbeat();
                 }
                 
                 if (peerState.connected) {
@@ -625,68 +787,195 @@
                         }
                     }
 
+                    if (peerState.isScreenMode) {
+                        const now = Date.now();
+                        if (data.peer1 && (now - data.peer1.lastSeen > PEER_TIMEOUT_MS)) {
+                            handlePeerDisconnect();
+                            return;
+                        } else if (data.peer1) {
+                            ui.connectionLostModal.classList.add('hidden');
+                        }
+
+                        const allActions = [
+                            ...(data.peer1 ? data.peer1.actionQueue : []),
+                            ...(data.peer2 ? data.peer2.actionQueue : [])
+                        ];
+                        displayScreenHits(allActions);
+                    }
+
                     if (!peerState.isScreenMode && data.peer1 && data.peer2) {
                         const mySlotKey = peerState.isMaster ? 'peer1' : 'peer2';
                         const peerSlotKey = peerState.isMaster ? 'peer2' : 'peer1';
                         const myData = data[mySlotKey];
                         const peerData = data[peerSlotKey];
                         
-                        if (myData.actionQueue.length > 0 && peerData.actionQueue.length > 0) {
-                            const now = Date.now();
-                            if (now - peerData.lastSeen > PEER_TIMEOUT_MS) {
-                                handlePeerDisconnect();
-                                return;
-                            }
-                            
-                            const myActions = [...myData.actionQueue];
-                            let peerActions = [...peerData.actionQueue];
-                            let matchedMyActions = [];
-                            let matchedPeerActions = [];
+                        const now = Date.now();
+                        if (now - peerData.lastSeen > PEER_TIMEOUT_MS) {
+                            handlePeerDisconnect();
+                            return;
+                        } else {
+                            if (!peerState.isMaster) ui.connectionLostModal.classList.add('hidden');
+                        }
+                        
+                        let myActions = [...myData.actionQueue];
+                        let peerActions = [...peerData.actionQueue];
+                        let matchedMyActions = [];
+                        let matchedPeerActions = [];
+                        let expiredMyActions = [];
+                        let expiredPeerActions = [];
+                        let logEntries = [];
 
-                            for (const myAction of myActions) {
-                                for (let i = 0; i < peerActions.length; i++) {
-                                    const peerAction = peerActions[i];
-                                    const timeDiff = Math.abs(myAction.timestamp - peerAction.timestamp);
-                                    if (myAction.type === peerAction.type && myAction.player === peerAction.player && timeDiff < 3000) {
-                                        if (peerState.isMaster) {
-                                            const isBonusConfirmed = myAction.isBonusAction && peerAction.isBonusAction;
-                                            executeScoreAction({ ...myAction.payload, isBonus: isBonusConfirmed });
+                        for (let i = peerActions.length - 1; i >= 0; i--) {
+                            const peerAction = peerActions[i];
+                            if (peerAction.type === 'retroactive_bonus') {
+                                if (peerState.isMaster) {
+                                    applyRetroactiveBonus(peerAction.player);
+                                }
+                                matchedPeerActions.push(peerAction);
+                                peerActions.splice(i, 1);
+                            }
+                        }
+
+                        for (const myAction of myActions) {
+                            for (let i = 0; i < peerActions.length; i++) {
+                                const peerAction = peerActions[i];
+                                const timeDiff = Math.abs(myAction.timestamp - peerAction.timestamp);
+                                if (myAction.type === peerAction.type && myAction.player === peerAction.player && timeDiff < 3000) {
+                                    if (peerState.isMaster) {
+                                        if (!peerState.processedActionIds.has(myAction.id)) {
+                                            executeScoreAction({ ...myAction.payload });
+                                            logEntries.push({ type: 'confirmedHit', player: myAction.player, actionType: myAction.type, timestamp: Date.now() });
+                                            peerState.processedActionIds.add(myAction.id);
                                         }
-                                        matchedMyActions.push(myAction);
-                                        matchedPeerActions.push(peerAction);
-                                        peerActions.splice(i, 1); 
-                                        break; 
                                     }
+                                    matchedMyActions.push(myAction);
+                                    matchedPeerActions.push(peerAction);
+                                    peerActions.splice(i, 1); 
+                                    break; 
                                 }
                             }
+                        }
 
-                            if (matchedMyActions.length > 0) {
-                                window.firebase.updateDoc(sessionRef, {
-                                    [mySlotKey + '.actionQueue']: window.firebase.arrayRemove(...matchedMyActions),
-                                    [peerSlotKey + '.actionQueue']: window.firebase.arrayRemove(...matchedPeerActions)
-                                });
+                        if (peerState.isMaster) {
+                            myActions.forEach(a => {
+                                if (!matchedMyActions.includes(a) && now - a.timestamp >= 3000) {
+                                    expiredMyActions.push(a);
+                                }
+                            });
+                            peerData.actionQueue.forEach(a => {
+                                if (!matchedPeerActions.includes(a) && now - a.timestamp >= 3000) {
+                                    expiredPeerActions.push(a);
+                                }
+                            });
+                            
+                            expiredMyActions.concat(expiredPeerActions).forEach(action => {
+                                if (action.type !== 'penalty' && action.type !== 'retroactive_bonus') {
+                                    logEntries.push({
+                                        time: formatTime(state.timer.initialTime - state.timer.currentTime),
+                                        round: state.round,
+                                        player: action.player,
+                                        event: 'Tentativa',
+                                        type: action.type,
+                                        detail: 'Não confirmada',
+                                        isSpin: false
+                                    });
+                                }
+                            });
+                        }
+
+                        if (matchedMyActions.length > 0 || matchedPeerActions.length > 0 || expiredMyActions.length > 0 || expiredPeerActions.length > 0) {
+                            if (peerState.isMaster) {
+                                let newState = { ...state };
+                                const actualLogs = logEntries.filter(l => l.event === 'Tentativa');
+                                if (actualLogs.length > 0) {
+                                    newState.gameLog = [...state.gameLog, ...actualLogs];
+                                }
+                                const confirmedHits = logEntries.filter(l => l.type === 'confirmedHit');
+                                if (confirmedHits.length > 0) {
+                                    const allConfirmed = [...(state.recentConfirmedHits || []), ...confirmedHits];
+                                    newState.recentConfirmedHits = allConfirmed.filter(h => now - h.timestamp < 2000);
+                                }
+                                if (actualLogs.length > 0 || confirmedHits.length > 0) {
+                                    updateSharedState(newState);
+                                }
                             }
+                            
+                            window.firebase.updateDoc(sessionRef, {
+                                [mySlotKey + '.actionQueue']: window.firebase.arrayRemove(...matchedMyActions, ...expiredMyActions),
+                                [peerSlotKey + '.actionQueue']: window.firebase.arrayRemove(...matchedPeerActions, ...expiredPeerActions)
+                            });
                         }
                     }
                 
-                    if (data.sharedState && JSON.stringify(data.sharedState) !== JSON.stringify(state)) {
+                    if (!peerState.isMaster && data.sharedState && JSON.stringify(data.sharedState) !== JSON.stringify(state)) {
                         syncLocalState(data.sharedState);
                     }
                 }
             }
 
-            function handlePeerDisconnect() {
-                if (!peerState.connected || peerState.isScreenMode) return;
+            function handlePeerDisconnect(isDestroyed = false) {
+                if (!peerState.connected) return;
                 
-                console.warn("Conexão com o par perdida.");
+                console.warn("Conexão perdida.");
                 
                 if (state.timer.isRunning) {
                     stopTimer(); 
                 }
                 
-                stopHeartbeat();
-                peerState.connected = false;
-                updatePeerConnectionStatusUI(false);
+                if (isDestroyed) {
+                    stopHeartbeat();
+                }
+                
+                if (!peerState.isScreenMode) {
+                    peerState.connected = false;
+                    peerState.peer2Joined = false;
+                    updatePeerConnectionStatusUI(false);
+                }
+                
+                if (ui.lostSessionCode) {
+                    ui.lostSessionCode.textContent = isDestroyed ? "Sessão Encerrada pelo Master" : (peerState.sessionId || "");
+                }
+                
+                const titleEl = ui.connectionLostModal.querySelector('h2');
+                const pEl = ui.connectionLostModal.querySelector('p');
+                
+                if (titleEl && pEl) {
+                    if (peerState.isScreenMode) {
+                        titleEl.textContent = "Conexão com a Sessão Perdida";
+                        pEl.textContent = "A tela perdeu conexão com a sessão principal.";
+                    } else {
+                        titleEl.textContent = "Par Desconectado";
+                        pEl.textContent = "A conexão com o seu par foi perdida. O jogo foi pausado.";
+                    }
+                }
+                
+                ui.connectionLostModal.classList.remove('hidden');
+                
+                if (peerState.isMaster && sessionRef && !isDestroyed) {
+                    window.firebase.updateDoc(sessionRef, { peer2: null }).catch(e => console.error(e));
+                }
+                
+                if (isDestroyed && !peerState.isMaster) {
+                    leavePeerSession(true);
+                }
+            }
+
+            function handleScreenDrop() {
+                if (!peerState.connected || peerState.isScreenMode) return;
+                
+                if (state.timer.isRunning) {
+                    stopTimer(); 
+                }
+                
+                if (ui.lostSessionCode) {
+                    ui.lostSessionCode.textContent = peerState.sessionId || "";
+                }
+                
+                const titleEl = ui.connectionLostModal.querySelector('h2');
+                const pEl = ui.connectionLostModal.querySelector('p');
+                if(titleEl) titleEl.textContent = "Tela Desconectada";
+                if(pEl) pEl.textContent = "Uma tela perdeu a conexão. O jogo foi pausado.";
+                
                 ui.connectionLostModal.classList.remove('hidden');
             }
 
@@ -701,12 +990,18 @@
             }
 
             async function sendHeartbeat() {
-                if (sessionRef && !peerState.isScreenMode) {
+                if (sessionRef) {
                     try {
-                        const mySlotKey = peerState.isMaster ? 'peer1' : 'peer2';
-                        await window.firebase.updateDoc(sessionRef, {
-                            [`${mySlotKey}.lastSeen`]: Date.now()
-                        });
+                        if (!peerState.isScreenMode) {
+                            const mySlotKey = peerState.isMaster ? 'peer1' : 'peer2';
+                            await window.firebase.updateDoc(sessionRef, {
+                                [`${mySlotKey}.lastSeen`]: Date.now()
+                            });
+                        } else {
+                            await window.firebase.updateDoc(sessionRef, {
+                                [`screens.${localClientId}`]: Date.now()
+                            });
+                        }
                     } catch (e) {
                         console.error("Heartbeat falhou. Conexão pode estar perdida.", e);
                     }
@@ -714,20 +1009,20 @@
             }
             
             function executeScoreAction(action) {
-                const { player, type, points, isRemoval, isBonus } = action;
+                const { player, type, points, isRemoval } = action;
 
                 const buttonElement = document.querySelector(`[data-player="${player}"][data-action="${type}"]`);
                 if (isRemoval) {
                      if (type === 'penalty') {
                         handlePenaltyRemoval(player);
                        } else {
-                        handlePointRemoval(player, points, type, buttonElement, true, isBonus);
+                        handlePointRemoval(player, points, type, buttonElement, true);
                        }
                 } else {
                      if (type === 'penalty') {
                         handlePenalty(player);
                        } else {
-                        handleScore(player, points, type, buttonElement, true, isBonus);
+                        handleScore(player, points, type, buttonElement, true);
                        }
                 }
             }
@@ -736,8 +1031,12 @@
                 stopHeartbeat();
                 if (globalTimerInterval) clearInterval(globalTimerInterval);
 
-                if (!sessionAlreadyDeleted && sessionRef && peerState.isMaster) {
-                    window.firebase.deleteDoc(sessionRef).catch(e => console.error("Falha ao deletar sessão:", e));
+                if (!sessionAlreadyDeleted && sessionRef) {
+                    if (peerState.isMaster) {
+                        window.firebase.deleteDoc(sessionRef).catch(e => console.error("Falha ao deletar sessão:", e));
+                    } else if (!peerState.isScreenMode) {
+                        window.firebase.updateDoc(sessionRef, { peer2: null }).catch(e => console.error("Falha ao sair:", e));
+                    }
                 }
                 if (peerListenerUnsubscribe) peerListenerUnsubscribe();
                 peerListenerUnsubscribe = null;
@@ -755,8 +1054,10 @@
                     let statusText = "Conectado";
                     if(peerState.isScreenMode) {
                         statusText += " (Tela)";
+                    } else if (peerState.isMaster) {
+                        statusText = `${peerState.sessionId} (A)`;
                     } else {
-                        statusText += peerState.isMaster ? ' (A)' : ' (B)';
+                        statusText += ' (B)';
                     }
                     ui.peerStatusLabel.textContent = statusText;
                     ui.peerStatusLabel.classList.remove('text-gray-300');
@@ -772,7 +1073,7 @@
             async function updateSharedState(newState) {
                 state = newState; 
                 updateAllUI();
-                if (peerState.connected && sessionRef && peerState.isMaster) {
+                if (sessionRef && peerState.isMaster) {
                     try {
                         await window.firebase.updateDoc(sessionRef, { sharedState: state });
                     } catch(e) {
@@ -844,15 +1145,12 @@
                 
                 try {
                     const mySlotKey = peerState.isMaster ? 'peer1' : 'peer2';
-                    const isBonus = actionPayload.isBonus || false;
-                    
                     const action = {
                         id: crypto.randomUUID(),
                         type: actionPayload.type,
                         player: actionPayload.player,
                         timestamp: Date.now(),
-                        payload: actionPayload,
-                        isBonusAction: isBonus 
+                        payload: actionPayload
                     };
                     await window.firebase.updateDoc(sessionRef, {
                         [`${mySlotKey}.actionQueue`]: window.firebase.arrayUnion(action)
@@ -884,7 +1182,7 @@
                 maxRounds: 2,
                 roundWins: { blue: 0, red: 0 },
                 penalties: { blue: 0, red: 0 },
-                bonus: { blue: false, red: false },
+                bonusWindow: { player: null, activeUntil: 0 },
                 timer: { initialTime: lastConfiguredTime, currentTime: lastConfiguredTime, isRunning: false },
                 interval: { duration: 30, currentTime: 30, isRunning: false },
                 gameLog: [],
@@ -921,6 +1219,7 @@
             
             function updateAllUI() {
                 if(!state) return;
+                document.body.classList.toggle('screen-mode', peerState.isScreenMode);
                 updateScores();
                 updateRoundWins();
                 updatePenaltiesDisplay();
@@ -939,10 +1238,12 @@
                     ui.intervalWinnerMessage.classList.remove('hidden');
                     ui.intervalWinnerMessage.textContent = state.lastWinnerMessage;
                     ui.roundDisplay.textContent = `Intervalo: ${state.interval.currentTime}s`;
+                    ui.revertRoundBtn.classList.remove('hidden');
                 } else {
                     ui.roundDisplay.classList.remove('text-yellow-400');
                     ui.timerDisplay.classList.remove('hidden');
                     ui.intervalWinnerMessage.classList.add('hidden');
+                    ui.revertRoundBtn.classList.add('hidden');
                 }
 
                 if (state.gameStarted) {
@@ -970,13 +1271,60 @@
                     ui.summaryModal.classList.add('hidden');
                 }
                 
-                document.querySelectorAll('button[data-action="bonus"]').forEach(button => {
-                    const player = button.dataset.player;
-                    const isActive = peerState.connected ? peerState.localBonus[player] : (state.bonus && state.bonus[player]);
-                    button.classList.toggle('bonus-active', !!isActive);
-                });
+                const now = Date.now();
+                if (state.bonusWindow && state.bonusWindow.activeUntil > now) {
+                    const btn = state.bonusWindow.player === 'blue' 
+                        ? (state.bonusWindow.type === 'head' ? ui.blueBonusHeadBtn : ui.blueBonusTorsoBtn)
+                        : (state.bonusWindow.type === 'head' ? ui.redBonusHeadBtn : ui.redBonusTorsoBtn);
+                    
+                    const allBonusBtns = [ui.blueBonusHeadBtn, ui.blueBonusTorsoBtn, ui.redBonusHeadBtn, ui.redBonusTorsoBtn];
+                    allBonusBtns.forEach(b => {
+                        if (b === btn) {
+                            b.classList.remove('opacity-0', 'pointer-events-none');
+                            b.classList.add('opacity-100', 'pointer-events-auto');
+                        } else {
+                            b.classList.remove('opacity-100', 'pointer-events-auto');
+                            b.classList.add('opacity-0', 'pointer-events-none');
+                        }
+                    });
+                    
+                    if (spinBonusTimers[state.bonusWindow.player]) clearTimeout(spinBonusTimers[state.bonusWindow.player]);
+                    spinBonusTimers[state.bonusWindow.player] = setTimeout(() => {
+                        btn.classList.remove('opacity-100', 'pointer-events-auto');
+                        btn.classList.add('opacity-0', 'pointer-events-none');
+                    }, state.bonusWindow.activeUntil - now);
+                } else {
+                    [ui.blueBonusHeadBtn, ui.blueBonusTorsoBtn, ui.redBonusHeadBtn, ui.redBonusTorsoBtn].forEach(btn => {
+                        btn.classList.remove('opacity-100', 'pointer-events-auto');
+                        btn.classList.add('opacity-0', 'pointer-events-none');
+                    });
+                }
 
                 updateControlPermissions();
+                
+                if (state.timer.isRunning) {
+                    ui.appHeader.classList.remove('bg-gray-900', 'shadow-lg');
+                    ui.appHeader.classList.add('bg-transparent');
+                    document.getElementById('help-btn').classList.add('opacity-0', 'pointer-events-none');
+                    document.getElementById('fullscreen-btn').classList.add('opacity-0', 'pointer-events-none');
+                    ui.appHeader.querySelector('h1').classList.add('opacity-0', 'pointer-events-none');
+                    document.getElementById('peer-mode-container').classList.add('opacity-0', 'pointer-events-none');
+                    ui.blueRoundWins.classList.remove('top-14', 'md:top-16');
+                    ui.blueRoundWins.classList.add('top-4', 'md:top-6');
+                    ui.redRoundWins.classList.remove('top-14', 'md:top-16');
+                    ui.redRoundWins.classList.add('top-4', 'md:top-6');
+                } else {
+                    ui.appHeader.classList.remove('bg-transparent');
+                    ui.appHeader.classList.add('bg-gray-900', 'shadow-lg');
+                    document.getElementById('help-btn').classList.remove('opacity-0', 'pointer-events-none');
+                    document.getElementById('fullscreen-btn').classList.remove('opacity-0', 'pointer-events-none');
+                    ui.appHeader.querySelector('h1').classList.remove('opacity-0', 'pointer-events-none');
+                    document.getElementById('peer-mode-container').classList.remove('opacity-0', 'pointer-events-none');
+                    ui.blueRoundWins.classList.remove('top-4', 'md:top-6');
+                    ui.blueRoundWins.classList.add('top-14', 'md:top-16');
+                    ui.redRoundWins.classList.remove('top-4', 'md:top-6');
+                    ui.redRoundWins.classList.add('top-14', 'md:top-16');
+                }
             }
 
             const updateScores = () => { ui.scoreBlue.textContent = state.scores.blue; ui.scoreRed.textContent = state.scores.red; };
@@ -996,8 +1344,6 @@
             const forceRoundWin = (winner, reason) => {
                 if (state.isRoundOver || state.isGameOver) return;
                 
-                if (state.timer.isRunning) stopTimer();
-
                 let newState = {
                     ...state,
                     isRoundOver: true,
@@ -1033,7 +1379,7 @@
                     return true;
                 }
                 const scoreDiff = Math.abs(state.scores.blue - state.scores.red);
-                if (scoreDiff >= 12) {
+                if (scoreDiff >= 15) {
                     const winner = state.scores.blue > state.scores.red ? 'blue' : 'red';
                     forceRoundWin(winner, { event: 'Fim de Round', detail: 'Point Gap' });
                     return true;
@@ -1044,86 +1390,87 @@
             const handleRoundEndByTime = () => {
                 if(state.isRoundOver || state.isGameOver) return;
                 
-                stopTimer();
-                
                 let roundWinner = null;
-                let conclusionReason = "";
+                let conclusionReason = "Tempo esgotado";
+
                 if (state.scores.blue > state.scores.red) {
                     roundWinner = 'blue';
-                    conclusionReason = 'Maioria de Pontos';
                 } else if (state.scores.red > state.scores.blue) {
                     roundWinner = 'red';
-                    conclusionReason = 'Maioria de Pontos';
                 } else {
-                    conclusionReason = 'Empate';
+                    const result = applyTieBreaker(state);
+                    if (result.winner) {
+                        roundWinner = result.winner;
+                        conclusionReason = `Desempate: ${result.reason}`;
+                    } else {
+                        if (peerState.isMaster) {
+                            showSuperiorityModal();
+                        }
+                        return;
+                    }
                 }
+                
+                finalizeRound(roundWinner, conclusionReason);
+            };
 
+            const showSuperiorityModal = () => {
+                ui.superiorityModal.classList.remove('hidden');
+            };
+
+            const applyTieBreaker = (currentState) => {
+                const getPointsFromLog = (log) => parseInt(log.detail.match(/\+(\d+)pts/)[1] || 0);
+                
+                const blueSpinPoints = currentState.gameLog.filter(log => log.round === currentState.round && log.player === 'blue' && log.isSpin).reduce((sum, log) => sum + getPointsFromLog(log), 0);
+                const redSpinPoints = currentState.gameLog.filter(log => log.round === currentState.round && log.player === 'red' && log.isSpin).reduce((sum, log) => sum + getPointsFromLog(log), 0);
+                if (blueSpinPoints > redSpinPoints) return { winner: 'blue', reason: 'Maior nº de pontos com giro' };
+                if (redSpinPoints > blueSpinPoints) return { winner: 'red', reason: 'Maior nº de pontos com giro' };
+                
+                const blueHead = currentState.gameLog.filter(l => l.round === currentState.round && l.player === 'blue' && l.type === 'head' && l.event === 'Pontuação').reduce((sum, log) => sum + getPointsFromLog(log), 0);
+                const redHead = currentState.gameLog.filter(l => l.round === currentState.round && l.player === 'red' && l.type === 'head' && l.event === 'Pontuação').reduce((sum, log) => sum + getPointsFromLog(log), 0);
+                if (blueHead > redHead) return { winner: 'blue', reason: 'Mais pontos por chutes na cabeça' };
+                if (redHead > blueHead) return { winner: 'red', reason: 'Mais pontos por chutes na cabeça' };
+                
+                const blueTorso = currentState.gameLog.filter(l => l.round === currentState.round && l.player === 'blue' && l.type === 'torso' && l.event === 'Pontuação').reduce((sum, log) => sum + getPointsFromLog(log), 0);
+                const redTorso = currentState.gameLog.filter(l => l.round === currentState.round && l.player === 'red' && l.type === 'torso' && l.event === 'Pontuação').reduce((sum, log) => sum + getPointsFromLog(log), 0);
+                if (blueTorso > redTorso) return { winner: 'blue', reason: 'Mais pontos por chutes no tronco' };
+                if (redTorso > blueTorso) return { winner: 'red', reason: 'Mais pontos por chutes no tronco' };
+                
+                const bluePunch = currentState.gameLog.filter(l => l.round === currentState.round && l.player === 'blue' && l.type === 'punch' && l.event === 'Pontuação').reduce((sum, log) => sum + getPointsFromLog(log), 0);
+                const redPunch = currentState.gameLog.filter(l => l.round === currentState.round && l.player === 'red' && l.type === 'punch' && l.event === 'Pontuação').reduce((sum, log) => sum + getPointsFromLog(log), 0);
+                if (bluePunch > redPunch) return { winner: 'blue', reason: 'Mais pontos por socos' };
+                if (redPunch > bluePunch) return { winner: 'red', reason: 'Mais pontos por socos' };
+                
+                const blueGamjeom = currentState.gameLog.filter(l => l.round === currentState.round && l.player === 'red' && l.event === 'Falta').length;
+                const redGamjeom = currentState.gameLog.filter(l => l.round === currentState.round && l.player === 'blue' && l.event === 'Falta').length;
+                if (blueGamjeom > redGamjeom) return { winner: 'blue', reason: 'Mais pontos por faltas do oponente' };
+                if (redGamjeom > blueGamjeom) return { winner: 'red', reason: 'Mais pontos por faltas do oponente' };
+                
+                const blueHits = currentState.gameLog.filter(l => l.round === currentState.round && l.player === 'blue' && (l.event === 'Pontuação' || l.event === 'Tentativa')).length;
+                const redHits = currentState.gameLog.filter(l => l.round === currentState.round && l.player === 'red' && (l.event === 'Pontuação' || l.event === 'Tentativa')).length;
+                if (blueHits > redHits) return { winner: 'blue', reason: 'Maior nº de hits registrados' };
+                if (redHits > blueHits) return { winner: 'red', reason: 'Maior nº de hits registrados' };
+                
+                return { winner: null };
+            };
+
+            const finalizeRound = (roundWinner, conclusionReason) => {
                 let newState = { ...state, isRoundOver: true, timer: {...state.timer, isRunning: false}, interval: {...state.interval, isRunning: true, currentTime: state.interval.duration} };
 
                 processRoundStats(conclusionReason);
                 newState.gameLog = [...state.gameLog, { time: formatTime(state.timer.initialTime - state.timer.currentTime), round: state.round, event: 'Fim de Round', detail: `Tempo esgotado` }];
                 
-                if (roundWinner) {
-                    newState.roundWins[roundWinner]++;
-                    newState.lastWinnerMessage = `${roundWinner === 'blue' ? 'Azul' : 'Vermelho'} venceu Round ${state.round}!`;
-                } else {
-                    newState.lastWinnerMessage = `Round ${state.round} terminou empatado!`;
-                }
+                newState.roundWins[roundWinner]++;
+                newState.lastWinnerMessage = `${roundWinner === 'blue' ? 'Azul' : 'Vermelho'} venceu Round ${state.round}!`;
+                
                 newState.gameLog = [...state.gameLog, { time: formatTime(state.timer.initialTime - state.timer.currentTime), round: state.round, event: 'Resultado do Round', detail: newState.lastWinnerMessage }];
                 
                 const {blue: blueWins, red: redWins} = newState.roundWins;
-                if (state.round === 2 && blueWins === redWins) {
-                    newState.maxRounds = 3;
-                }
                 
-                if (state.round >= newState.maxRounds && blueWins === redWins) {
-                    handleTieBreaker(newState);
-                    return;
-                }
-                if (blueWins >= 2 || redWins >= 2 || state.round >= newState.maxRounds) {
+                if (blueWins >= 2 || redWins >= 2) {
                     endGame(newState);
                 } else {
                     updateSharedState(newState);
                 }
-            };
-
-            const handleTieBreaker = (currentState) => {
-                let winner = null;
-                let reason = "Superioridade";
-                const getPointsFromLog = (log) => parseInt(log.detail.match(/\+(\d+)pts/)[1]);
-                const blueSpinPoints = currentState.gameLog.filter(log => log.player === 'blue' && log.isSpin).reduce((sum, log) => sum + getPointsFromLog(log), 0);
-                const redSpinPoints = currentState.gameLog.filter(log => log.player === 'red' && log.isSpin).reduce((sum, log) => sum + getPointsFromLog(log), 0);
-                if (blueSpinPoints > redSpinPoints) winner = 'blue', reason = 'Maior nº de pontos com giro';
-                else if (redSpinPoints > blueSpinPoints) winner = 'red', reason = 'Maior nº de pontos com giro';
-                else {
-                    const blueHead = currentState.gameLog.filter(l => l.player === 'blue' && l.type === 'head').length;
-                    const redHead = currentState.gameLog.filter(l => l.player === 'red' && l.type === 'head').length;
-                    if (blueHead > redHead) winner = 'blue', reason = 'Maior nº de chutes na cabeça';
-                    else if (redHead > blueHead) winner = 'red', reason = 'Maior nº de chutes na cabeça';
-                    else {
-                        const blueTorso = currentState.gameLog.filter(l => l.player === 'blue' && l.type === 'torso').length;
-                        const redTorso = currentState.gameLog.filter(l => l.player === 'red' && l.type === 'torso').length;
-                        if (blueTorso > redTorso) winner = 'blue', reason = 'Maior nº de chutes no tronco';
-                        else if (redTorso > blueTorso) winner = 'red', reason = 'Maior nº de chutes no tronco';
-                        else {
-                            const bluePunch = currentState.gameLog.filter(l => l.player === 'blue' && l.type === 'punch').length;
-                            const redPunch = currentState.gameLog.filter(l => l.player === 'red' && l.type === 'punch').length;
-                            if (bluePunch > redPunch) winner = 'blue', reason = 'Maior nº de socos';
-                            else if (redPunch > bluePunch) winner = 'red', reason = 'Maior nº de socos';
-                            else {
-                                const blueHits = currentState.gameLog.filter(l => l.event === 'Pontuação').length;
-                                const redHits = currentState.gameLog.filter(l => l.player === 'red' && l.event === 'Pontuação').length;
-                                if (blueHits > redHits) winner = 'blue', reason = 'Maior nº de hits registrados';
-                                else if (redHits > blueHits) winner = 'red', reason = 'Maior nº de hits registrados';
-                            }
-                        }
-                    }
-                }
-                
-                let finalState = {...currentState};
-                if (winner) finalState.roundWins[winner]++;
-                finalState.finalWinnerData = { winner, reason };
-                endGame(finalState);
             };
             
             const startTimer = () => {
@@ -1164,7 +1511,7 @@
                     round: state.round + 1,
                     scores: { blue: 0, red: 0 },
                     penalties: { blue: 0, red: 0 },
-                    bonus: { blue: false, red: false },
+                    bonusWindow: { player: null, activeUntil: 0 },
                     timer: {...state.timer, currentTime: state.timer.initialTime, isRunning: false },
                     isRoundOver: false,
                     interval: {...state.interval, isRunning: false}
@@ -1184,6 +1531,39 @@
                 updateSharedState(getInitialState());
             };
             
+            const undoRoundEnd = () => {
+                if (!state.isRoundOver || state.isGameOver) return null;
+                
+                let newState = { ...state };
+                newState.isRoundOver = false;
+                newState.interval = { ...state.interval, isRunning: false };
+                
+                if (newState.roundStats && newState.roundStats.length > 0) {
+                    newState.roundStats.pop();
+                }
+                
+                if (newState.lastWinnerMessage) {
+                    if (newState.lastWinnerMessage.includes('Azul')) {
+                        newState.roundWins.blue = Math.max(0, newState.roundWins.blue - 1);
+                    } else if (newState.lastWinnerMessage.includes('Vermelho')) {
+                        newState.roundWins.red = Math.max(0, newState.roundWins.red - 1);
+                    }
+                    newState.lastWinnerMessage = "";
+                }
+                
+                newState.gameLog = newState.gameLog.filter(log => {
+                    if (log.round === newState.round && (log.event === 'Fim de Round' || log.event === 'Resultado do Round')) return false;
+                    return true;
+                }).map(log => {
+                    if (log.round === newState.round) {
+                        return { ...log, processed: false };
+                    }
+                    return log;
+                });
+                
+                return newState;
+            };
+
             const processRoundStats = (conclusion) => {
                 const roundLog = state.gameLog.filter(log => log.round === state.round && !log.processed);
                 const stats = {
@@ -1311,95 +1691,139 @@
                 }
             };
 
-            const handleScore = (player, points, type, button, fromPeer = false, isBonus = false) => {
+            let hitIndicatorTimers = { blue: null, red: null };
+
+            function displayScreenHits(actions) {
+                const now = Date.now();
+                let latestBlue = null;
+                let latestRed = null;
+
+                actions.forEach(a => {
+                    if (now - a.timestamp < 2000) {
+                        if (a.player === 'blue') {
+                            if (!latestBlue || a.timestamp > latestBlue.timestamp) latestBlue = a;
+                        } else if (a.player === 'red') {
+                            if (!latestRed || a.timestamp > latestRed.timestamp) latestRed = a;
+                        }
+                    }
+                });
+
+                const confirmed = state.recentConfirmedHits || [];
+                confirmed.forEach(a => {
+                    if (now - a.timestamp < 1000) {
+                        if (a.player === 'blue') {
+                            if (!latestBlue || a.timestamp >= latestBlue.timestamp) latestBlue = {...a, type: a.actionType, isConfirmed: true};
+                        } else if (a.player === 'red') {
+                            if (!latestRed || a.timestamp >= latestRed.timestamp) latestRed = {...a, type: a.actionType, isConfirmed: true};
+                        }
+                    }
+                });
+
+                renderHitIndicator('blue', latestBlue);
+                renderHitIndicator('red', latestRed);
+            }
+
+            function renderHitIndicator(player, action) {
+                const container = document.getElementById(`${player}-hit-indicator`);
+                if (!container) return;
+
+                if (hitIndicatorTimers[player]) {
+                    clearTimeout(hitIndicatorTimers[player]);
+                }
+
+                if (!action) {
+                    container.innerHTML = '';
+                    return;
+                }
+                
+                let innerHTML = '';
+                if (action.type === 'penalty') {
+                    innerHTML = `<div class="bg-gray-700 w-12 h-12 md:w-16 md:h-16 flex items-center justify-center rounded-full text-white font-bold text-xl md:text-2xl border-2 border-yellow-500 shadow-xl">G</div>`;
+                } else if (action.type === 'retroactive_bonus') {
+                    innerHTML = `<div class="bg-${player === 'blue' ? 'blue' : 'red'}-400 w-12 h-12 md:w-16 md:h-16 flex items-center justify-center rounded-full text-white font-bold text-lg md:text-xl shadow-xl">x2</div>`;
+                } else {
+                    let imgSrc = '';
+                    if (action.type === 'head') imgSrc = 'resources/head.png';
+                    else if (action.type === 'torso') imgSrc = 'resources/chest.png';
+                    else if (action.type === 'punch') imgSrc = 'resources/punch.png';
+                    
+                    if (imgSrc) {
+                        const borderClass = action.isConfirmed ? 'border-4 border-green-500' : 'border-2 border-gray-400';
+                        const filterStyle = action.isConfirmed ? 'filter: invert(48%) sepia(79%) saturate(2476%) hue-rotate(86deg) brightness(118%) contrast(119%);' : '';
+                        innerHTML = `<div class="bg-transparent w-12 h-12 md:w-16 md:h-16 flex items-center justify-center rounded-full ${borderClass} p-2 shadow-xl transition-colors duration-200">
+                            <img src="${imgSrc}" class="w-full h-full object-contain" style="${filterStyle}">
+                        </div>`;
+                    }
+                }
+                
+                container.innerHTML = innerHTML;
+
+                const timeRemaining = 2000 - (Date.now() - action.timestamp);
+                if (timeRemaining > 0) {
+                    hitIndicatorTimers[player] = setTimeout(() => {
+                        container.innerHTML = '';
+                    }, timeRemaining);
+                } else {
+                    container.innerHTML = '';
+                }
+            }
+            
+            const handleScore = (player, points, type, button, fromPeer = false) => {
                 if (state.isRoundOver || state.isGameOver) return;
                 
-                let wasBonusActive;
-                
-                if (peerState.connected) {
-                    if (fromPeer) {
-                        wasBonusActive = isBonus;
-                    } else {
-                        wasBonusActive = peerState.localBonus[player];
-                        sendScoreActionToPeer({ player, points, type, isRemoval: false, isBonus: wasBonusActive });
-                        if (wasBonusActive) {
-                            updateLocalBonusState(player, false);
-                        }
-                        return;
-                    }
-                } else {
-                    wasBonusActive = state.bonus[player];
+                const shouldQueueScore = peerState.connected && (!peerState.isMaster || peerState.peer2Joined);
+                if (shouldQueueScore && !fromPeer) {
+                    sendScoreActionToPeer({ player, points, type, isRemoval: false });
+                    return;
                 }
                 
                 triggerVibration(100);
-                triggerVisualFeedback(button, 'add');
-                let finalPoints = points;
+                if (button) triggerVisualFeedback(button, 'add');
+                
                 let detail = `${type.charAt(0).toUpperCase() + type.slice(1)}`;
                 let newState = { ...state };
                 
-                if (wasBonusActive && type !== 'punch') {
-                    finalPoints += 2;
-                    detail += " com Giro";
-                    
-                    if (peerState.connected) {
-                        if (peerState.isMaster) {
-                             window.firebase.updateDoc(sessionRef, {
-                                [`peer1.bonus.${player}`]: false,
-                                [`peer2.bonus.${player}`]: false
-                            });
-                        }
-                    } else {
-                        newState.bonus = { ...state.bonus, [player]: false };
-                    }
+                const logData = { player, event: 'Pontuação', type, detail: `+${points}pts (${detail})`, isSpin: false };
+                newState.scores = { ...state.scores, [player]: state.scores[player] + points };
+                newState.gameLog = [...state.gameLog, { time: formatTime(state.timer.initialTime - state.timer.currentTime), round: state.round, ...logData }];
+                
+                if (type !== 'punch' && !newState.isRoundOver && !newState.isGameOver) {
+                    newState.bonusWindow = { player, type, activeUntil: Date.now() + 2000 };
+                } else {
+                    newState.bonusWindow = { player: null, activeUntil: 0 };
                 }
                 
-                const logData = { player, event: 'Pontuação', type, detail: `+${finalPoints}pts (${detail})`, isSpin: wasBonusActive };
-                newState.scores = { ...state.scores, [player]: state.scores[player] + finalPoints };
-                newState.gameLog = [...state.gameLog, { time: formatTime(state.timer.initialTime - state.timer.currentTime), round: state.round, ...logData }];
                 updateSharedState(newState);
                 checkMidRoundEndConditions();
             };
             
-            const handlePointRemoval = (player, points, type, button, fromPeer = false, isBonus = false) => {
+            const handlePointRemoval = (player, points, type, button, fromPeer = false) => {
                 if (state.isRoundOver || state.isGameOver) return;
                 
-                let wasBonusActive;
-                
-                if (peerState.connected) {
-                    if (fromPeer) {
-                        wasBonusActive = isBonus;
-                    } else {
-                        wasBonusActive = peerState.localBonus[player];
-                        sendScoreActionToPeer({ player, points, type, isRemoval: true, isBonus: wasBonusActive });
-                        if (wasBonusActive) {
-                            updateLocalBonusState(player, false);
-                        }
-                        return;
-                    }
-                } else {
-                    wasBonusActive = state.bonus[player];
+                const shouldQueueScore = peerState.connected && (!peerState.isMaster || peerState.peer2Joined);
+                if (shouldQueueScore && !fromPeer) {
+                    sendScoreActionToPeer({ player, points, type, isRemoval: true });
+                    return;
                 }
                 
                 triggerVibration(400);
-                triggerVisualFeedback(button, 'remove');
+                if (button) triggerVisualFeedback(button, 'remove');
+                
                 let pointsToRemove = points;
                 let detail = type.charAt(0).toUpperCase() + type.slice(1);
                 let newState = { ...state };
                 
-                if (wasBonusActive && type !== 'punch') {
-                    pointsToRemove += 2;
-                    detail += " com Giro";
-                
-                    if (peerState.connected) {
-                        if (peerState.isMaster) {
-                             window.firebase.updateDoc(sessionRef, {
-                                [`peer1.bonus.${player}`]: false,
-                                [`peer2.bonus.${player}`]: false
-                            });
-                        }
-                    } else {
-                        newState.bonus = { ...state.bonus, [player]: false };
+                let wasBonusActive = false;
+                for (let i = state.gameLog.length - 1; i >= 0; i--) {
+                    if (state.gameLog[i].player === player && state.gameLog[i].event === 'Pontuação' && state.gameLog[i].type === type) {
+                        wasBonusActive = !!state.gameLog[i].isSpin;
+                        break;
                     }
+                }
+
+                if (wasBonusActive && type !== 'punch') {
+                    pointsToRemove *= 2;
+                    detail += " com Giro";
                 }
                 
                 if (state.scores[player] >= pointsToRemove) {
@@ -1409,6 +1833,57 @@
                     updateSharedState(newState);
                     checkMidRoundEndConditions();
                 }
+            };
+
+            let passivePenaltyTimers = { blue: null, red: null };
+            let spinBonusTimers = { blue: null, red: null };
+
+            const applyRetroactiveBonus = (player) => {
+                let newState = { ...state };
+                newState.bonusWindow = { player: null, activeUntil: 0 }; 
+                
+                for (let i = newState.gameLog.length - 1; i >= 0; i--) {
+                    if (newState.gameLog[i].player === player && newState.gameLog[i].event === 'Pontuação' && !newState.gameLog[i].isSpin && newState.gameLog[i].type !== 'punch') {
+                        let basePoints = newState.gameLog[i].type === 'head' ? 3 : 2;
+                        newState.scores = { ...newState.scores, [player]: newState.scores[player] + basePoints };
+                        newState.gameLog[i].detail = newState.gameLog[i].detail.replace(/\+([0-9]+)pts/, `+${basePoints*2}pts`).replace(")", " com Giro)");
+                        newState.gameLog[i].isSpin = true;
+                        break;
+                    }
+                }
+                updateSharedState(newState);
+                checkMidRoundEndConditions();
+            };
+
+            const handleApplyRetroactiveBonus = (player, type) => {
+                if (state.isRoundOver || state.isGameOver) return;
+                
+                const btn = player === 'blue' 
+                        ? (type === 'head' ? ui.blueBonusHeadBtn : ui.blueBonusTorsoBtn)
+                        : (type === 'head' ? ui.redBonusHeadBtn : ui.redBonusTorsoBtn);
+                btn.classList.remove('opacity-100', 'pointer-events-auto');
+                btn.classList.add('opacity-0', 'pointer-events-none');
+                if (spinBonusTimers[player]) clearTimeout(spinBonusTimers[player]);
+                
+                if (peerState.connected && !peerState.isMaster) {
+                    try {
+                        const mySlotKey = 'peer2';
+                        const action = {
+                            id: crypto.randomUUID(),
+                            type: 'retroactive_bonus',
+                            player: player,
+                            timestamp: Date.now(),
+                            payload: {}
+                        };
+                        window.firebase.updateDoc(sessionRef, {
+                            [`${mySlotKey}.actionQueue`]: window.firebase.arrayUnion(action)
+                        });
+                    } catch (e) {
+                        console.error("Erro ao enviar bônus retroativo", e);
+                    }
+                    return;
+                }
+                applyRetroactiveBonus(player);
             };
 
             const handlePenalty = (player) => {
@@ -1425,6 +1900,41 @@
                 
                 updateSharedState(newState);
                 checkMidRoundEndConditions();
+
+                if (state.timer.currentTime <= 10 && state.timer.isRunning) {
+                    const btn = player === 'blue' ? ui.bluePassiveBtn : ui.redPassiveBtn;
+                    btn.classList.remove('opacity-0', 'pointer-events-none');
+                    btn.classList.add('opacity-100', 'pointer-events-auto');
+                    
+                    if (passivePenaltyTimers[player]) clearTimeout(passivePenaltyTimers[player]);
+                    passivePenaltyTimers[player] = setTimeout(() => {
+                        btn.classList.remove('opacity-100', 'pointer-events-auto');
+                        btn.classList.add('opacity-0', 'pointer-events-none');
+                    }, 2000);
+                }
+            };
+
+            const handlePassivePenalty = (player) => {
+                if (state.isRoundOver || state.isGameOver) return;
+                const btn = player === 'blue' ? ui.bluePassiveBtn : ui.redPassiveBtn;
+                btn.classList.remove('opacity-100', 'pointer-events-auto');
+                btn.classList.add('opacity-0', 'pointer-events-none');
+                if (passivePenaltyTimers[player]) clearTimeout(passivePenaltyTimers[player]);
+
+                const opponent = player === 'blue' ? 'red' : 'blue';
+                let newState = {...state};
+                newState.scores = {...state.scores, [opponent]: state.scores[opponent] + 1};
+                
+                for (let i = newState.gameLog.length - 1; i >= 0; i--) {
+                    if (newState.gameLog[i].player === player && newState.gameLog[i].event === 'Falta') {
+                        newState.gameLog[i].detail = `+2pts para ${opponent}. Falta #${newState.penalties[player]} (Passividade)`;
+                        newState.gameLog[i].isPassive = true;
+                        break;
+                    }
+                }
+                
+                updateSharedState(newState);
+                checkMidRoundEndConditions();
             };
 
             const handlePenaltyRemoval = (player) => {
@@ -1434,12 +1944,24 @@
                 const opponent = player === 'blue' ? 'red' : 'blue';
                 let newState = {...state};
 
-                if(state.scores[opponent] > 0) {
-                    newState.scores = {...state.scores, [opponent]: state.scores[opponent] - 1};
+                let wasPassive = false;
+                for (let i = state.gameLog.length - 1; i >= 0; i--) {
+                    if (state.gameLog[i].player === player && state.gameLog[i].event === 'Falta') {
+                        wasPassive = !!state.gameLog[i].isPassive;
+                        break;
+                    }
+                }
+
+                let pointsToRemove = wasPassive ? 2 : 1;
+                
+                if(state.scores[opponent] >= pointsToRemove) {
+                    newState.scores = {...state.scores, [opponent]: state.scores[opponent] - pointsToRemove};
+                } else {
+                    newState.scores = {...state.scores, [opponent]: 0};
                 }
                 newState.penalties = {...state.penalties, [player]: state.penalties[player] - 1};
 
-                const logData = { player, event: 'Remoção de Falta', detail: `-1pt de ${opponent}.` };
+                const logData = { player, event: 'Remoção de Falta', detail: `-${pointsToRemove}pt(s) de ${opponent}.` };
                 newState.gameLog = [...state.gameLog, { time: formatTime(state.timer.initialTime - state.timer.currentTime), round: state.round, ...logData }];
 
                 updateSharedState(newState);
@@ -1483,16 +2005,33 @@
                 }
             });
             ui.timerDisplay.addEventListener('click', () => {
-                if(!state.gameStarted && (!peerState.connected || peerState.isMaster)) ui.timeModal.classList.remove('hidden');
+                if(!state.timer.isRunning && !state.isGameOver && (!peerState.connected || peerState.isMaster)) ui.timeModal.classList.remove('hidden');
+            });
+            ui.revertRoundBtn.addEventListener('click', () => {
+                if(state.isRoundOver && !state.isGameOver && (!peerState.connected || peerState.isMaster)) ui.timeModal.classList.remove('hidden');
+            });
+            ui.cancelTimeBtn.addEventListener('click', () => {
+                ui.timeModal.classList.add('hidden');
             });
             ui.setTimeBtn.addEventListener('click', () => {
                 const minutes = parseInt(ui.minutesInput.value) || 0;
                 const seconds = parseInt(ui.secondsInput.value) || 0;
                 const totalSeconds = (minutes * 60) + seconds;
                 if(totalSeconds > 0){
-                    lastConfiguredTime = totalSeconds;
-                    const newTimer = {...state.timer, initialTime: totalSeconds, currentTime: totalSeconds};
-                    updateSharedState({...state, timer: newTimer});
+                    if (state.isRoundOver && !state.isGameOver) {
+                        let newState = undoRoundEnd();
+                        if (newState) {
+                            newState.timer = { ...newState.timer, currentTime: totalSeconds };
+                            updateSharedState(newState);
+                        }
+                    } else if (!state.gameStarted) {
+                        lastConfiguredTime = totalSeconds;
+                        const newTimer = {...state.timer, initialTime: totalSeconds, currentTime: totalSeconds};
+                        updateSharedState({...state, timer: newTimer});
+                    } else {
+                        const newTimer = {...state.timer, currentTime: totalSeconds};
+                        updateSharedState({...state, timer: newTimer});
+                    }
                 }
                 ui.timeModal.classList.add('hidden');
             });
@@ -1530,6 +2069,14 @@
             document.addEventListener('mozfullscreenchange', updateFullscreenButton);
             document.addEventListener('MSFullscreenChange', updateFullscreenButton);
             
+            ui.bluePassiveBtn.addEventListener('click', () => handlePassivePenalty('blue'));
+            ui.redPassiveBtn.addEventListener('click', () => handlePassivePenalty('red'));
+
+            ui.blueBonusHeadBtn.addEventListener('click', () => handleApplyRetroactiveBonus('blue', 'head'));
+            ui.blueBonusTorsoBtn.addEventListener('click', () => handleApplyRetroactiveBonus('blue', 'torso'));
+            ui.redBonusHeadBtn.addEventListener('click', () => handleApplyRetroactiveBonus('red', 'head'));
+            ui.redBonusTorsoBtn.addEventListener('click', () => handleApplyRetroactiveBonus('red', 'torso'));
+
             document.querySelectorAll('.control-button').forEach(button => {
                 const player = button.dataset.player;
                 const action = button.dataset.action;
@@ -1613,8 +2160,23 @@
             ui.connectAsScreenBtn.addEventListener('click', () => joinPeerSession('screen'));
 
             ui.disconnectPeerBtn.addEventListener('click', () => {
+                ui.connectionLostModal.classList.add('hidden');
+                // Do not leave session, so screens and potential reconnects stay active.
+            });
+            
+            ui.destroySessionBtn.addEventListener('click', () => {
                 leavePeerSession();
                 ui.connectionLostModal.classList.add('hidden');
+            });
+            
+            ui.superiorityBlueBtn.addEventListener('click', () => {
+                ui.superiorityModal.classList.add('hidden');
+                finalizeRound('blue', 'Superioridade: Decisão dos Árbitros');
+            });
+            
+            ui.superiorityRedBtn.addEventListener('click', () => {
+                ui.superiorityModal.classList.add('hidden');
+                finalizeRound('red', 'Superioridade: Decisão dos Árbitros');
             });
             
             // --- Master Clock Logic ---

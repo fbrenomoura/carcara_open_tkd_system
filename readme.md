@@ -16,8 +16,8 @@ O sistema foi idealizado por **Francisco Breno Moura Alves**, atleta e professor
 * **Cabeça:** +3 pontos por chute válido.
 * **Soco:** +1 ponto por soco no tórax.
 * **Bônus de Giro (x2):** Ao registrar um chute no tórax ou cabeça, um botão flutuante **"x2"** é exibido por 2 segundos. Pressioná-lo confirma a técnica de giro e **dobra** o valor da pontuação daquele golpe (Tórax: 2 → 4 pts; Cabeça: 3 → 6 pts).
-* **Falta (G - Gam-jeom):** Adiciona +1 ponto ao oponente e registra uma falta para o atleta.
-* **Passividade nos 10s Finais (+1 Extra):** Ao aplicar uma falta (G) nos últimos 10 segundos do round, um botão **"+1"** surge por 2 segundos. Pressioná-lo concede +1 ponto adicional ao oponente (totalizando +2 pts pelo Gam-jeom de passividade nos segundos finais).
+* **Falta (✖ - Gam-jeom):** Adiciona +1 ponto ao oponente e registra uma falta para o atleta.
+* **Passividade nos 10s Finais (+1 Extra):** Ao aplicar uma falta (✖) nos últimos 10 segundos do round, um botão **"+1"** surge por 2 segundos. Pressioná-lo concede +1 ponto adicional ao oponente (totalizando +2 pts pelo Gam-jeom de passividade nos segundos finais).
 * **Correção Inteligente de Erros:** Clique longo (pressionar por 1 segundo) em qualquer botão de pontuação ou falta remove o último registro. Ao remover um chute com giro, o bônus associado é removido automaticamente.
 * **Ajuste Manual:** Modo especial com o tempo pausado para ajuste livre de pontos (+/-).
 

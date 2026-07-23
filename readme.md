@@ -18,34 +18,27 @@ O sistema foi idealizado por **Francisco Breno Moura Alves**, atleta e professor
     * **Bónus de Giro (B):** Adiciona +2 pontos ao próximo chute válido (Tórax ou Cabeça).
     * **Falta (G - Gam-jeom):** Adiciona +1 ponto ao oponente e regista uma falta.
 * **Correção de Ações:** Pressionar longamente um botão de pontuação ou falta remove a última ação correspondente.
+* **Interface Imersiva e Dinâmica:**
+    * Durante a luta (cronômetro rodando), a barra superior é automaticamente ocultada para garantir 100% de foco no combate. Ao pausar, a interface e os troféus se reajustam suavemente.
+    * **Modo Tela Aprimorado:** Layout flexível com redimensionamento inteligente da tipografia para suportar dezenas nos placares sem estourar a tela. Indicador de hits aguardando confirmação (borda branca) e confirmados (borda e ícone verde).
+    * Modais e popups responsivos, garantindo barras de rolagem e limitação de altura para o uso em qualquer tamanho de tela (mobile e tablets).
 * **Gestão de Rounds:**
-    * Sistema de melhor de 3 rounds.
+    * Sistema de melhor de 3 rounds (Best-of-Three).
     * Transição automática para um terceiro round em caso de empate de vitórias.
     * Intervalo de descanso automático de 30 segundos entre os rounds.
 * **Regras Oficiais Implementadas:**
     * **Vitória por Faltas:** O oponente vence o round se um atleta cometer 5 faltas (Gam-jeons).
-    * **Vitória por Point Gap:** O round termina se houver uma diferença de 12 pontos entre os atletas.
-* **Critérios de Desempate (Superioridade):** Em caso de empate no número de rounds vencidos ao final da partida, o sistema aplica automaticamente os seguintes critérios para determinar o vencedor:
-    1.  Maior número de pontos marcados com a técnica de giro.
-    2.  Maior número de chutes na cabeça.
-    3.  Maior número de chutes no tronco.
-    4.  Maior número de socos.
-    5.  Maior número total de golpes registados.
+    * **Vitória por Point Gap:** O round termina se houver uma diferença de 15 pontos (e não 12) entre os atletas.
+* **Critérios de Desempate (Art. 15.5):** Em caso de empate no número de pontos no final de um round, o sistema aplica automaticamente a seguinte ordem de prioridade para determinar o vencedor:
+    1.  Maior número de pontos marcados com a técnica de giro (Bônus).
+    2.  Técnicas de maior valor registradas: Chutes na cabeça > Chutes no tronco > Socos > Faltas cometidas pelo oponente (Gam-jeom).
+    3.  Maior número total de tentativas/golpes registrados na súmula.
+    4.  Decisão por Superioridade manual definida pelos árbitros na interface.
 * **Modo Online (Sincronização via Firebase):**
-    * **Conexão por Código:** Permite que múltiplos dispositivos se conectem através de um código de sessão único, sem necessidade de estarem na mesma rede.
-    * **Modo Juiz vs. Juiz:** Dois dispositivos atuam como juízes. Um ponto só é computado quando a mesma técnica é registada em ambos os dispositivos num curto intervalo de tempo. O Juiz "A" (master) controla o tempo e as faltas.
-    * **Modo Tela (Espelhamento):** Permite que um dispositivo atue como uma tela de visualização, espelhando o placar em tempo real sem botões de controle. Ideal para ser usado como o placar principal visível para o público.
-* **Controles da Partida:**
-    * **Cronómetro Ajustável:** O tempo de cada round pode ser configurado antes do início da partida.
-    * **Pausa e Reinício:** O cronómetro pode ser pausado e retomado a qualquer momento.
-    * **Ajuste Manual:** Um modo especial, acessível com o tempo pausado, que permite adicionar ou subtrair pontos individualmente.
-    * **Recomeçar Partida:** Opção para reiniciar completamente a luta, zerando todos os placares e rounds.
-* **Interface e Experiência de Uso:**
-    * **Resumo Final Detalhado:** Ao final da partida, um popup exibe um relatório completo com estatísticas de cada round, totais da partida e uma súmula de todos os eventos.
-    * **Feedback Visual e Tátil:** Animações e vibrações confirmam o registo de pontos, melhorando a experiência do utilizador.
-    * **Modo Tela Cheia:** Botão para expandir a aplicação, ideal para exibição em monitores maiores.
-    * **Instruções para iOS:** Popup com instruções para adicionar o app à tela de início e obter uma experiência de tela cheia real.
-    * **Manual de Ajuda:** Um guia completo acessível a qualquer momento através do botão de ajuda (?).
+    * **Conexão por Código:** Permite que múltiplos dispositivos se conectem através de um código de sessão único.
+    * **Modo Juiz vs. Juiz:** Dois dispositivos atuam como pares. Um ponto só é computado quando a mesma técnica é registada em ambos em um intervalo de 3 segundos (Evitando envios duplicados com IDs únicos). O Juiz "Master" controla tempo e faltas.
+    * **Resiliência e Reconexão:** Em caso de queda de rede, o Master ou o Par podem reconectar utilizando o código de sessão, e o sistema recupera e preserva o estado automaticamente, retomando a partida de onde parou com o cronômetro devidamente pausado.
+    * **Modo Tela (Espelhamento):** Permite que um dispositivo atue como uma tela de visualização principal (TV, Telão) em tempo real sem controles.
 
 ## 🚀 Como Usar
 
@@ -63,8 +56,8 @@ Se você deseja executar o projeto localmente:
 
 1.  **Clone o Repositório:**
     ```bash
-    git clone [https://github.com/fbrenomoura/cots.git](https://github.com/fbrenomoura/cots.git)
-    cd cots
+    git clone https://github.com/fbrenomoura/carcara_open_tkd_system.git
+    cd carcara_open_tkd_system
     ```
 
 2.  **Execução:**
@@ -76,7 +69,7 @@ Se você deseja executar o projeto localmente:
 * **CSS3:** Para estilos básicos e animações.
 * **Tailwind CSS:** Um framework CSS "utility-first" para a rápida construção de interfaces customizadas.
 * **JavaScript (ES6+):** Para toda a lógica do jogo, interatividade, manipulação de estado e regras da competição.
-* **Firebase (Firestore):** Utilizado como o backend em tempo real para possibilitar a funcionalidade de "Modo Online", sincronizando os dados entre os dispositivos.
+* **Firebase (Firestore):** Utilizado como o backend em tempo real para possibilitar a funcionalidade de "Modo Online", sincronizando os dados e batimentos cardíacos entre os dispositivos.
 
 ## 📝 Licença e Uso
 
@@ -107,6 +100,6 @@ Este projeto foi idealizado e desenvolvido por **Francisco Breno Moura Alves**.
 * **Adriane Brandão:** Pela revisão de regras oficiais do Taekwondo.
 
 ---
-*Este README foi atualizado em 09 de julho de 2025.*
+*Este README foi atualizado em Julho de 2026.*
 
 

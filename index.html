@@ -80,10 +80,14 @@
 
         /* Estilo para botões menores (Bônus, Falta) */
         .control-button-sm {
-            font-size: clamp(3.5rem, min(12vw, 18vh), 9rem) !important;
+            font-size: clamp(1rem, 2.5vw, 3rem) !important;
+            font-size: clamp(1rem, 65cqw, 4rem) !important;
             color: #ffffff !important;
             font-weight: 900 !important;
             line-height: 1 !important;
+            max-width: 100% !important;
+            max-height: 100% !important;
+            overflow: hidden !important;
         }
         
         /* Efeito de clique para botões */
@@ -177,9 +181,9 @@
                 </div>
                 <!-- Grid com 11 colunas para garantir o tamanho correto dos botões sem o botão de Bônus -->
                 <div class="grid grid-cols-11 gap-1 md:gap-2 relative action-grid">
-                    <div class="relative col-span-2 aspect-[2/4]">
+                    <div class="relative col-span-2 aspect-[2/4] [container-type:inline-size]">
                         <button id="blue-passive-penalty-btn" class="absolute -top-12 left-1/2 -translate-x-1/2 bg-yellow-500 bg-opacity-75 text-black font-bold text-xl rounded-full w-10 h-10 flex items-center justify-center opacity-0 pointer-events-none transition-opacity duration-200 z-20">+1</button>
-                        <button data-player="blue" data-action="penalty" class="control-button control-button-sm bg-gray-700 w-full h-full text-white">✖</button>
+                        <button data-player="blue" data-action="penalty" class="control-button control-button-sm bg-gray-700 w-full h-full text-white overflow-hidden">✖</button>
                     </div>
                     <button data-player="blue" data-action="punch" class="control-button bg-blue-500 col-span-3 aspect-[3/4]">
                         <img src="resources/punch.png" alt="Soco" class="h-full w-auto p-2 mx-auto">
@@ -240,9 +244,9 @@
                     <button data-player="red" data-action="punch" class="control-button bg-red-500 col-span-3 aspect-[3/4]">
                         <img src="resources/punch.png" alt="Soco" class="h-full w-auto p-2 mx-auto">
                     </button>
-                    <div class="relative col-span-2 aspect-[2/4]">
+                    <div class="relative col-span-2 aspect-[2/4] [container-type:inline-size]">
                         <button id="red-passive-penalty-btn" class="absolute -top-12 left-1/2 -translate-x-1/2 bg-yellow-500 bg-opacity-75 text-black font-bold text-xl rounded-full w-10 h-10 flex items-center justify-center opacity-0 pointer-events-none transition-opacity duration-200 z-20">+1</button>
-                        <button data-player="red" data-action="penalty" class="control-button control-button-sm bg-gray-700 w-full h-full text-white">✖</button>
+                        <button data-player="red" data-action="penalty" class="control-button control-button-sm bg-gray-700 w-full h-full text-white overflow-hidden">✖</button>
                     </div>
                 </div>
             </div>

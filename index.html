@@ -2157,8 +2157,15 @@
             });
 
             ui.closePeerModalBtn.addEventListener('click', () => {
-                // If user closes modal before connecting, revert the toggle
-                if (!peerState.connected) {
+                let hasConnections = false;
+                if (peerState.isMaster) {
+                    hasConnections = peerState.peer2Joined || (peerState.activeScreens && peerState.activeScreens > 0);
+                } else if (peerState.connected) {
+                    hasConnections = true;
+                }
+                
+                // If user closes modal before actually connecting to anyone, revert the toggle
+                if (!peerState.connected || (peerState.isMaster && !hasConnections)) {
                     leavePeerSession();
                 }
                 ui.peerConnectModal.classList.add('hidden');

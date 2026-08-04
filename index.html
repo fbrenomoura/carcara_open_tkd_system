@@ -79,6 +79,11 @@
             bottom: 2rem !important;
         }
 
+        /* Estilos para os indicadores de faltas */
+        #blue-penalties, #red-penalties {
+            filter: brightness(0) invert(1);
+        }
+
         /* Estilo base para os botões de controle */
         .control-button {
             transition: all 0.2s ease-in-out;
@@ -1375,7 +1380,7 @@
                     ...state,
                     isRoundOver: true,
                     roundWins: { ...state.roundWins, [winner]: state.roundWins[winner] + 1 },
-                    lastWinnerMessage: `${winner === 'blue' ? 'Azul' : 'Vermelho'} venceu o Round ${state.round}!`,
+                    lastWinnerMessage: `${winner === 'blue' ? 'Azul' : 'Vermelho'} Ganhou`,
                     timer: {...state.timer, isRunning: false},
                     interval: {...state.interval, isRunning: true, currentTime: state.interval.duration }
                 };
@@ -1487,7 +1492,7 @@
                 newState.gameLog = [...state.gameLog, { time: formatTime(state.timer.initialTime - state.timer.currentTime), round: state.round, event: 'Fim de Round', detail: `Tempo esgotado` }];
                 
                 newState.roundWins[roundWinner]++;
-                newState.lastWinnerMessage = `${roundWinner === 'blue' ? 'Azul' : 'Vermelho'} venceu Round ${state.round}!`;
+                newState.lastWinnerMessage = `${roundWinner === 'blue' ? 'Azul' : 'Vermelho'} Ganhou`;
                 
                 newState.gameLog = [...state.gameLog, { time: formatTime(state.timer.initialTime - state.timer.currentTime), round: state.round, event: 'Resultado do Round', detail: newState.lastWinnerMessage }];
                 

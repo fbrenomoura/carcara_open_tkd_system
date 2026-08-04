@@ -9,8 +9,9 @@
     <meta name="theme-color" content="#b91c1c">
     <title>COTS</title>
     <link rel="manifest" href="manifest.json">
-    <link rel="icon" type="image/png" href="resources/icon-512.png">
-    <link rel="apple-touch-icon" href="resources/icon-512.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="resources/icon-192.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="resources/icon-512.png">
+    <link rel="apple-touch-icon" href="resources/icon-192.png">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -50,14 +51,14 @@
         
         /* Estilo para o placar, com tamanho de fonte responsivo */
         .score-display {
-            font-size: clamp(6.8rem, min(40vw, 54vh), 32rem);
+            font-size: clamp(7.5rem, min(42vw, 56vh), 34rem);
             line-height: 0.85;
             font-weight: 900;
             transition: font-size 0.2s ease;
         }
 
         .score-display.score-double-digit {
-            font-size: clamp(5rem, min(24vw, 42vh), 22rem);
+            font-size: clamp(5.4rem, min(25vw, 44vh), 23rem);
         }
 
         /* Estilos específicos para o modo Tela (Espectador) */
@@ -66,12 +67,12 @@
         }
         
         body.screen-mode .score-display {
-            font-size: clamp(6.8rem, min(37vw, 64vh), 27rem);
+            font-size: clamp(7.5rem, min(39vw, 66vh), 28rem);
             font-variant-numeric: tabular-nums;
         }
 
         body.screen-mode .score-display.score-double-digit {
-            font-size: clamp(5rem, min(22vw, 48vh), 20rem);
+            font-size: clamp(5.4rem, min(23vw, 50vh), 21rem);
         }
         
         body.screen-mode #blue-hit-indicator,

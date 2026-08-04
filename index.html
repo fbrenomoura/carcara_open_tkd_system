@@ -51,14 +51,14 @@
         
         /* Estilo para o placar, com tamanho de fonte responsivo */
         .score-display {
-            font-size: clamp(7.5rem, min(42vw, 56vh), 34rem);
+            font-size: clamp(8rem, min(44vw, 58vh), 35rem);
             line-height: 0.85;
             font-weight: 900;
             transition: font-size 0.2s ease;
         }
 
         .score-display.score-double-digit {
-            font-size: clamp(5.4rem, min(25vw, 44vh), 23rem);
+            font-size: clamp(5.8rem, min(26vw, 46vh), 24rem);
         }
 
         /* Estilos específicos para o modo Tela (Espectador) */
@@ -67,12 +67,12 @@
         }
         
         body.screen-mode .score-display {
-            font-size: clamp(7.5rem, min(39vw, 66vh), 28rem);
+            font-size: clamp(8rem, min(41vw, 68vh), 30rem);
             font-variant-numeric: tabular-nums;
         }
 
         body.screen-mode .score-display.score-double-digit {
-            font-size: clamp(5.4rem, min(23vw, 50vh), 21rem);
+            font-size: clamp(5.8rem, min(24vw, 52vh), 22rem);
         }
         
         body.screen-mode #blue-hit-indicator,
@@ -191,7 +191,7 @@
             <div id="blue-player-area" class="w-1/2 h-full bg-blue-700 flex flex-col justify-end p-2 md:p-4 pt-16 md:pt-20 relative">
                 <div id="blue-round-wins" class="absolute top-14 md:top-16 left-4 text-3xl md:text-4xl transition-all duration-300 z-50"></div>
                 <div id="blue-hit-indicator" class="absolute bottom-32 md:bottom-40 left-4 md:left-8 flex gap-2 z-30"></div>
-                <div class="flex-grow flex flex-col items-center justify-center">
+                <div class="flex-grow flex flex-col items-center justify-center -mt-3 md:-mt-5">
                     <div class="flex items-center justify-center relative w-full pt-4 md:pt-8">
                         <div class="manual-adjust-controls absolute left-2 md:left-4 top-1/2 -translate-y-1/2 hidden"><button data-player="blue" data-adjust="minus" class="bg-red-500 hover:bg-red-600">-</button></div>
                         <span id="score-blue" class="score-display text-blue-200">0</span>
@@ -239,7 +239,7 @@
             <div id="red-player-area" class="w-1/2 h-full bg-red-700 flex flex-col justify-end p-2 md:p-4 pt-16 md:pt-20 relative">
                 <div id="red-round-wins" class="absolute top-14 md:top-16 right-4 text-3xl md:text-4xl transition-all duration-300 z-50"></div>
                 <div id="red-hit-indicator" class="absolute bottom-32 md:bottom-40 right-4 md:right-8 flex gap-2 z-30"></div>
-                <div class="flex-grow flex flex-col items-center justify-center">
+                <div class="flex-grow flex flex-col items-center justify-center -mt-3 md:-mt-5">
                     <div class="flex items-center justify-center relative w-full pt-4 md:pt-8">
                         <div class="manual-adjust-controls absolute left-2 md:left-4 top-1/2 -translate-y-1/2 hidden"><button data-player="red" data-adjust="minus" class="bg-red-500 hover:bg-red-600">-</button></div>
                         <span id="score-red" class="score-display text-red-200">0</span>

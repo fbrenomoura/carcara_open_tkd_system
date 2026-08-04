@@ -51,14 +51,14 @@
         
         /* Estilo para o placar, com tamanho de fonte responsivo */
         .score-display {
-            font-size: clamp(8rem, min(44vw, 58vh), 35rem);
+            font-size: clamp(8.5rem, min(46vw, 60vh), 36rem);
             line-height: 0.85;
             font-weight: 900;
             transition: font-size 0.2s ease;
         }
 
         .score-display.score-double-digit {
-            font-size: clamp(5.8rem, min(26vw, 46vh), 24rem);
+            font-size: clamp(6.2rem, min(27vw, 48vh), 25rem);
         }
 
         /* Estilos específicos para o modo Tela (Espectador) */
@@ -67,12 +67,12 @@
         }
         
         body.screen-mode .score-display {
-            font-size: clamp(8rem, min(41vw, 68vh), 30rem);
+            font-size: clamp(8.5rem, min(43vw, 70vh), 32rem);
             font-variant-numeric: tabular-nums;
         }
 
         body.screen-mode .score-display.score-double-digit {
-            font-size: clamp(5.8rem, min(24vw, 52vh), 22rem);
+            font-size: clamp(6.2rem, min(25vw, 54vh), 23rem);
         }
         
         body.screen-mode #blue-hit-indicator,
@@ -190,14 +190,15 @@
             <!-- Jogador Azul (Esquerda) -->
             <div id="blue-player-area" class="w-1/2 h-full bg-blue-700 flex flex-col justify-end p-2 md:p-4 pt-16 md:pt-20 relative">
                 <div id="blue-round-wins" class="absolute top-14 md:top-16 left-4 text-3xl md:text-4xl transition-all duration-300 z-50"></div>
+                <div id="blue-athlete-name" class="athlete-name absolute top-14 md:top-16 left-1/2 -translate-x-1/2 text-xl md:text-2xl font-bold transition-all duration-300 z-50 text-blue-100 cursor-pointer select-none">AZUL</div>
                 <div id="blue-hit-indicator" class="absolute bottom-32 md:bottom-40 left-4 md:left-8 flex gap-2 z-30"></div>
+                <div id="blue-penalties" class="absolute bottom-28 md:bottom-36 left-4 md:left-6 flex flex-col gap-0.5 text-2xl z-40"></div>
                 <div class="flex-grow flex flex-col items-center justify-center -mt-3 md:-mt-5">
                     <div class="flex items-center justify-center relative w-full pt-4 md:pt-8">
                         <div class="manual-adjust-controls absolute left-2 md:left-4 top-1/2 -translate-y-1/2 hidden"><button data-player="blue" data-adjust="minus" class="bg-red-500 hover:bg-red-600">-</button></div>
                         <span id="score-blue" class="score-display text-blue-200">0</span>
                         <div class="manual-adjust-controls absolute right-2 md:right-4 top-1/2 -translate-y-1/2 hidden"><button data-player="blue" data-adjust="plus" class="bg-green-500 hover:bg-green-600">+</button></div>
                     </div>
-                    <div id="blue-penalties" class="text-2xl h-8"></div>
                 </div>
                 <!-- Grid com 11 colunas para garantir o tamanho correto dos botões sem o botão de Bônus -->
                 <div class="grid grid-cols-11 gap-1 md:gap-2 relative action-grid">
@@ -238,14 +239,15 @@
             <!-- Jogador Vermelho (Direita) -->
             <div id="red-player-area" class="w-1/2 h-full bg-red-700 flex flex-col justify-end p-2 md:p-4 pt-16 md:pt-20 relative">
                 <div id="red-round-wins" class="absolute top-14 md:top-16 right-4 text-3xl md:text-4xl transition-all duration-300 z-50"></div>
+                <div id="red-athlete-name" class="athlete-name absolute top-14 md:top-16 left-1/2 -translate-x-1/2 text-xl md:text-2xl font-bold transition-all duration-300 z-50 text-red-100 cursor-pointer select-none">VERMELHO</div>
                 <div id="red-hit-indicator" class="absolute bottom-32 md:bottom-40 right-4 md:right-8 flex gap-2 z-30"></div>
+                <div id="red-penalties" class="absolute bottom-28 md:bottom-36 right-4 md:right-6 flex flex-col items-end gap-0.5 text-2xl z-40"></div>
                 <div class="flex-grow flex flex-col items-center justify-center -mt-3 md:-mt-5">
                     <div class="flex items-center justify-center relative w-full pt-4 md:pt-8">
                         <div class="manual-adjust-controls absolute left-2 md:left-4 top-1/2 -translate-y-1/2 hidden"><button data-player="red" data-adjust="minus" class="bg-red-500 hover:bg-red-600">-</button></div>
                         <span id="score-red" class="score-display text-red-200">0</span>
                         <div class="manual-adjust-controls absolute right-2 md:right-4 top-1/2 -translate-y-1/2 hidden"><button data-player="red" data-adjust="plus" class="bg-green-500 hover:bg-green-600">+</button></div>
                     </div>
-                    <div id="red-penalties" class="text-2xl h-8"></div>
                 </div>
                 <!-- Grid com 11 colunas para garantir o tamanho correto dos botões sem o botão de Bônus -->
                 <div class="grid grid-cols-11 gap-1 md:gap-2 relative action-grid">
@@ -485,6 +487,8 @@
                 scoreRed: document.getElementById('score-red'),
                 blueRoundWins: document.getElementById('blue-round-wins'),
                 redRoundWins: document.getElementById('red-round-wins'),
+                blueAthleteName: document.getElementById('blue-athlete-name'),
+                redAthleteName: document.getElementById('red-athlete-name'),
                 bluePenalties: document.getElementById('blue-penalties'),
                 redPenalties: document.getElementById('red-penalties'),
                 timerDisplay: document.getElementById('timer-display'),
@@ -1221,7 +1225,8 @@
                 gameStarted: false,
                 manualAdjustMode: false,
                 lastWinnerMessage: "",
-                finalWinnerData: null 
+                finalWinnerData: null,
+                athleteNames: { blue: "AZUL", red: "VERMELHO" }
             });
             
             function updateControlPermissions() {
@@ -1251,6 +1256,7 @@
                 updateScores();
                 updateRoundWins();
                 updatePenaltiesDisplay();
+                updateAthleteNamesDisplay();
                 updateTimerDisplay();
                 updateRoundDisplay();
                 
@@ -1341,6 +1347,10 @@
                     ui.blueRoundWins.classList.add('top-4', 'md:top-6');
                     ui.redRoundWins.classList.remove('top-14', 'md:top-16');
                     ui.redRoundWins.classList.add('top-4', 'md:top-6');
+                    ui.blueAthleteName.classList.remove('top-14', 'md:top-16');
+                    ui.blueAthleteName.classList.add('top-4', 'md:top-6');
+                    ui.redAthleteName.classList.remove('top-14', 'md:top-16');
+                    ui.redAthleteName.classList.add('top-4', 'md:top-6');
                 } else {
                     ui.appHeader.classList.remove('bg-transparent');
                     ui.appHeader.classList.add('bg-gray-900', 'shadow-lg');
@@ -1352,6 +1362,10 @@
                     ui.blueRoundWins.classList.add('top-14', 'md:top-16');
                     ui.redRoundWins.classList.remove('top-4', 'md:top-6');
                     ui.redRoundWins.classList.add('top-14', 'md:top-16');
+                    ui.blueAthleteName.classList.remove('top-4', 'md:top-6');
+                    ui.blueAthleteName.classList.add('top-14', 'md:top-16');
+                    ui.redAthleteName.classList.remove('top-4', 'md:top-6');
+                    ui.redAthleteName.classList.add('top-14', 'md:top-16');
                 }
             }
 
@@ -1362,7 +1376,42 @@
                 ui.scoreRed.classList.toggle('score-double-digit', Math.abs(state.scores.red) >= 10);
             };
             const updateRoundWins = () => { ui.blueRoundWins.innerHTML = '🏆'.repeat(state.roundWins.blue); ui.redRoundWins.innerHTML = '🏆'.repeat(state.roundWins.red); };
-            const updatePenaltiesDisplay = () => { ui.bluePenalties.innerHTML = '❌'.repeat(state.penalties.blue); ui.redPenalties.innerHTML = '❌'.repeat(state.penalties.red); };
+            const updatePenaltiesDisplay = () => { 
+                ui.bluePenalties.innerHTML = Array(state.penalties.blue).fill('<div>❌</div>').join(''); 
+                ui.redPenalties.innerHTML = Array(state.penalties.red).fill('<div>❌</div>').join(''); 
+            };
+            const updateAthleteNamesDisplay = () => {
+                const names = state.athleteNames || { blue: "AZUL", red: "VERMELHO" };
+                const blueName = names.blue || "AZUL";
+                const redName = names.red || "VERMELHO";
+
+                ui.blueAthleteName.textContent = blueName;
+                ui.redAthleteName.textContent = redName;
+
+                if (state.gameStarted) {
+                    if (blueName.trim().toUpperCase() === "AZUL") {
+                        ui.blueAthleteName.classList.add('hidden');
+                    } else {
+                        ui.blueAthleteName.classList.remove('hidden');
+                    }
+                    if (redName.trim().toUpperCase() === "VERMELHO") {
+                        ui.redAthleteName.classList.add('hidden');
+                    } else {
+                        ui.redAthleteName.classList.remove('hidden');
+                    }
+                    ui.blueAthleteName.title = "";
+                    ui.redAthleteName.title = "";
+                    ui.blueAthleteName.classList.remove('hover:underline');
+                    ui.redAthleteName.classList.remove('hover:underline');
+                } else {
+                    ui.blueAthleteName.classList.remove('hidden');
+                    ui.redAthleteName.classList.remove('hidden');
+                    ui.blueAthleteName.title = "Clique para editar o nome";
+                    ui.redAthleteName.title = "Clique para editar o nome";
+                    ui.blueAthleteName.classList.add('hover:underline');
+                    ui.redAthleteName.classList.add('hover:underline');
+                }
+            };
             const formatTime = (s) => `${String(Math.floor(s/60)).padStart(2,'0')}:${String(s%60).padStart(2,'0')}`;
             const updateTimerDisplay = () => { ui.timerDisplay.textContent = formatTime(state.timer.currentTime); };
             const updateRoundDisplay = () => { ui.roundDisplay.textContent = state.isGameOver ? 'FIM DE JOGO' : `ROUND ${state.round}`; };
@@ -2170,6 +2219,28 @@
                     manualAdjustScore(player, amount);
                 });
             });
+
+            const setupAthleteNameEdit = (player) => {
+                if (state.gameStarted) return;
+                const currentName = (state.athleteNames && state.athleteNames[player]) ? state.athleteNames[player] : (player === 'blue' ? 'AZUL' : 'VERMELHO');
+                const promptMsg = player === 'blue' ? 'Digite o nome do atleta Azul:' : 'Digite o nome do atleta Vermelho:';
+                const newName = prompt(promptMsg, currentName);
+                if (newName !== null) {
+                    const trimmed = newName.trim();
+                    const finalName = trimmed !== '' ? trimmed : (player === 'blue' ? 'AZUL' : 'VERMELHO');
+                    const newState = {
+                        ...state,
+                        athleteNames: {
+                            ...(state.athleteNames || { blue: "AZUL", red: "VERMELHO" }),
+                            [player]: finalName
+                        }
+                    };
+                    updateSharedState(newState);
+                }
+            };
+
+            ui.blueAthleteName.addEventListener('click', () => setupAthleteNameEdit('blue'));
+            ui.redAthleteName.addEventListener('click', () => setupAthleteNameEdit('red'));
 
              // --- Event Listeners para Conexão de Pares ---
             ui.peerModeToggle.addEventListener('change', (e) => {

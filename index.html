@@ -167,7 +167,7 @@
     <div id="app-container" class="flex flex-col h-screen">
         <!-- Cabeçalho -->
         <header id="app-header" class="absolute top-0 w-full z-50 text-center py-2 bg-gray-900 shadow-lg flex items-center justify-center flex-shrink-0 transition-colors duration-300">
-            <div class="absolute top-1/2 -translate-y-1/2 left-4 flex items-center space-x-4">
+            <div class="absolute top-1/2 -translate-y-1/2 left-4 flex items-center space-x-2 md:space-x-3">
                 <button id="help-btn" class="bg-gray-600 hover:bg-gray-500 text-white font-bold h-10 w-10 rounded-full text-xl shadow-md transition-all duration-300 transform active:scale-95">?</button>
                  <!-- Chave seletora para conectar pares -->
                 <div id="peer-mode-container" class="flex items-center space-x-2">
@@ -178,12 +178,14 @@
                     <span id="peer-status-label" class="text-sm font-semibold text-gray-300">OFF</span>
                 </div>
                 <button id="restart-btn" class="hidden bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded text-xs md:text-sm shadow-md">Recomeçar</button>
+                <button id="sound-toggle-btn" class="bg-gray-600 hover:bg-gray-500 text-white font-bold h-10 w-10 rounded-full text-xl shadow-md transition-all duration-300 transform active:scale-95 flex items-center justify-center select-none" title="Ativar/Desativar Som">🔇</button>
             </div>
             <h1 class="text-xl md:text-3xl font-bold tracking-wider transition-opacity duration-300">CARCARÁ OPEN TKD SYSTEM</h1>
             <div class="absolute top-1/2 -translate-y-1/2 right-4 flex items-center space-x-2">
                 <button id="fullscreen-btn" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded text-xs md:text-sm shadow-md transition-all duration-300 transform active:scale-95">Tela Cheia</button>
             </div>
         </header>
+        <audio id="point-audio" src="resources/point.wav" preload="auto"></audio>
 
         <!-- Conteúdo Principal -->
         <main class="flex-grow flex w-full h-screen">
@@ -466,7 +468,7 @@
     <!-- Modal para editar nome do atleta -->
     <div id="athlete-name-modal" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center hidden z-50 p-4">
         <div class="bg-gray-700 p-6 md:p-8 rounded-lg shadow-xl text-center max-w-sm w-full max-h-[95vh] overflow-y-auto relative">
-            <h2 id="athlete-modal-title" class="text-2xl mb-4 font-bold">Editar Nome do Atleta</h2>
+            <h2 id="athlete-modal-title" class="text-2xl mb-4 font-bold">Nome (Azul)</h2>
             <input type="text" id="athlete-name-input" maxlength="20" class="w-full h-12 text-xl px-4 text-center bg-gray-800 text-white rounded border border-gray-600 focus:outline-none focus:border-blue-500 mb-6" placeholder="Nome do atleta">
             <div class="flex justify-center space-x-4">
                 <button id="cancel-athlete-name-btn" class="bg-gray-500 px-6 py-2.5 rounded-lg text-base font-bold hover:bg-gray-600 active:scale-95 transition-all">Cancelar</button>
@@ -524,6 +526,8 @@
                 athleteNameInput: document.getElementById('athlete-name-input'),
                 cancelAthleteNameBtn: document.getElementById('cancel-athlete-name-btn'),
                 saveAthleteNameBtn: document.getElementById('save-athlete-name-btn'),
+                soundToggleBtn: document.getElementById('sound-toggle-btn'),
+                pointAudio: document.getElementById('point-audio'),
                 setTimeBtn: document.getElementById('set-time-btn'),
                 cancelTimeBtn: document.getElementById('cancel-time-btn'),
                 bluePassiveBtn: document.getElementById('blue-passive-penalty-btn'),
@@ -1362,6 +1366,7 @@
                     document.getElementById('fullscreen-btn').classList.add('opacity-0', 'pointer-events-none');
                     ui.appHeader.querySelector('h1').classList.add('opacity-0', 'pointer-events-none');
                     document.getElementById('peer-mode-container').classList.add('opacity-0', 'pointer-events-none');
+                    ui.soundToggleBtn.classList.add('opacity-0', 'pointer-events-none');
                     ui.blueRoundWins.classList.remove('top-14', 'md:top-16');
                     ui.blueRoundWins.classList.add('top-4', 'md:top-6');
                     ui.redRoundWins.classList.remove('top-14', 'md:top-16');
@@ -1380,6 +1385,7 @@
                     document.getElementById('fullscreen-btn').classList.remove('opacity-0', 'pointer-events-none');
                     ui.appHeader.querySelector('h1').classList.remove('opacity-0', 'pointer-events-none');
                     document.getElementById('peer-mode-container').classList.remove('opacity-0', 'pointer-events-none');
+                    ui.soundToggleBtn.classList.remove('opacity-0', 'pointer-events-none');
                     ui.blueRoundWins.classList.remove('top-4', 'md:top-6');
                     ui.blueRoundWins.classList.add('top-14', 'md:top-16');
                     ui.redRoundWins.classList.remove('top-4', 'md:top-6');
@@ -1875,6 +1881,14 @@
                 }
             }
             
+            let soundEnabled = false;
+            const playPointSound = () => {
+                if (soundEnabled && ui.pointAudio) {
+                    ui.pointAudio.currentTime = 0;
+                    ui.pointAudio.play().catch(e => console.log('Audio play error:', e));
+                }
+            };
+
             const handleScore = (player, points, type, button, fromPeer = false) => {
                 if (state.isRoundOver || state.isGameOver) return;
                 
@@ -1884,6 +1898,7 @@
                     return;
                 }
                 
+                playPointSound();
                 triggerVibration(100);
                 if (button) triggerVisualFeedback(button, 'add');
                 
@@ -2251,7 +2266,7 @@
                 if (state.gameStarted) return;
                 editingAthletePlayer = player;
                 const currentName = (state.athleteNames && state.athleteNames[player]) ? state.athleteNames[player] : (player === 'blue' ? 'AZUL' : 'VERMELHO');
-                ui.athleteModalTitle.textContent = player === 'blue' ? 'Editar Nome do Atleta (Azul)' : 'Editar Nome do Atleta (Vermelho)';
+                ui.athleteModalTitle.textContent = player === 'blue' ? 'Nome (Azul)' : 'Nome (Vermelho)';
                 ui.athleteNameInput.value = currentName;
                 ui.athleteNameModal.classList.remove('hidden');
                 setTimeout(() => ui.athleteNameInput.select(), 50);
@@ -2285,6 +2300,23 @@
             ui.athleteNameInput.addEventListener('keydown', (e) => {
                 if (e.key === 'Enter') saveAthleteName();
                 if (e.key === 'Escape') closeAthleteNameModal();
+            });
+
+            ui.soundToggleBtn.addEventListener('click', () => {
+                soundEnabled = !soundEnabled;
+                if (soundEnabled) {
+                    ui.soundToggleBtn.textContent = '🔊';
+                    ui.soundToggleBtn.classList.remove('bg-gray-600', 'hover:bg-gray-500');
+                    ui.soundToggleBtn.classList.add('bg-green-600', 'hover:bg-green-500');
+                    ui.pointAudio.play().then(() => {
+                        ui.pointAudio.pause();
+                        ui.pointAudio.currentTime = 0;
+                    }).catch(() => {});
+                } else {
+                    ui.soundToggleBtn.textContent = '🔇';
+                    ui.soundToggleBtn.classList.remove('bg-green-600', 'hover:bg-green-500');
+                    ui.soundToggleBtn.classList.add('bg-gray-600', 'hover:bg-gray-500');
+                }
             });
 
              // --- Event Listeners para Conexão de Pares ---

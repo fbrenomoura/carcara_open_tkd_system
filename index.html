@@ -4,7 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <title>Placar de Taekwondo</title>
+    <meta name="apple-mobile-web-app-title" content="COTS">
+    <meta name="application-name" content="COTS">
+    <meta name="theme-color" content="#1f2937">
+    <title>COTS</title>
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" type="image/png" href="resources/chest.png">
+    <link rel="apple-touch-icon" href="resources/chest.png">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -44,10 +50,14 @@
         
         /* Estilo para o placar, com tamanho de fonte responsivo */
         .score-display {
-            font-size: clamp(8rem, min(42vw, 60vh), 35rem);
+            font-size: clamp(6rem, min(38vw, 50vh), 30rem);
             line-height: 0.85;
             font-weight: 900;
-            transition: font-size 0.3s ease;
+            transition: font-size 0.2s ease;
+        }
+
+        .score-display.score-double-digit {
+            font-size: clamp(4.5rem, min(22vw, 38vh), 20rem);
         }
 
         /* Estilos específicos para o modo Tela (Espectador) */
@@ -56,8 +66,12 @@
         }
         
         body.screen-mode .score-display {
-            font-size: clamp(8rem, min(38vw, 70vh), 30rem);
+            font-size: clamp(6rem, min(35vw, 60vh), 25rem);
             font-variant-numeric: tabular-nums;
+        }
+
+        body.screen-mode .score-display.score-double-digit {
+            font-size: clamp(4.5rem, min(20vw, 45vh), 18rem);
         }
         
         body.screen-mode #blue-hit-indicator,
@@ -1335,7 +1349,12 @@
                 }
             }
 
-            const updateScores = () => { ui.scoreBlue.textContent = state.scores.blue; ui.scoreRed.textContent = state.scores.red; };
+            const updateScores = () => { 
+                ui.scoreBlue.textContent = state.scores.blue; 
+                ui.scoreRed.textContent = state.scores.red; 
+                ui.scoreBlue.classList.toggle('score-double-digit', Math.abs(state.scores.blue) >= 10);
+                ui.scoreRed.classList.toggle('score-double-digit', Math.abs(state.scores.red) >= 10);
+            };
             const updateRoundWins = () => { ui.blueRoundWins.innerHTML = '🏆'.repeat(state.roundWins.blue); ui.redRoundWins.innerHTML = '🏆'.repeat(state.roundWins.red); };
             const updatePenaltiesDisplay = () => { ui.bluePenalties.innerHTML = '❌'.repeat(state.penalties.blue); ui.redPenalties.innerHTML = '❌'.repeat(state.penalties.red); };
             const formatTime = (s) => `${String(Math.floor(s/60)).padStart(2,'0')}:${String(s%60).padStart(2,'0')}`;

@@ -192,8 +192,8 @@
                 <div id="blue-round-wins" class="absolute top-14 md:top-16 left-4 text-3xl md:text-4xl transition-all duration-300 z-50"></div>
                 <div id="blue-athlete-name" class="athlete-name absolute top-14 md:top-16 left-1/2 -translate-x-1/2 text-xl md:text-2xl font-bold transition-all duration-300 z-50 text-blue-100 cursor-pointer select-none">AZUL</div>
                 <div id="blue-hit-indicator" class="absolute bottom-32 md:bottom-40 left-4 md:left-8 flex gap-2 z-30"></div>
-                <div id="blue-penalties" class="absolute bottom-28 md:bottom-36 left-4 md:left-6 flex flex-col gap-0.5 text-2xl z-40"></div>
-                <div class="flex-grow flex flex-col items-center justify-center -mt-3 md:-mt-5">
+                <div id="blue-penalties" class="absolute bottom-28 md:bottom-36 left-4 md:left-6 flex flex-col gap-0.5 text-lg md:text-xl z-40"></div>
+                <div id="blue-score-container" class="flex-grow flex flex-col items-center justify-center -mt-3 md:-mt-5 transition-transform duration-300">
                     <div class="flex items-center justify-center relative w-full pt-4 md:pt-8">
                         <div class="manual-adjust-controls absolute left-2 md:left-4 top-1/2 -translate-y-1/2 hidden"><button data-player="blue" data-adjust="minus" class="bg-red-500 hover:bg-red-600">-</button></div>
                         <span id="score-blue" class="score-display text-blue-200">0</span>
@@ -241,8 +241,8 @@
                 <div id="red-round-wins" class="absolute top-14 md:top-16 right-4 text-3xl md:text-4xl transition-all duration-300 z-50"></div>
                 <div id="red-athlete-name" class="athlete-name absolute top-14 md:top-16 left-1/2 -translate-x-1/2 text-xl md:text-2xl font-bold transition-all duration-300 z-50 text-red-100 cursor-pointer select-none">VERMELHO</div>
                 <div id="red-hit-indicator" class="absolute bottom-32 md:bottom-40 right-4 md:right-8 flex gap-2 z-30"></div>
-                <div id="red-penalties" class="absolute bottom-28 md:bottom-36 right-4 md:right-6 flex flex-col items-end gap-0.5 text-2xl z-40"></div>
-                <div class="flex-grow flex flex-col items-center justify-center -mt-3 md:-mt-5">
+                <div id="red-penalties" class="absolute bottom-28 md:bottom-36 right-4 md:right-6 flex flex-col items-end gap-0.5 text-lg md:text-xl z-40"></div>
+                <div id="red-score-container" class="flex-grow flex flex-col items-center justify-center -mt-3 md:-mt-5 transition-transform duration-300">
                     <div class="flex items-center justify-center relative w-full pt-4 md:pt-8">
                         <div class="manual-adjust-controls absolute left-2 md:left-4 top-1/2 -translate-y-1/2 hidden"><button data-player="red" data-adjust="minus" class="bg-red-500 hover:bg-red-600">-</button></div>
                         <span id="score-red" class="score-display text-red-200">0</span>
@@ -463,6 +463,18 @@
         </div>
     </div>
 
+    <!-- Modal para editar nome do atleta -->
+    <div id="athlete-name-modal" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center hidden z-50 p-4">
+        <div class="bg-gray-700 p-6 md:p-8 rounded-lg shadow-xl text-center max-w-sm w-full max-h-[95vh] overflow-y-auto relative">
+            <h2 id="athlete-modal-title" class="text-2xl mb-4 font-bold">Editar Nome do Atleta</h2>
+            <input type="text" id="athlete-name-input" maxlength="20" class="w-full h-12 text-xl px-4 text-center bg-gray-800 text-white rounded border border-gray-600 focus:outline-none focus:border-blue-500 mb-6" placeholder="Nome do atleta">
+            <div class="flex justify-center space-x-4">
+                <button id="cancel-athlete-name-btn" class="bg-gray-500 px-6 py-2.5 rounded-lg text-base font-bold hover:bg-gray-600 active:scale-95 transition-all">Cancelar</button>
+                <button id="save-athlete-name-btn" class="bg-blue-600 px-6 py-2.5 rounded-lg text-base font-bold hover:bg-blue-700 active:scale-95 transition-all">Salvar</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         // Adicionando a configuração customizada do Tailwind para 13 colunas no grid
         tailwind.config = {
@@ -489,6 +501,8 @@
                 redRoundWins: document.getElementById('red-round-wins'),
                 blueAthleteName: document.getElementById('blue-athlete-name'),
                 redAthleteName: document.getElementById('red-athlete-name'),
+                blueScoreContainer: document.getElementById('blue-score-container'),
+                redScoreContainer: document.getElementById('red-score-container'),
                 bluePenalties: document.getElementById('blue-penalties'),
                 redPenalties: document.getElementById('red-penalties'),
                 timerDisplay: document.getElementById('timer-display'),
@@ -505,6 +519,11 @@
                 restartConfirmModal: document.getElementById('restart-confirm-modal'),
                 iosFullscreenModal: document.getElementById('ios-fullscreen-modal'),
                 closeIosFullscreenModalBtn: document.getElementById('close-ios-fullscreen-modal-btn'),
+                athleteNameModal: document.getElementById('athlete-name-modal'),
+                athleteModalTitle: document.getElementById('athlete-modal-title'),
+                athleteNameInput: document.getElementById('athlete-name-input'),
+                cancelAthleteNameBtn: document.getElementById('cancel-athlete-name-btn'),
+                saveAthleteNameBtn: document.getElementById('save-athlete-name-btn'),
                 setTimeBtn: document.getElementById('set-time-btn'),
                 cancelTimeBtn: document.getElementById('cancel-time-btn'),
                 bluePassiveBtn: document.getElementById('blue-passive-penalty-btn'),
@@ -1351,6 +1370,9 @@
                     ui.blueAthleteName.classList.add('top-4', 'md:top-6');
                     ui.redAthleteName.classList.remove('top-14', 'md:top-16');
                     ui.redAthleteName.classList.add('top-4', 'md:top-6');
+
+                    ui.blueScoreContainer.classList.add('-translate-y-3', 'md:-translate-y-4');
+                    ui.redScoreContainer.classList.add('-translate-y-3', 'md:-translate-y-4');
                 } else {
                     ui.appHeader.classList.remove('bg-transparent');
                     ui.appHeader.classList.add('bg-gray-900', 'shadow-lg');
@@ -1366,6 +1388,9 @@
                     ui.blueAthleteName.classList.add('top-14', 'md:top-16');
                     ui.redAthleteName.classList.remove('top-4', 'md:top-6');
                     ui.redAthleteName.classList.add('top-14', 'md:top-16');
+
+                    ui.blueScoreContainer.classList.remove('-translate-y-3', 'md:-translate-y-4');
+                    ui.redScoreContainer.classList.remove('-translate-y-3', 'md:-translate-y-4');
                 }
             }
 
@@ -2220,27 +2245,47 @@
                 });
             });
 
-            const setupAthleteNameEdit = (player) => {
+            let editingAthletePlayer = null;
+
+            const openAthleteNameModal = (player) => {
                 if (state.gameStarted) return;
+                editingAthletePlayer = player;
                 const currentName = (state.athleteNames && state.athleteNames[player]) ? state.athleteNames[player] : (player === 'blue' ? 'AZUL' : 'VERMELHO');
-                const promptMsg = player === 'blue' ? 'Digite o nome do atleta Azul:' : 'Digite o nome do atleta Vermelho:';
-                const newName = prompt(promptMsg, currentName);
-                if (newName !== null) {
-                    const trimmed = newName.trim();
-                    const finalName = trimmed !== '' ? trimmed : (player === 'blue' ? 'AZUL' : 'VERMELHO');
-                    const newState = {
-                        ...state,
-                        athleteNames: {
-                            ...(state.athleteNames || { blue: "AZUL", red: "VERMELHO" }),
-                            [player]: finalName
-                        }
-                    };
-                    updateSharedState(newState);
-                }
+                ui.athleteModalTitle.textContent = player === 'blue' ? 'Editar Nome do Atleta (Azul)' : 'Editar Nome do Atleta (Vermelho)';
+                ui.athleteNameInput.value = currentName;
+                ui.athleteNameModal.classList.remove('hidden');
+                setTimeout(() => ui.athleteNameInput.select(), 50);
             };
 
-            ui.blueAthleteName.addEventListener('click', () => setupAthleteNameEdit('blue'));
-            ui.redAthleteName.addEventListener('click', () => setupAthleteNameEdit('red'));
+            const closeAthleteNameModal = () => {
+                ui.athleteNameModal.classList.add('hidden');
+                editingAthletePlayer = null;
+            };
+
+            const saveAthleteName = () => {
+                if (!editingAthletePlayer) return;
+                const trimmed = ui.athleteNameInput.value.trim();
+                const defaultName = editingAthletePlayer === 'blue' ? 'AZUL' : 'VERMELHO';
+                const finalName = trimmed !== '' ? trimmed : defaultName;
+                const newState = {
+                    ...state,
+                    athleteNames: {
+                        ...(state.athleteNames || { blue: "AZUL", red: "VERMELHO" }),
+                        [editingAthletePlayer]: finalName
+                    }
+                };
+                updateSharedState(newState);
+                closeAthleteNameModal();
+            };
+
+            ui.blueAthleteName.addEventListener('click', () => openAthleteNameModal('blue'));
+            ui.redAthleteName.addEventListener('click', () => openAthleteNameModal('red'));
+            ui.cancelAthleteNameBtn.addEventListener('click', closeAthleteNameModal);
+            ui.saveAthleteNameBtn.addEventListener('click', saveAthleteName);
+            ui.athleteNameInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') saveAthleteName();
+                if (e.key === 'Escape') closeAthleteNameModal();
+            });
 
              // --- Event Listeners para Conexão de Pares ---
             ui.peerModeToggle.addEventListener('change', (e) => {

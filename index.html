@@ -205,7 +205,6 @@
                 <!-- Grid com 11 colunas para garantir o tamanho correto dos botões sem o botão de Bônus -->
                 <div class="grid grid-cols-11 gap-1 md:gap-2 relative action-grid">
                     <div class="relative col-span-2 aspect-[2/4] [container-type:inline-size]">
-                        <button id="blue-passive-penalty-btn" class="absolute -top-12 left-1/2 -translate-x-1/2 bg-yellow-500 bg-opacity-75 text-black font-bold text-xl rounded-full w-10 h-10 flex items-center justify-center opacity-0 pointer-events-none transition-opacity duration-200 z-20">+1</button>
                         <button data-player="blue" data-action="penalty" class="control-button control-button-sm bg-gray-700 w-full h-full text-white overflow-hidden">✖</button>
                     </div>
                     <button data-player="blue" data-action="punch" class="control-button bg-blue-500 col-span-3 aspect-[3/4]">
@@ -269,7 +268,6 @@
                         <img src="resources/punch.png" alt="Soco" class="h-full w-auto p-2 mx-auto">
                     </button>
                     <div class="relative col-span-2 aspect-[2/4] [container-type:inline-size]">
-                        <button id="red-passive-penalty-btn" class="absolute -top-12 left-1/2 -translate-x-1/2 bg-yellow-500 bg-opacity-75 text-black font-bold text-xl rounded-full w-10 h-10 flex items-center justify-center opacity-0 pointer-events-none transition-opacity duration-200 z-20">+1</button>
                         <button data-player="red" data-action="penalty" class="control-button control-button-sm bg-gray-700 w-full h-full text-white overflow-hidden">✖</button>
                     </div>
                 </div>
@@ -477,6 +475,18 @@
         </div>
     </div>
 
+    <!-- Modal de Falta nos 10 segundos finais (Passividade/Saída) -->
+    <div id="passive-penalty-modal" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center hidden z-50 p-4">
+        <div class="bg-gray-700 p-6 md:p-8 rounded-lg shadow-xl text-center max-w-sm w-full max-h-[95vh] overflow-y-auto relative">
+            <h2 class="text-2xl font-bold mb-1">Falta por passividade?</h2>
+            <p class="text-xs text-gray-300 mb-6">Saída da área de combate, ou passividade</p>
+            <div class="flex flex-col space-y-3">
+                <button id="passive-penalty-yes-btn" class="bg-yellow-600 hover:bg-yellow-500 text-white font-bold py-3 px-4 rounded-lg text-base shadow-md transition-all active:scale-95">Sim (2 pontos)</button>
+                <button id="passive-penalty-no-btn" class="bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 px-4 rounded-lg text-base shadow-md transition-all active:scale-95">Não (1 ponto)</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         // Adicionando a configuração customizada do Tailwind para 13 colunas no grid
         tailwind.config = {
@@ -530,8 +540,9 @@
                 pointAudio: document.getElementById('point-audio'),
                 setTimeBtn: document.getElementById('set-time-btn'),
                 cancelTimeBtn: document.getElementById('cancel-time-btn'),
-                bluePassiveBtn: document.getElementById('blue-passive-penalty-btn'),
-                redPassiveBtn: document.getElementById('red-passive-penalty-btn'),
+                passivePenaltyModal: document.getElementById('passive-penalty-modal'),
+                passivePenaltyYesBtn: document.getElementById('passive-penalty-yes-btn'),
+                passivePenaltyNoBtn: document.getElementById('passive-penalty-no-btn'),
                 blueBonusHeadBtn: document.getElementById('blue-bonus-head-btn'),
                 blueBonusTorsoBtn: document.getElementById('blue-bonus-torso-btn'),
                 redBonusHeadBtn: document.getElementById('red-bonus-head-btn'),
@@ -2013,52 +2024,41 @@
                 applyRetroactiveBonus(player);
             };
 
+            let pendingPenaltyPlayer = null;
+
             const handlePenalty = (player) => {
                 if (state.isRoundOver || state.isGameOver) return;
                 if (peerState.connected && !peerState.isMaster) return; 
 
-                const opponent = player === 'blue' ? 'red' : 'blue';
-                let newState = {...state};
-                newState.scores = {...state.scores, [opponent]: state.scores[opponent] + 1};
-                newState.penalties = {...state.penalties, [player]: state.penalties[player] + 1};
-
-                const logData = { player, event: 'Falta', detail: `+1pt para ${opponent}. Falta #${newState.penalties[player]}` };
-                newState.gameLog = [...state.gameLog, { time: formatTime(state.timer.initialTime - state.timer.currentTime), round: state.round, ...logData }];
-                
-                updateSharedState(newState);
-                checkMidRoundEndConditions();
-
-                if (state.timer.currentTime <= 10 && state.timer.isRunning) {
-                    const btn = player === 'blue' ? ui.bluePassiveBtn : ui.redPassiveBtn;
-                    btn.classList.remove('opacity-0', 'pointer-events-none');
-                    btn.classList.add('opacity-100', 'pointer-events-auto');
-                    
-                    if (passivePenaltyTimers[player]) clearTimeout(passivePenaltyTimers[player]);
-                    passivePenaltyTimers[player] = setTimeout(() => {
-                        btn.classList.remove('opacity-100', 'pointer-events-auto');
-                        btn.classList.add('opacity-0', 'pointer-events-none');
-                    }, 2000);
+                if (state.timer.currentTime <= 10) {
+                    if (state.timer.isRunning) {
+                        stopTimer();
+                    }
+                    pendingPenaltyPlayer = player;
+                    ui.passivePenaltyModal.classList.remove('hidden');
+                    return;
                 }
+
+                applyPenaltyPoints(player, 1, false);
             };
 
-            const handlePassivePenalty = (player) => {
-                if (state.isRoundOver || state.isGameOver) return;
-                const btn = player === 'blue' ? ui.bluePassiveBtn : ui.redPassiveBtn;
-                btn.classList.remove('opacity-100', 'pointer-events-auto');
-                btn.classList.add('opacity-0', 'pointer-events-none');
-                if (passivePenaltyTimers[player]) clearTimeout(passivePenaltyTimers[player]);
-
+            const applyPenaltyPoints = (player, pointsToOpponent, isPassive) => {
                 const opponent = player === 'blue' ? 'red' : 'blue';
                 let newState = {...state};
-                newState.scores = {...state.scores, [opponent]: state.scores[opponent] + 1};
-                
-                for (let i = newState.gameLog.length - 1; i >= 0; i--) {
-                    if (newState.gameLog[i].player === player && newState.gameLog[i].event === 'Falta') {
-                        newState.gameLog[i].detail = `+2pts para ${opponent}. Falta #${newState.penalties[player]} (Passividade)`;
-                        newState.gameLog[i].isPassive = true;
-                        break;
-                    }
-                }
+                newState.scores = {...state.scores, [opponent]: state.scores[opponent] + pointsToOpponent};
+                newState.penalties = {...state.penalties, [player]: state.penalties[player] + 1};
+
+                const detailMsg = isPassive 
+                    ? `+2pts para ${opponent}. Falta #${newState.penalties[player]} (Passividade/Saída)`
+                    : `+1pt para ${opponent}. Falta #${newState.penalties[player]}`;
+
+                const logData = { 
+                    player, 
+                    event: 'Falta', 
+                    detail: detailMsg,
+                    isPassive: isPassive 
+                };
+                newState.gameLog = [...state.gameLog, { time: formatTime(state.timer.initialTime - state.timer.currentTime), round: state.round, ...logData }];
                 
                 updateSharedState(newState);
                 checkMidRoundEndConditions();
@@ -2322,6 +2322,22 @@
                     ui.soundToggleBtn.classList.remove('bg-green-600', 'hover:bg-green-500');
                     ui.soundToggleBtn.classList.add('bg-gray-600', 'hover:bg-gray-500');
                 }
+            });
+
+            ui.passivePenaltyYesBtn.addEventListener('click', () => {
+                if (pendingPenaltyPlayer) {
+                    applyPenaltyPoints(pendingPenaltyPlayer, 2, true);
+                    pendingPenaltyPlayer = null;
+                }
+                ui.passivePenaltyModal.classList.add('hidden');
+            });
+
+            ui.passivePenaltyNoBtn.addEventListener('click', () => {
+                if (pendingPenaltyPlayer) {
+                    applyPenaltyPoints(pendingPenaltyPlayer, 1, false);
+                    pendingPenaltyPlayer = null;
+                }
+                ui.passivePenaltyModal.classList.add('hidden');
             });
 
              // --- Event Listeners para Conexão de Pares ---

@@ -1516,7 +1516,7 @@
                         roundWinner = result.winner;
                         conclusionReason = `Desempate: ${result.reason}`;
                     } else {
-                        if (peerState.isMaster) {
+                        if (!peerState.connected || peerState.isMaster) {
                             showSuperiorityModal();
                         }
                         return;
@@ -1531,7 +1531,11 @@
             };
 
             const applyTieBreaker = (currentState) => {
-                const getPointsFromLog = (log) => parseInt(log.detail.match(/\+(\d+)pts/)[1] || 0);
+                const getPointsFromLog = (log) => {
+                    if (!log || !log.detail) return 0;
+                    const m = log.detail.match(/\+(\d+)pts/);
+                    return m ? parseInt(m[1], 10) : 0;
+                };
                 
                 const blueSpinPoints = currentState.gameLog.filter(log => log.round === currentState.round && log.player === 'blue' && log.isSpin).reduce((sum, log) => sum + getPointsFromLog(log), 0);
                 const redSpinPoints = currentState.gameLog.filter(log => log.round === currentState.round && log.player === 'red' && log.isSpin).reduce((sum, log) => sum + getPointsFromLog(log), 0);

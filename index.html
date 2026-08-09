@@ -2200,9 +2200,6 @@
             document.addEventListener('webkitfullscreenchange', updateFullscreenButton);
             document.addEventListener('mozfullscreenchange', updateFullscreenButton);
             document.addEventListener('MSFullscreenChange', updateFullscreenButton);
-            
-            ui.bluePassiveBtn.addEventListener('click', () => handlePassivePenalty('blue'));
-            ui.redPassiveBtn.addEventListener('click', () => handlePassivePenalty('red'));
 
             ui.blueBonusHeadBtn.addEventListener('click', () => handleApplyRetroactiveBonus('blue', 'head'));
             ui.blueBonusTorsoBtn.addEventListener('click', () => handleApplyRetroactiveBonus('blue', 'torso'));

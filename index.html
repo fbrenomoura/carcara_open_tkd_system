@@ -1116,15 +1116,9 @@
             
             function updatePeerConnectionStatusUI(isConnected) {
                 ui.peerModeToggle.checked = isConnected;
+                ui.peerModeContainer.classList.toggle('hidden', peerState.isScreenMode);
                 if (isConnected) {
-                    let statusText = "Conectado";
-                    if(peerState.isScreenMode) {
-                        statusText += " (Tela)";
-                    } else if (peerState.isMaster) {
-                        statusText = `${peerState.sessionId} (A)`;
-                    } else {
-                        statusText += ' (B)';
-                    }
+                    let statusText = peerState.sessionId || "Conectado";
                     ui.peerStatusLabel.textContent = statusText;
                     ui.peerStatusLabel.classList.remove('text-gray-300');
                     ui.peerStatusLabel.classList.add('text-green-400');
@@ -1133,7 +1127,7 @@
                     ui.peerStatusLabel.classList.remove('text-green-400');
                     ui.peerStatusLabel.classList.add('text-gray-300');
                 }
-                 updateControlPermissions();
+                updateControlPermissions();
             }
 
             async function updateSharedState(newState) {
@@ -1287,6 +1281,7 @@
             function updateAllUI() {
                 if(!state) return;
                 document.body.classList.toggle('screen-mode', peerState.isScreenMode);
+                ui.peerModeContainer.classList.toggle('hidden', peerState.isScreenMode);
                 updateScores();
                 updateRoundWins();
                 updatePenaltiesDisplay();

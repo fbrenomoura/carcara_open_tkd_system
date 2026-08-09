@@ -179,7 +179,7 @@
                 </div>
                 <button id="restart-btn" class="hidden bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded text-xs md:text-sm shadow-md">Recomeçar</button>
             </div>
-            <h1 class="text-xl md:text-3xl font-bold tracking-wider transition-opacity duration-300">CARCARÁ OPEN TKD SYSTEM</h1>
+            <h1 class="text-xl md:text-3xl font-bold tracking-wider transition-opacity duration-300">CARCARÁ COTS</h1>
             <div class="absolute top-1/2 -translate-y-1/2 right-4 flex items-center space-x-2">
                 <button id="sound-toggle-btn" class="bg-gray-600 hover:bg-gray-500 text-white font-bold h-10 w-10 rounded-full text-xl shadow-md transition-all duration-300 transform active:scale-95 flex items-center justify-center select-none" title="Ativar/Desativar Som">🔇</button>
                 <button id="fullscreen-btn" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded text-xs md:text-sm shadow-md transition-all duration-300 transform active:scale-95">Tela Cheia</button>
@@ -194,7 +194,7 @@
                 <div id="blue-round-wins" class="absolute top-14 md:top-16 left-4 text-3xl md:text-4xl transition-all duration-300 z-50"></div>
                 <div id="blue-athlete-name" class="athlete-name absolute top-14 md:top-16 left-1/2 -translate-x-1/2 text-xl md:text-2xl font-bold transition-all duration-300 z-50 text-blue-100 cursor-pointer select-none">AZUL</div>
                 <div id="blue-hit-indicator" class="absolute bottom-32 md:bottom-40 left-4 md:left-8 flex gap-2 z-30"></div>
-                <div id="blue-penalties" class="absolute bottom-28 md:bottom-36 left-4 md:left-6 flex flex-col gap-0.5 text-lg md:text-xl z-40"></div>
+                <div id="blue-penalties" class="absolute top-28 md:top-32 left-4 md:left-6 flex flex-col gap-0.5 text-lg md:text-xl z-40"></div>
                 <div id="blue-score-container" class="flex-grow flex flex-col items-center justify-center -mt-3 md:-mt-5 transition-transform duration-300">
                     <div class="flex items-center justify-center relative w-full pt-4 md:pt-8">
                         <div class="manual-adjust-controls absolute left-2 md:left-4 top-1/2 -translate-y-1/2 hidden"><button data-player="blue" data-adjust="minus" class="bg-red-500 hover:bg-red-600">-</button></div>
@@ -242,7 +242,7 @@
                 <div id="red-round-wins" class="absolute top-14 md:top-16 right-4 text-3xl md:text-4xl transition-all duration-300 z-50"></div>
                 <div id="red-athlete-name" class="athlete-name absolute top-14 md:top-16 left-1/2 -translate-x-1/2 text-xl md:text-2xl font-bold transition-all duration-300 z-50 text-red-100 cursor-pointer select-none">VERMELHO</div>
                 <div id="red-hit-indicator" class="absolute bottom-32 md:bottom-40 right-4 md:right-8 flex gap-2 z-30"></div>
-                <div id="red-penalties" class="absolute bottom-28 md:bottom-36 right-4 md:right-6 flex flex-col items-end gap-0.5 text-lg md:text-xl z-40"></div>
+                <div id="red-penalties" class="absolute top-28 md:top-32 right-4 md:right-6 flex flex-col items-end gap-0.5 text-lg md:text-xl z-40"></div>
                 <div id="red-score-container" class="flex-grow flex flex-col items-center justify-center -mt-3 md:-mt-5 transition-transform duration-300">
                     <div class="flex items-center justify-center relative w-full pt-4 md:pt-8">
                         <div class="manual-adjust-controls absolute left-2 md:left-4 top-1/2 -translate-y-1/2 hidden"><button data-player="red" data-adjust="minus" class="bg-red-500 hover:bg-red-600">-</button></div>
@@ -1320,7 +1320,12 @@
                      ui.peerModeContainer.classList.remove('hidden');
                 }
                 
-                const showRestartButton = !state.timer.isRunning;
+                const hasChangesBeforeStart = state.scores.blue !== 0 || 
+                                              state.scores.red !== 0 || 
+                                              state.penalties.blue !== 0 || 
+                                              state.penalties.red !== 0 || 
+                                              (state.gameLog && state.gameLog.length > 0);
+                const showRestartButton = state.gameStarted ? !state.timer.isRunning : hasChangesBeforeStart;
                 ui.restartBtn.classList.toggle('hidden', !showRestartButton);
                 
                 const showManualAdjust = !state.timer.isRunning && !state.isRoundOver && !state.isGameOver;

@@ -175,7 +175,7 @@
                            <input type="checkbox" id="peer-mode-toggle" class="sr-only peer">
                            <div class="w-11 h-6 bg-gray-400 rounded-full peer peer-focus:ring-4 peer-focus:ring-blue-300 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
                      </label>
-                    <span id="peer-status-label" class="text-sm font-semibold text-gray-300">OFF</span>
+                    <span id="peer-status-label" class="text-sm font-semibold text-gray-300 cursor-pointer select-none" title="Clique para ver o código de conexão">OFF</span>
                 </div>
                 <button id="restart-btn" class="hidden bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded text-xs md:text-sm shadow-md">Recomeçar</button>
             </div>
@@ -1314,12 +1314,7 @@
                     ui.revertRoundBtn.classList.add('hidden');
                 }
 
-                if (state.gameStarted) {
-                     ui.peerModeContainer.classList.add('hidden');
-                } else {
-                     ui.peerModeContainer.classList.remove('hidden');
-                }
-                
+
                 const hasChangesBeforeStart = state.scores.blue !== 0 || 
                                               state.scores.red !== 0 || 
                                               state.penalties.blue !== 0 || 
@@ -2354,6 +2349,12 @@
                     createAndListenToSession();
                 } else {
                     leavePeerSession();
+                }
+            });
+
+            ui.peerStatusLabel.addEventListener('click', () => {
+                if (peerState.connected || ui.peerModeToggle.checked) {
+                    ui.peerConnectModal.classList.remove('hidden');
                 }
             });
 

@@ -1527,6 +1527,7 @@
             };
 
             const showSuperiorityModal = () => {
+                if (peerState.isScreenMode || (peerState.connected && !peerState.isMaster)) return;
                 ui.superiorityModal.classList.remove('hidden');
             };
 

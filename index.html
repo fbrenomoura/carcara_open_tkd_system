@@ -578,8 +578,8 @@
                 lostSessionCode: document.getElementById('lost-session-code'),
                 penaltyButtons: document.querySelectorAll('.control-button[data-action="penalty"]'),
                 bonusButtons: document.querySelectorAll('.control-button[data-action="bonus"]'),
-                playIcon: '<svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3l14 9-14 9V3z" /></svg>',
-                pauseIcon: '<svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 9v6m4-6v6" /></svg>'
+                playIcon: '<svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 fill-white text-white" viewBox="0 0 24 24"><path d="M8 5v14l11-7z" /></svg>',
+                pauseIcon: '<svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 fill-white text-white" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" /></svg>'
             };
 
             let state;
@@ -1320,7 +1320,7 @@
                      ui.peerModeContainer.classList.remove('hidden');
                 }
                 
-                const showRestartButton = state.gameStarted && !state.timer.isRunning;
+                const showRestartButton = !state.timer.isRunning;
                 ui.restartBtn.classList.toggle('hidden', !showRestartButton);
                 
                 const showManualAdjust = !state.timer.isRunning && !state.isRoundOver && !state.isGameOver;
@@ -1603,9 +1603,12 @@
             };
             
             const startTimer = () => {
-                if (state.timer.isRunning || state.timer.currentTime <= 0 || state.isRoundOver || state.isGameOver) return;
+                if (state.timer.isRunning || state.isRoundOver || state.isGameOver) return;
                 
                 let newState = { ...state };
+                if (newState.timer.currentTime <= 0) {
+                    newState.timer.currentTime = newState.timer.initialTime > 0 ? newState.timer.initialTime : lastConfiguredTime;
+                }
                 
                 if (state.manualAdjustMode) {
                      newState.manualAdjustMode = false;
@@ -1613,9 +1616,8 @@
                 if (state.round === 1 && !state.gameStarted) {
                     newState.gameStarted = true;
                 }
-                newState.timer = {...state.timer, isRunning: true};
-                newState.interval = {...state.interval, isRunning: false}; 
-                newState.gameLog = [...state.gameLog, { time: formatTime(state.timer.initialTime - state.timer.currentTime), round: state.round, event: 'Timer', detail: 'Iniciado' }];
+                newState.timer = {...newState.timer, isRunning: true};
+                newState.gameLog = [...state.gameLog, { time: formatTime(newState.timer.initialTime - newState.timer.currentTime), round: newState.round, event: 'Timer', detail: 'Iniciado' }];
                 
                 updateSharedState(newState);
             };
@@ -2123,7 +2125,10 @@
             };
             
             ui.playPauseBtn.addEventListener('click', () => {
-                if (state.isGameOver) return;
+                if (state.isGameOver) {
+                    resetGame();
+                    return;
+                }
                 if (state.manualAdjustMode) toggleManualAdjust();
                 if (state.isRoundOver) {
                     skipInterval();

@@ -170,7 +170,7 @@
             <div class="absolute top-1/2 -translate-y-1/2 left-4 flex items-center space-x-2 md:space-x-3">
                 <button id="help-btn" class="bg-gray-600 hover:bg-gray-500 text-white font-bold h-10 w-10 rounded-full text-xl shadow-md transition-all duration-300 transform active:scale-95">?</button>
                  <!-- Chave seletora para conectar pares -->
-                <div id="peer-mode-container" class="flex items-center space-x-2">
+                <div id="peer-mode-container" class="flex items-center space-x-2 transition-all duration-300">
                      <label for="peer-mode-toggle" class="relative inline-flex items-center cursor-pointer">
                            <input type="checkbox" id="peer-mode-toggle" class="sr-only peer">
                            <div class="w-11 h-6 bg-gray-400 rounded-full peer peer-focus:ring-4 peer-focus:ring-blue-300 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
@@ -1368,10 +1368,10 @@
                 if (state.timer.isRunning) {
                     ui.appHeader.classList.remove('bg-gray-900', 'shadow-lg');
                     ui.appHeader.classList.add('bg-transparent');
-                    document.getElementById('help-btn').classList.add('opacity-0', 'pointer-events-none');
-                    document.getElementById('fullscreen-btn').classList.add('opacity-0', 'pointer-events-none');
+                    ui.helpBtn.classList.add('opacity-0', 'pointer-events-none');
+                    ui.fullscreenBtn.classList.add('opacity-0', 'pointer-events-none');
                     ui.appHeader.querySelector('h1').classList.add('opacity-0', 'pointer-events-none');
-                    document.getElementById('peer-mode-container').classList.add('opacity-0', 'pointer-events-none');
+                    ui.peerModeContainer.classList.add('opacity-0', 'pointer-events-none');
                     ui.soundToggleBtn.classList.add('opacity-0', 'pointer-events-none');
                     ui.blueRoundWins.classList.remove('top-14', 'md:top-16');
                     ui.blueRoundWins.classList.add('top-4', 'md:top-6');
@@ -1387,10 +1387,12 @@
                 } else {
                     ui.appHeader.classList.remove('bg-transparent');
                     ui.appHeader.classList.add('bg-gray-900', 'shadow-lg');
-                    document.getElementById('help-btn').classList.remove('opacity-0', 'pointer-events-none');
-                    document.getElementById('fullscreen-btn').classList.remove('opacity-0', 'pointer-events-none');
+                    ui.helpBtn.classList.remove('opacity-0', 'pointer-events-none');
+                    ui.fullscreenBtn.classList.remove('opacity-0', 'pointer-events-none');
                     ui.appHeader.querySelector('h1').classList.remove('opacity-0', 'pointer-events-none');
-                    document.getElementById('peer-mode-container').classList.remove('opacity-0', 'pointer-events-none');
+                    if (!peerState.isScreenMode) {
+                        ui.peerModeContainer.classList.remove('hidden', 'opacity-0', 'pointer-events-none');
+                    }
                     ui.soundToggleBtn.classList.remove('opacity-0', 'pointer-events-none');
                     ui.blueRoundWins.classList.remove('top-4', 'md:top-6');
                     ui.blueRoundWins.classList.add('top-14', 'md:top-16');
